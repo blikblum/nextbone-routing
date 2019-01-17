@@ -81,7 +81,7 @@ describe('Render', () => {
         return ParentView
       }
 
-      elOptions () {
+      properties () {
         return {
           x: 3,
           y: 'a'
@@ -107,7 +107,7 @@ describe('Render', () => {
       route('root2', { component: ParentView, outlet: false }, function () {
         route('leaf2', { class: LeafRoute, component: leafTag })
       })
-      route('root3', { class: RootRoute, elOptions: { a: 'b', c: 1 } })
+      route('root3', { class: RootRoute, properties: { a: 'b', c: 1 } })
     }
     router.map(routes)
     router.listen()
@@ -315,14 +315,14 @@ describe('Render', () => {
       })
     })
 
-    it('should assign elOptions defined in route class to el', function () {
+    it('should assign properties defined in route class to el', function () {
       return router.transitionTo('parent').then(function () {
         expect(router.state.mnRoutes[0].el).to.have.property('x', 3)
         expect(router.state.mnRoutes[0].el).to.have.property('y', 'a')
       })
     })
 
-    it('should assign elOptions defined in route options to el', function () {
+    it('should assign properties defined in route options to el', function () {
       return router.transitionTo('root3').then(function () {
         expect(router.state.mnRoutes[0].el).to.have.property('a', 'b')
         expect(router.state.mnRoutes[0].el).to.have.property('c', 1)

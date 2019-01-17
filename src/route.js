@@ -29,7 +29,7 @@ export const getComponent = route => {
 export default class Route extends Events {
   constructor (options, router, config) {
     super()
-    mergeOptions.call(this, options, ['component', 'elOptions'])
+    mergeOptions.call(this, options, ['component', 'properties'])
     this.$router = router
     this.$config = config
     this._bindContext()
@@ -49,8 +49,8 @@ export default class Route extends Events {
   }
 
   prepareEl (el, transition) {
-    const elOptions = _.result(this, 'elOptions', {})
-    Object.assign(el, elOptions)
+    const properties = _.result(this, 'properties', {})
+    Object.assign(el, properties)
   }
 
   renderEl (region, transition) {

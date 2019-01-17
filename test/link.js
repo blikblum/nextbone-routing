@@ -226,7 +226,7 @@ describe.skip('RouterLink', () => {
 
       ParentRoute.prototype.component = PreRenderedView
 
-      ParentRoute.prototype.elOptions = { x: 1 }
+      ParentRoute.prototype.properties = { x: 1 }
     })
 
     it('should generate href attributes in anchor tags with route attribute', function () {
