@@ -44,7 +44,7 @@ describe('Route context', () => {
       let spy = sinon.spy(function () {
         return 'The Context'
       })
-      GrandChildRoute.prototype.contextRequests = {
+      GrandChildRoute.contextRequests = {
         value: spy
       }
       sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
@@ -60,7 +60,7 @@ describe('Route context', () => {
 
     it('should work outside of transition lifecycle', function (done) {
       let leafRoute
-      GrandChildRoute.prototype.contextRequests = {
+      GrandChildRoute.contextRequests = {
         value: function () {
           return 'The Context'
         }
@@ -78,7 +78,7 @@ describe('Route context', () => {
 
     it('should not be replied by a child route', function (done) {
       let contextValue = 'Original Value'
-      GrandChildRoute.prototype.contextRequests = {
+      GrandChildRoute.contextRequests = {
         value: function () {
           return 'The Context'
         }
@@ -95,13 +95,13 @@ describe('Route context', () => {
     it('should be replied by the nearest parent route', function (done) {
       let contextValue
 
-      ParentRoute.prototype.contextRequests = {
+      ParentRoute.contextRequests = {
         value: function () {
           return 'Parent Context'
         }
       }
 
-      GrandChildRoute.prototype.contextRequests = {
+      GrandChildRoute.contextRequests = {
         value: function () {
           return 'Grand Child Context'
         }
@@ -117,7 +117,7 @@ describe('Route context', () => {
 
     it('should return undefined if no reply is defined in a parent route', function (done) {
       let contextValue = 'Original value'
-      GrandChildRoute.prototype.contextRequests = {
+      GrandChildRoute.contextRequests = {
         value: function () {
           return 'The Context'
         }
@@ -135,7 +135,7 @@ describe('Route context', () => {
   describe('trigger', () => {
     it('should be captured by a parent route', function (done) {
       let spy = sinon.spy()
-      GrandChildRoute.prototype.contextEvents = {
+      GrandChildRoute.contextEvents = {
         'my:event': spy
       }
       sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
@@ -151,7 +151,7 @@ describe('Route context', () => {
     it('should work outside of transition lifecycle', function (done) {
       let spy = sinon.spy()
       let leafRoute
-      GrandChildRoute.prototype.contextEvents = {
+      GrandChildRoute.contextEvents = {
         'my:event': spy
       }
       sinon.stub(LeafRoute.prototype, 'activate').callsFake(function () {
@@ -167,10 +167,10 @@ describe('Route context', () => {
 
     it('should not be captured by a child route', function (done) {
       let spy = sinon.spy()
-      GrandChildRoute.prototype.contextEvents = {
+      GrandChildRoute.contextEvents = {
         'my:event': spy
       }
-      sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
+      sinon.stub(ChildRoute.prototype, 'activate').callsFake(function () {
         this.getContext().trigger('my:event')
       })
       router.transitionTo('leaf').then(function () {

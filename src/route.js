@@ -98,8 +98,8 @@ export default class Route extends Events {
   }
 
   _bindContext () {
-    const requests = _.result(this, 'contextRequests')
-    const events = _.result(this, 'contextEvents')
+    const requests = this.constructor.contextRequests
+    const events = this.constructor.contextEvents
     let channel
     if (!requests && !events) {
       return
