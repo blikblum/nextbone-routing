@@ -89,7 +89,7 @@ describe.skip('RouterLink', () => {
           route('grandchild', { component: GrandChildView })
         })
       })
-      route('root', { path: 'root/:id', class: RootRoute, routeOptions: { component: ParentView } })
+      route('root', { path: 'root/:id', class: RootRoute, classOptions: { component: ParentView } })
     }
     router.map(routes)
 

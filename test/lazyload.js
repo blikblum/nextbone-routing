@@ -29,7 +29,7 @@ describe('Route configuration', () => {
     LeafRoute = class extends Route {}
 
     routes = function (route) {
-      route('parent', { class: ParentRoute, routeOptions: { x: 1 } }, function () {
+      route('parent', { class: ParentRoute, classOptions: { x: 1 } }, function () {
         route('child', { class: ChildRoute }, function () {
           route('grandchild', {}, function () {
             route('leaf', {})

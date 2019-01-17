@@ -37,7 +37,7 @@ router.map(function (route) {
 Each route can be configure with the following options:
 
  * `class`: a [`Route`](./route.md) class
- * `routeOptions`: options passed to the Route constructor
+ * `classOptions`: options passed to the Route constructor
  * `component`: a `Marionette.View` class. Can be used alone or with `class`
  * `viewOptions`: options passed to the Marionette.View constructor
  * `path`: the route path

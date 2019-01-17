@@ -31,7 +31,7 @@ describe('Lifecycle hooks', () => {
     DynGrandChildRoute = class extends Route {}
 
     routes = function (route) {
-      route('parent', { class: ParentRoute, routeOptions: { x: 1 }, arbitrary: 3 }, function () {
+      route('parent', { class: ParentRoute, classOptions: { x: 1 }, arbitrary: 3 }, function () {
         route('child', { class: ChildRoute }, function () {
           route('grandchild', { class: GrandChildRoute }, function () {
             route('leaf', { class: LeafRoute })
@@ -68,7 +68,7 @@ describe('Lifecycle hooks', () => {
   })
 
   describe('initialize', () => {
-    it('should be called once with routeOptions', function (done) {
+    it('should be called once with classOptions', function (done) {
       let spy = sinon.spy(ParentRoute.prototype, 'initialize')
       router.transitionTo('parent').then(function () {
         expect(spy).to.be.calledOnce
