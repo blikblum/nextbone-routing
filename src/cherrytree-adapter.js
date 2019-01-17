@@ -111,13 +111,17 @@ function findRouteClass (options, routeName, index, routes) {
 }
 
 function createRouteInstance (RouteClass, options, config) {
-  let routeOptions = _.extend({}, options.routeOptions, _.pick(options, ['component']))
-  if (!RouteClass && routeOptions.component) {
+  let routeOptions = _.extend({}, options.routeOptions)
+  if (!RouteClass && options.component) {
     RouteClass = Route
   }
   if (RouteClass) {
     if (RouteClass.__esModule) RouteClass = RouteClass.default
-    return new RouteClass(routeOptions, router, config)
+    const result = new RouteClass(routeOptions, router, config)
+    if (options.component) {
+      result.component = options.component
+    }
+    return result
   }
 }
 

@@ -3,7 +3,6 @@ import { Events } from 'nextbone'
 import { Channel } from 'nextbone-radio'
 import { bindEvents } from './utils/bind-events'
 import { bindRequests } from './utils/bind-requests'
-import { mergeOptions } from './utils/merge-options'
 import { Region } from './utils/region'
 import RouteContext from './routecontext'
 import { getMnRoutes, routerChannel } from './cherrytree-adapter'
@@ -29,7 +28,6 @@ export const getComponent = route => {
 export default class Route extends Events {
   constructor (options, router, config) {
     super()
-    mergeOptions.call(this, options, ['component'])
     this.$router = router
     this.$config = config
     this._bindContext()
