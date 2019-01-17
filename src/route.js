@@ -48,14 +48,19 @@ export default class Route extends Events {
 
   }
 
+  prepareEl (el, transition) {
+    const elOptions = _.result(this, 'elOptions', {})
+    Object.assign(el, elOptions)
+  }
+
   renderEl (region, transition) {
     if (this.el && this.updateEl(transition)) return
-    const elOptions = _.result(this, 'elOptions', {})
+
     const el = createElement(this, getComponent(this))
     if (!el) {
-      throw new Error(`${this.constructor.name}: component has invalid value ${this.component}. Expected a string or HTMLElement`)
+      throw new Error(`${this.constructor.name}: component has invalid value ${getComponent(this)}. Expected a string or HTMLElement`)
     }
-    Object.assign(el, elOptions)
+    this.prepareEl(el, transition)
     if (region) {
       region.show(el)
     } else {

@@ -80,6 +80,13 @@ describe('Render', () => {
       static get component () {
         return ParentView
       }
+
+      elOptions () {
+        return {
+          x: 3,
+          y: 'a'
+        }
+      }
     }
     RootRoute = class extends Route {
       component () {
@@ -100,7 +107,7 @@ describe('Render', () => {
       route('root2', { component: ParentView, outlet: false }, function () {
         route('leaf2', { class: LeafRoute, component: leafTag })
       })
-      route('root3', { class: RootRoute })
+      route('root3', { class: RootRoute, elOptions: { a: 'b', c: 1 } })
     }
     router.map(routes)
     router.listen()
@@ -231,7 +238,7 @@ describe('Render', () => {
       let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       let transition = router.transitionTo('parent')
       return transition.then(function () {
-        expect(spy).to.be.calledOnce.and.calledWith(router.rootRegion, transition)
+        expect(spy).to.be.calledOnceWithExactly(router.rootRegion, transition)
       })
     })
 
@@ -275,7 +282,7 @@ describe('Render', () => {
         transition = router.transitionTo('parent', {}, { id: 1 })
         return transition
       }).then(function () {
-        expect(spy).to.be.calledOnce.and.calledWith(transition)
+        expect(spy).to.be.calledOnceWithExactly(transition)
       })
     })
 
@@ -295,6 +302,30 @@ describe('Render', () => {
         return router.transitionTo('parent', {}, { id: 1 })
       }).then(function () {
         expect(savedView).to.be.equal(routeInstance.el)
+      })
+    })
+  })
+
+  describe('prepareEl', function () {
+    it('should be called with a HTML and transition', function () {
+      const spy = sinon.spy(ParentRoute.prototype, 'prepareEl')
+      const transition = router.transitionTo('parent')
+      return transition.then(function () {
+        expect(spy).to.be.calledOnceWithExactly(sinon.match.instanceOf(HTMLElement), transition)
+      })
+    })
+
+    it('should assign elOptions defined in route class to el', function () {
+      return router.transitionTo('parent').then(function () {
+        expect(router.state.mnRoutes[0].el).to.have.property('x', 3)
+        expect(router.state.mnRoutes[0].el).to.have.property('y', 'a')
+      })
+    })
+
+    it('should assign elOptions defined in route options to el', function () {
+      return router.transitionTo('root3').then(function () {
+        expect(router.state.mnRoutes[0].el).to.have.property('a', 'b')
+        expect(router.state.mnRoutes[0].el).to.have.property('c', 1)
       })
     })
   })
