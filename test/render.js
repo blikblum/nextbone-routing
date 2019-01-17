@@ -280,7 +280,7 @@ describe('Render', () => {
     })
 
     it('should prevent el re render if returns truthy', function () {
-      let routeInstance, savedView
+      let routeInstance, savedEl
       sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
       })
@@ -290,11 +290,11 @@ describe('Render', () => {
       }
 
       return router.transitionTo('parent').then(function () {
-        savedView = routeInstance.el
+        savedEl = routeInstance.el
         // force a new render
         return router.transitionTo('parent', {}, { id: 1 })
       }).then(function () {
-        expect(savedView).to.be.equal(routeInstance.el)
+        expect(savedEl).to.be.equal(routeInstance.el)
       })
     })
   })
