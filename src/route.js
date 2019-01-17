@@ -26,12 +26,14 @@ export const getComponent = route => {
 }
 
 export default class Route extends Events {
-  constructor (options, router, config) {
+  constructor (classOptions, router, { name, path, options }) {
     super()
     this.$router = router
-    this.$config = config
+    this.$name = name
+    this.$path = path
+    this.$options = options
     this._bindContext()
-    this.initialize.apply(this, arguments)
+    this.initialize(classOptions)
   }
 
   initialize () {
@@ -47,7 +49,7 @@ export default class Route extends Events {
   }
 
   prepareEl (el, transition) {
-    const properties = this.$config.options.properties
+    const properties = this.$options.properties
     if (properties) Object.assign(el, properties)
   }
 

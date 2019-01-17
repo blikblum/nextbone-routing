@@ -110,14 +110,15 @@ function findRouteClass (options, routeName, index, routes) {
   return result
 }
 
-function createRouteInstance (RouteClass, options, config) {
-  let classOptions = _.extend({}, options.classOptions)
+function createRouteInstance (RouteClass, route) {
+  const options = route.options
+  const classOptions = _.extend({}, options.classOptions)
   if (!RouteClass && options.component) {
     RouteClass = Route
   }
   if (RouteClass) {
     if (RouteClass.__esModule) RouteClass = RouteClass.default
-    const result = new RouteClass(classOptions, router, config)
+    const result = new RouteClass(classOptions, router, route)
     if (options.component) {
       result.component = options.component
     }
@@ -126,20 +127,15 @@ function createRouteInstance (RouteClass, options, config) {
 }
 
 function createMnRoute (route, index, routes) {
-  let instanceConfig = {
-    name: route.name,
-    path: route.path,
-    options: _.clone(route.options)
-  }
   let RouteClass = findRouteClass(route.options, route.name, index, routes)
   if (_.isFunction(RouteClass) && !(RouteClass.prototype instanceof Route)) {
     // possible async route definition
     RouteClass = RouteClass.call(route)
     return Promise.resolve(RouteClass).then(function (result) {
-      return result && createRouteInstance(result, route.options, instanceConfig)
+      return result && createRouteInstance(result, route)
     })
   }
-  return createRouteInstance(RouteClass, route.options, instanceConfig)
+  return createRouteInstance(RouteClass, route)
 }
 
 function getParentRegion (routes, route) {
@@ -147,12 +143,12 @@ function getParentRegion (routes, route) {
   let routeIndex = routes.indexOf(route) - 1
   while (routeIndex >= 0) {
     parent = routes[routeIndex]
-    if (parent.el && parent.$config.options.outlet !== false) {
+    if (parent.el && parent.$options.outlet !== false) {
       region = parent.getOutlet()
       if (region) {
         return region
       } else {
-        throw new Error(`No outlet region defined in ${parent.$config.name} route`)
+        throw new Error(`No outlet region defined in ${parent.$name} route`)
       }
     } else {
       // remove el reference for outlet less routes
@@ -171,7 +167,7 @@ function renderElements (mnRoutes, activated, transition) {
 
   let renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
     if (getComponent(mnRoute)) {
-      if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
+      if (memo.length && memo[memo.length - 1].$options.outlet === false) {
         memo.pop()
       }
       memo.push(mnRoute)

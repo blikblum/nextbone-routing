@@ -85,7 +85,7 @@ describe('Async Render', () => {
 
     beforeEach(() => {
       Radio.channel('router').on('route:render', route => {
-        if (route.$config.name === 'grandchild' && grandChildRenderCb) {
+        if (route.$name === 'grandchild' && grandChildRenderCb) {
           grandChildRenderCb(route)
         }
       })

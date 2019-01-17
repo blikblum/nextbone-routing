@@ -112,13 +112,12 @@ describe('Lifecycle hooks', () => {
       }).catch(done)
     })
 
-    it('should allow to access $config property', function () {
+    it('should allow to access configuration properties', function () {
       ParentRoute.prototype.initialize = function () {
-        expect(this.$config).to.not.be.undefined
-        expect(this.$config.name).to.be.equal('parent')
-        expect(this.$config.path).to.be.equal('parent')
-        expect(this.$config.options).to.not.be.undefined
-        expect(this.$config.options.arbitrary).to.be.equal(3)
+        expect(this.$name).to.be.equal('parent')
+        expect(this.$path).to.be.equal('parent')
+        expect(this.$options).to.not.be.undefined
+        expect(this.$options.arbitrary).to.be.equal(3)
       }
       return router.transitionTo('parent')
     })
