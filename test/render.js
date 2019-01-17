@@ -80,13 +80,6 @@ describe('Render', () => {
       static get component () {
         return ParentView
       }
-
-      properties () {
-        return {
-          x: 3,
-          y: 'a'
-        }
-      }
     }
     RootRoute = class extends Route {
       component () {
@@ -312,13 +305,6 @@ describe('Render', () => {
       const transition = router.transitionTo('parent')
       return transition.then(function () {
         expect(spy).to.be.calledOnceWithExactly(sinon.match.instanceOf(HTMLElement), transition)
-      })
-    })
-
-    it('should assign properties defined in route class to el', function () {
-      return router.transitionTo('parent').then(function () {
-        expect(router.state.mnRoutes[0].el).to.have.property('x', 3)
-        expect(router.state.mnRoutes[0].el).to.have.property('y', 'a')
       })
     })
 
