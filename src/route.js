@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import { Events } from 'nextbone'
 import { Channel } from 'nextbone-radio'
 import { bindEvents } from './utils/bind-events'
