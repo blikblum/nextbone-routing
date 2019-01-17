@@ -11,7 +11,7 @@
 import _ from 'underscore'
 import { Radio } from 'nextbone-radio'
 import Cherrytree from 'cherrytreex'
-import Route from './route'
+import Route, { getComponent } from './route'
 import { Region } from './utils/region'
 
 let mnRouteMap = Object.create(null)
@@ -166,7 +166,7 @@ function renderElements (mnRoutes, activated, transition) {
   let renderCandidates = activated.length ? activated : mnRoutes.slice(-1)
 
   let renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
-    if (mnRoute.component) {
+    if (getComponent(mnRoute)) {
       if (memo.length && memo[memo.length - 1].$config.options.outlet === false) {
         memo.pop()
       }

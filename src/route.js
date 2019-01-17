@@ -22,6 +22,10 @@ const createElement = (route, Definition) => {
 // stores the outletRegion for each element
 const outletRegionMap = new WeakMap()
 
+export const getComponent = route => {
+  return route.component || route.constructor.component
+}
+
 export default class Route extends Events {
   constructor (options, router, config) {
     super()
@@ -47,7 +51,7 @@ export default class Route extends Events {
   renderEl (region, transition) {
     if (this.el && this.updateEl(transition)) return
     const elOptions = _.result(this, 'elOptions', {})
-    const el = createElement(this, this.component)
+    const el = createElement(this, getComponent(this))
     if (!el) {
       throw new Error(`${this.constructor.name}: component has invalid value ${this.component}. Expected a string or HTMLElement`)
     }

@@ -77,9 +77,15 @@ describe('Render', () => {
       static get outletSelector () {
         return '.child-el'
       }
-      component () { return ParentView }
+      static get component () {
+        return ParentView
+      }
     }
-    RootRoute = class extends Route {}
+    RootRoute = class extends Route {
+      component () {
+        return ParentView
+      }
+    }
     ChildRoute = class extends Route {}
     LeafRoute = class extends Route {}
     routes = function (route) {
@@ -90,7 +96,7 @@ describe('Render', () => {
           })
         })
       })
-      route('root', { class: RootRoute, routeOptions: { component: ParentView } })
+      route('root', { class: RootRoute })
       route('root2', { component: ParentView, outlet: false }, function () {
         route('leaf2', { class: LeafRoute, component: leafTag })
       })
@@ -108,7 +114,7 @@ describe('Render', () => {
   })
 
   describe('component', function () {
-    it('can be defined in the Route class', function (done) {
+    it('can be defined in the Route class as a static property', function (done) {
       router.transitionTo('parent').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
         done()
@@ -116,18 +122,11 @@ describe('Render', () => {
     })
 
     it('can be defined in the Route class as a function', function (done) {
-      let routeInstance
-      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
-        routeInstance = this
-      })
-      let viewClassSpy = sinon.spy(function () {
-        return ParentView
-      })
-      ParentRoute.prototype.component = viewClassSpy
-      router.transitionTo('parent').then(function () {
+      const componentSpy = sinon.stub(RootRoute.prototype, 'component').callThrough()
+      router.transitionTo('root').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
-        expect(viewClassSpy).to.be.calledOnce
-        expect(viewClassSpy).to.be.calledOn(routeInstance)
+        expect(componentSpy).to.be.calledOnce
+        expect(componentSpy).to.be.calledOn(router.state.mnRoutes[0])
         done()
       }).catch(done)
     })
@@ -165,7 +164,8 @@ describe('Render', () => {
         })
       })
 
-      it('should not abort transition when no rootRegion is defined and el is prerendered', function () {
+      it.skip('should not abort transition when no rootRegion is defined and el is prerendered', function () {
+        // todo is possible to implement such feature with web component?
         router.rootRegion = null
         // RootRoute.prototype.component = Mn.View.extend({ el: '#main' })
         return router.transitionTo('root3').then(function () {
