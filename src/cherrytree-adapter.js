@@ -102,7 +102,7 @@ function findRouteClass (options, routeName, index, routes) {
       return mnRouteMap[route.name]
     })
     parentRoutes.some(function (route) {
-      let childRoutes = _.result(route, 'childRoutes')
+      let childRoutes = route.constructor.childRoutes
       result = childRoutes && childRoutes[routeName]
       return result
     })

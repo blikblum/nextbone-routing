@@ -46,16 +46,15 @@ describe('Route configuration', () => {
     router.destroy()
   })
 
-  describe('can be defined in a parent route class', function () {
+  describe('can be defined in a parent route class constructor', function () {
     it('directly', function () {
-      ChildRoute.prototype.childRoutes = function () {
-        return {
-          grandchild: GrandChildRoute,
-          leaf: function () {
-            return LeafRoute
-          }
+      ChildRoute.childRoutes = {
+        grandchild: GrandChildRoute,
+        leaf: function () {
+          return LeafRoute
         }
       }
+
       let spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
       let spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
       return router.transitionTo('leaf').then(function () {
@@ -67,14 +66,13 @@ describe('Route configuration', () => {
     it('wrapped in an ES module', function () {
       const GrandChildModule = { __esModule: true, default: GrandChildRoute }
       const LeafModule = { __esModule: true, default: LeafRoute }
-      ChildRoute.prototype.childRoutes = function () {
-        return {
-          grandchild: GrandChildModule,
-          leaf: function () {
-            return LeafModule
-          }
+      ChildRoute.childRoutes = {
+        grandchild: GrandChildModule,
+        leaf: function () {
+          return LeafModule
         }
       }
+
       let spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
       let spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
       return router.transitionTo('leaf').then(function () {
@@ -85,11 +83,10 @@ describe('Route configuration', () => {
   })
 
   it('gives a meaningful error when not defined in a parent route class', function (done) {
-    ChildRoute.prototype.childRoutes = function () {
-      return {
-        grandchild: GrandChildRoute
-      }
+    ChildRoute.childRoutes = {
+      grandchild: GrandChildRoute
     }
+
     router.transitionTo('leaf').then(function () {
       done('transition should fail')
     }).catch(function (err) {
@@ -99,16 +96,14 @@ describe('Route configuration', () => {
   })
 
   it('can be loaded asynchronously from childRoutes', function () {
-    ChildRoute.prototype.childRoutes = function () {
-      return {
-        grandchild: GrandChildRoute,
-        leaf: function () {
-          return new Promise(function (resolve) {
-            setTimeout(function () {
-              resolve(LeafRoute)
-            }, 200)
-          })
-        }
+    ChildRoute.childRoutes = {
+      grandchild: GrandChildRoute,
+      leaf: function () {
+        return new Promise(function (resolve) {
+          setTimeout(function () {
+            resolve(LeafRoute)
+          }, 200)
+        })
       }
     }
     let spy = sinon.spy(LeafRoute.prototype, 'initialize')
