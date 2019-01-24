@@ -1,7 +1,5 @@
 import _ from 'underscore'
-import { Behavior } from 'backbone.marionette'
 import { routerChannel } from './cherrytree-adapter'
-import $ from 'jquery'
 
 function attrChanged (mutations, observer) {
   mutations.forEach(function (mutation) {
@@ -27,92 +25,118 @@ function getAttributeValues (el, prefix, result) {
   return result
 }
 
-function updateHref (el, link) {
+function updateHref (el, routerLinks) {
   let routeName = el.getAttribute('route')
   if (!routeName) return
-  let params = getAttributeValues(el, 'param-', link.getDefaults(routeName, 'params', el))
-  let query = getAttributeValues(el, 'query-', link.getDefaults(routeName, 'query', el))
+  let params = getAttributeValues(el, 'param-', routerLinks.getDefaults(routeName, 'params', el))
+  let query = getAttributeValues(el, 'query-', routerLinks.getDefaults(routeName, 'query', el))
   let href = routerChannel.request('generate', routeName, params, query)
   let anchorEl
   if (el.tagName === 'A') {
     anchorEl = el
   } else {
-    anchorEl = $(el).find('a').eq(0)[0]
+    anchorEl = el.querySelectorAll('a')[0]
   }
   if (anchorEl) anchorEl.setAttribute('href', href)
   return anchorEl
 }
 
-function createLinks (routerLink) {
-  let rootEl = routerLink.options.rootEl
-  let selector = rootEl ? rootEl + ' [route]' : '[route]'
-  let $routes = routerLink.view.$(selector)
+function createLinks (routerLinks, options) {
+  const renderRoot = routerLinks.renderRoot || this
+  const rootEl = options.rootEl
+  const selector = rootEl ? rootEl + ' [route]' : '[route]'
+  const routes = renderRoot.querySelectorAll(selector)
 
-  $routes.each(function () {
-    if (updateHref(this, routerLink)) {
-      if (routerLink.attrObserver) routerLink.attrObserver.observe(this, attrObserverConfig)
+  _.each(routes, (el) => {
+    if (updateHref(el, routerLinks)) {
+      if (routerLinks.attrObserver) routerLinks.attrObserver.observe(el, attrObserverConfig)
     }
   })
 }
 
-export default Behavior.extend({
-  events: {
-    'click [route]:not(a)': 'onLinkClick'
-  },
-
-  onInitialize (view) {
-    this.listenTo(routerChannel, 'transition', this.onTransition)
-    if (window.MutationObserver) {
-      this.attrObserver = new window.MutationObserver(attrChanged)
-      this.attrObserver.link = this
+const createClass = (ctor, options = {}) => {
+  return class extends ctor {
+    constructor () {
+      super()
+      this._linkElements = new WeakSet()
+      const renderRoot = this.renderRoot || this
+      renderRoot.addEventListener('click', this.onLinkClick.bind(this))
     }
-    if (view.isRendered()) createLinks(this)
-  },
 
-  onTransition () {
-    let self = this
-    let rootEl = self.options.rootEl
-    let selector = rootEl ? rootEl + ' [route]' : '[route]'
-    self.$(selector).each(function () {
-      let $el = $(this)
-      let routeName = $el.attr('route')
-      if (!routeName) return
-      let params = getAttributeValues(this, 'param-', self.getDefaults(routeName, 'params', this))
-      let query = getAttributeValues(this, 'query-', self.getDefaults(routeName, 'query', this))
-      let activeClass = this.hasAttribute('active-class') ? $el.attr('active-class') : 'active'
-      if (activeClass) {
-        let isActive = routerChannel.request('isActive', routeName, params, query)
-        $el.toggleClass(activeClass, isActive)
+    connectedCallback () {
+      super.connectedCallback()
+      this.listenTo(routerChannel, 'transition', this.onTransition)
+      if (window.MutationObserver) {
+        this.attrObserver = new window.MutationObserver(attrChanged)
+        this.attrObserver.link = this
       }
-    })
-  },
+      createLinks(this, options)
+    }
 
-  onLinkClick (e) {
-    let el = e.currentTarget
-    if (this.$(el).find('a').length) return
-    let routeName = el.getAttribute('route')
-    if (!routeName) return
-    let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
-    let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
-    routerChannel.request('transitionTo', routeName, params, query)
-  },
+    disconnectedCallback () {
+      super.disconnectedCallback()
+      this.stopListening(routerChannel)
+    }
 
-  onRender () {
-    createLinks(this)
-  },
+    onTransition () {
+      const rootEl = options.rootEl
+      const selector = rootEl ? rootEl + ' [route]' : '[route]'
+      const renderRoot = this.renderRoot || this
+      _.each(renderRoot.querySelectorAll(selector), el => {
+        let routeName = el.getAttribute('route')
+        if (!routeName) return
+        let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
+        let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
+        let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
+        if (activeClass) {
+          const isActive = routerChannel.request('isActive', routeName, params, query)
+          el.classList.toggle(activeClass, isActive)
+        }
+        this._linkElements.add(el)
+      })
+    }
 
-  onDestroy () {
-    this.stopListening(routerChannel)
-  },
+    onLinkClick (e) {
+      // todo improve by doing proper event delegation
+      let el = e.target
+      if (!this._linkElements.has(el) || el.querySelectorAll('a').length) return
+      let routeName = el.getAttribute('route')
+      if (!routeName) return
+      let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
+      let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
+      routerChannel.request('transitionTo', routeName, params, query)
+    }
 
-  getDefaults (routeName, prop, el) {
-    let defaults = this.options.defaults
-    if (_.isFunction(defaults)) defaults = defaults.call(this.view)
-    let routeDefaults = defaults && defaults[routeName]
-    let result = (routeDefaults && routeDefaults[prop])
-    if (_.isFunction(result)) result = result.call(this.view, el)
-    return _.clone(result) || {}
-  },
+    getDefaults (routeName, prop, el) {
+      let defaults = options.defaults
+      if (_.isFunction(defaults)) defaults = defaults.call(this)
+      let routeDefaults = defaults && defaults[routeName]
+      let result = (routeDefaults && routeDefaults[prop])
+      if (_.isFunction(result)) result = result.call(this, el)
+      return _.clone(result) || {}
+    }
+  }
+}
 
-  attrObserver: undefined
-})
+export const routerLinks = (optionsOrCtorOrDescriptor, options) => {
+  // current state of decorators sucks. Lets abuse of duck typing
+  if (typeof optionsOrCtorOrDescriptor === 'function') {
+    // constructor -> typescript decorator
+    return createClass(optionsOrCtorOrDescriptor, options)
+  }
+  if (optionsOrCtorOrDescriptor.kind === 'class') {
+    // descriptor -> spec decorator
+    const { kind, elements } = optionsOrCtorOrDescriptor
+    return {
+      kind,
+      elements,
+      finisher (ctor) {
+        return createClass(ctor, options)
+      }
+    }
+  }
+  // optionsOrCtorOrDescriptor === options
+  return (ctorOrDescriptor) => {
+    return routerLinks(ctorOrDescriptor, optionsOrCtorOrDescriptor)
+  }
+}
