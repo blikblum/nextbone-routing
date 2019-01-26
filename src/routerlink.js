@@ -1,4 +1,5 @@
 import _ from 'underscore'
+import { delegate } from 'nextbone'
 import { routerChannel } from './cherrytree-adapter'
 
 function attrChanged (mutations, observer) {
@@ -58,9 +59,7 @@ const createClass = (ctor, options = {}) => {
   return class extends ctor {
     constructor () {
       super()
-      this._linkElements = new WeakSet()
-      const renderRoot = this.renderRoot || this
-      renderRoot.addEventListener('click', this.onLinkClick.bind(this))
+      delegate(this, 'click', '[route]', this.onLinkClick)
     }
 
     connectedCallback () {
@@ -95,15 +94,13 @@ const createClass = (ctor, options = {}) => {
             const isActive = routerChannel.request('isActive', routeName, params, query)
             el.classList.toggle(activeClass, isActive)
           }
-          this._linkElements.add(el)
         })
       })
     }
 
     onLinkClick (e) {
-      // todo improve by doing proper event delegation
-      let el = e.target
-      if (!this._linkElements.has(el) || el.querySelectorAll('a').length) return
+      let el = e.delegateTarget
+      if (el.querySelectorAll('a').length) return
       let routeName = el.getAttribute('route')
       if (!routeName) return
       let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))

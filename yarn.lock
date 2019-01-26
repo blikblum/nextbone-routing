@@ -3138,10 +3138,10 @@ nextbone-radio@^0.1.0:
   resolved "https://registry.yarnpkg.com/nextbone-radio/-/nextbone-radio-0.1.0.tgz#16139809cf28621664f9bb7e0089730d8e6ac7f4"
   integrity sha512-k7kOHz3xsug610oGpIyYVchUvfeNWMRMnqmgR2olNzGQ+3LtQb+IcGr1qmEg/oLXIZF1xkn9xj5y78/lk4x6GA==
 
-nextbone@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/nextbone/-/nextbone-0.7.0.tgz#12e5c62620ab3b943f99f54eefabf816d6e8420e"
-  integrity sha512-XTMZSwdfCXbLN2YQkwO94owvtu43xMJ0URo4qNEvRdmulvC/bW5OzPCPAf5kHYT9DagvxqLdKh8E5tBi6CUnOQ==
+nextbone@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/nextbone/-/nextbone-0.7.1.tgz#a48dde73092d8149853d653b8dd268aef487138d"
+  integrity sha512-nRHMKE6K5J+6Rd2ycn5hthfpoMJYSJx1ZDAyhRNHfBZ53kt+q2HZfnTHxf9BamNFbyl5JUR04jyOg38ofoTf3Q==
   dependencies:
     underscore ">=1.8.3"
 
