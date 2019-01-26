@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { delegate } from 'nextbone'
+import { delegate, Events } from 'nextbone'
 import { routerChannel } from './cherrytree-adapter'
 
 function attrChanged (mutations, observer) {
@@ -56,7 +56,7 @@ function createLinks (routerLinks, options) {
 }
 
 const createClass = (ctor, options = {}) => {
-  return class extends ctor {
+  class RouterLinksMixin extends ctor {
     constructor () {
       super()
       delegate(this, 'click', '[route]', this.onLinkClick)
@@ -117,6 +117,8 @@ const createClass = (ctor, options = {}) => {
       return _.clone(result) || {}
     }
   }
+  Events.extend(RouterLinksMixin.prototype)
+  return RouterLinksMixin
 }
 
 export const routerLinks = (optionsOrCtorOrDescriptor, options) => {

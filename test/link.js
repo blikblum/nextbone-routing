@@ -34,7 +34,6 @@ const parentRouterLinksOptions = {
   }
 }
 
-@view
 @routerLinks(parentRouterLinksOptions)
 class ParentView extends LitElement {  
   rootId = 5
