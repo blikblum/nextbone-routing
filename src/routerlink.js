@@ -70,7 +70,9 @@ const createClass = (ctor, options = {}) => {
         this.attrObserver = new window.MutationObserver(attrChanged)
         this.attrObserver.link = this
       }
-      createLinks(this, options)
+      this.updateComplete.then(() => {
+        createLinks(this, options)
+      })
     }
 
     disconnectedCallback () {
@@ -79,20 +81,22 @@ const createClass = (ctor, options = {}) => {
     }
 
     onTransition () {
-      const rootEl = options.rootEl
-      const selector = rootEl ? rootEl + ' [route]' : '[route]'
-      const renderRoot = this.renderRoot || this
-      _.each(renderRoot.querySelectorAll(selector), el => {
-        let routeName = el.getAttribute('route')
-        if (!routeName) return
-        let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
-        let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
-        let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
-        if (activeClass) {
-          const isActive = routerChannel.request('isActive', routeName, params, query)
-          el.classList.toggle(activeClass, isActive)
-        }
-        this._linkElements.add(el)
+      this.updateComplete.then(() => {
+        const rootEl = options.rootEl
+        const selector = rootEl ? rootEl + ' [route]' : '[route]'
+        const renderRoot = this.renderRoot || this
+        _.each(renderRoot.querySelectorAll(selector), el => {
+          let routeName = el.getAttribute('route')
+          if (!routeName) return
+          let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
+          let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
+          let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
+          if (activeClass) {
+            const isActive = routerChannel.request('isActive', routeName, params, query)
+            el.classList.toggle(activeClass, isActive)
+          }
+          this._linkElements.add(el)
+        })
       })
     }
 
