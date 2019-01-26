@@ -34,7 +34,7 @@ module.exports = function (config) {
 
     rollupPreprocessor: {
       plugins: [babel({
-        exclude: ['node_modules/**', 'test/**']
+        exclude: ['node_modules/**']
       }), commonjs(), nodeResolve({
         only: [/^(?!.*?underscore).*/]
       })],

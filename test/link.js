@@ -4,8 +4,10 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, RouterLink, Router } from '../src/index'
-import * as Mn from 'backbone.marionette'
+import { Route, Router, routerLinks } from '../src/index'
+import { view } from 'nextbone'
+import { fixture, defineCE } from '@open-wc/testing-helpers'
+import { LitElement, html } from 'lit-element'
 import $ from 'jquery'
 
 let expect = chai.expect
@@ -14,27 +16,35 @@ chai.use(sinonChai)
 let router, routes
 let RootRoute, ParentRoute, ChildRoute, PreRenderedView
 
-let ParentView = Mn.View.extend({
-  behaviors: [{
-    behaviorClass: RouterLink,
-    defaults: {
-      child: {
-        query: {
-          foo: 'bar'
-        }
+const parentRouterLinksOptions = {
+  defaults: {
+    child: {
+      query: {
+        foo: 'bar'
+      }
+    },
+    root: {
+      params: function () {
+        return { id: this.rootId }
       },
-      root: {
-        params: function () {
-          return { id: this.rootId }
-        },
-        query: function (el) {
-          if (el.id === 'a-rootlink3') return { tag: el.tagName }
-        }
+      query: function (el) {
+        if (el.id === 'a-rootlink3') return { tag: el.tagName }
       }
     }
-  }],
-  template: function () {
-    return `<div id="div-rootlink1" route="root" param-id="1"></div>
+  }
+}
+
+@view
+@routerLinks(parentRouterLinksOptions)
+class ParentView extends LitElement {  
+  rootId = 5
+
+  createRenderRoot() {
+    return this
+  }
+  
+  render () {
+    return html`<div id="div-rootlink1" route="root" param-id="1"></div>
       <div id="div-grandchildlink" route="grandchild" query-name="test"></div>
       <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
       <a id="a-rootlink2" route="root" param-id="2"></a>
@@ -49,36 +59,47 @@ let ParentView = Mn.View.extend({
       <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
       <div class="child-view"></div>
      `
-  },
-  regions: {
-    outlet: '.child-view'
-  },
-  rootId: 5
-})
+  } 
+}
+const parentTag = defineCE(ParentView)
 
-let GrandChildView = Mn.View.extend({
-  tagName: 'h2',
-  behaviors: [{
-    behaviorClass: RouterLink,
-    defaults () {
-      return {
-        grandchild: {
-          query: {
-            other: 'xx'
-          }
+@view
+@routerLinks({
+  defaults () {
+    return {
+      grandchild: {
+        query: {
+          other: 'xx'
         }
       }
     }
-  }],
-  template: function () {
-    return '<a id="a-grandchildlink2" route="grandchild" query-name="test"></a>'
   }
 })
+class GrandChildView extends LitElement {
+  createRenderRoot() {
+    return this
+  }
+  render () {
+    return html`<a id="a-grandchildlink2" route="grandchild" query-name="test"></a>`
+  }
+}
+const grandChildTag = defineCE(GrandChildView)
 
-describe.skip('RouterLink', () => {
+
+describe('routerLinks', () => {
   beforeEach(() => {
-    router = new Router()
+    document.body.innerHTML = `<div id="main"></div>
+    <div id="prerendered">
+      <a id="a-prerootlink2" route="root" param-id="2"></a>
+      <a id="a-preparentlink" route="parent"></a>
+      <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
+    </div>`
+
+    parentRouterLinksOptions.rootEl = undefined
+
+    router = new Router({}, '#main')
     ParentRoute = class extends Route {
+      static outletSelector = '.child-view'
       component () { return ParentView }
     }
     RootRoute = class extends Route {}
@@ -92,18 +113,6 @@ describe.skip('RouterLink', () => {
       route('root', { path: 'root/:id', class: RootRoute, classOptions: { component: ParentView } })
     }
     router.map(routes)
-
-    document.body.innerHTML = `<div id="main"></div>
-      <div id="prerendered">
-        <a id="a-prerootlink2" route="root" param-id="2"></a>
-        <a id="a-preparentlink" route="parent"></a>
-        <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
-      </div>`
-    let RootRegion = Mn.Region.extend({
-      el: '#main'
-    })
-    router.rootRegion = new RootRegion()
-
     router.listen()
   })
 
@@ -111,16 +120,22 @@ describe.skip('RouterLink', () => {
     router.destroy()
   })
 
-  it('should generate href attributes in anchor tags with route attribute', function () {
-    return router.transitionTo('parent').then(function () {
+  it('should generate href attributes in anchor tags with route attribute', async function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
+
       expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
       expect($('#a-rootlink2').attr('href')).to.be.equal('#root/2')
       expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
     })
   })
 
-  it('should update href attributes in anchor tags when attribute is changed', function () {
-    return router.transitionTo('parent').then(function () {
+  it('should update href attributes in anchor tags when attribute is changed', async function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
+
       let rootLink = $('#a-rootlink2')
       let grandChildLink = $('#a-grandchildlink')
       rootLink.attr('param-id', '3')
@@ -133,28 +148,38 @@ describe.skip('RouterLink', () => {
   })
 
   it('should generate href attributes in first child anchor of a element with route attribute', function () {
-    return router.transitionTo('parent').then(function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       expect($('#childanchor').attr('href')).to.be.equal('#parent')
       expect($('#childanchor2').attr('href')).to.be.equal(undefined)
       expect($('#childanchor3').attr('href')).to.be.equal(undefined)
     })
   })
 
-  it('should use defaults defined in behavior options', function () {
-    return router.transitionTo('parent').then(function () {
+  it('should use defaults defined in decorator options', function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       expect($('#a-childlink').attr('href')).to.be.equal('#parent/child?foo=bar&name=test')
       expect($('#a-rootlink3').attr('href')).to.be.equal('#root/5?tag=A')
     })
   })
 
   it('should allow defaults to be defined as a function', function () {
-    return router.transitionTo('grandchild').then(function () {
+    return router.transitionTo('grandchild').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
+      const grandChildlEl = document.querySelector(grandChildTag)
+      await grandChildlEl.updateComplete
       expect($('#a-grandchildlink2').attr('href')).to.be.equal('#parent/child/grandchild?other=xx&name=test')
     })
   })
 
   it('should call transitionTo when a non anchor tags with route attribute is clicked', function () {
-    return router.transitionTo('parent').then(function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       let spy = sinon.spy(router, 'transitionTo')
       $('#div-rootlink1').click()
       expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
@@ -170,7 +195,9 @@ describe.skip('RouterLink', () => {
   })
 
   it('should not call transitionTo when a non anchor tags with route attribute with an anchor descendant is clicked', function () {
-    return router.transitionTo('parent').then(function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       let spy = sinon.spy(router, 'transitionTo')
       $('#div-a-parent').click()
       expect(spy).not.to.be.called
@@ -178,7 +205,9 @@ describe.skip('RouterLink', () => {
   })
 
   it('should set active class in tag with route attribute when respective route is active', function () {
-    return router.transitionTo('parent').then(function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       expect($('#a-parentlink').hasClass('active')).to.be.true
       expect($('#div-parentlink').hasClass('active')).to.be.true
       expect($('#a-rootlink2').hasClass('active')).to.be.false
@@ -186,7 +215,9 @@ describe.skip('RouterLink', () => {
       expect($('#a-grandchildlink').hasClass('active')).to.be.false
       expect($('#div-grandchildlink').hasClass('active')).to.be.false
       return router.transitionTo('root', { id: '1' })
-    }).then(function () {
+    }).then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       expect($('#a-parentlink').hasClass('active')).to.be.false
       expect($('#div-parentlink').hasClass('active')).to.be.false
       expect($('#a-rootlink2').hasClass('active')).to.be.false
@@ -194,7 +225,11 @@ describe.skip('RouterLink', () => {
       expect($('#a-grandchildlink').hasClass('active')).to.be.false
       expect($('#div-grandchildlink').hasClass('active')).to.be.false
       return router.transitionTo('grandchild', null, { name: 'test' })
-    }).then(function () {
+    }).then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
+      const grandChildlEl = document.querySelector(grandChildTag)
+      await grandChildlEl.updateComplete
       expect($('#a-parentlink').hasClass('active')).to.be.true
       expect($('#div-parentlink').hasClass('active')).to.be.true
       expect($('#a-rootlink2').hasClass('active')).to.be.false
@@ -205,19 +240,23 @@ describe.skip('RouterLink', () => {
   })
 
   it('should allow to customize the class to be set', function () {
-    return router.transitionTo('parent').then(function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       expect($('#a-parentlink-customclass').hasClass('active')).to.be.false
       expect($('#a-parentlink-customclass').hasClass('my-active-class')).to.be.true
     })
   })
 
   it('should allow to customize the class to be set', function () {
-    return router.transitionTo('parent').then(function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       expect($('#a-parentlink-noclass').hasClass('active')).to.be.false
     })
   })
 
-  describe('in a pre-rendered view', function () {
+  describe.skip('in a pre-rendered view', function () {
     beforeEach(function () {
       PreRenderedView = Mn.View.extend({
         behaviors: [RouterLink],
@@ -230,7 +269,9 @@ describe.skip('RouterLink', () => {
     })
 
     it('should generate href attributes in anchor tags with route attribute', function () {
-      return router.transitionTo('parent').then(function () {
+      return router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(parentTag)
+        await parentEl.updateComplete
         expect($('#a-preparentlink').attr('href')).to.be.equal('#parent')
         expect($('#a-prerootlink2').attr('href')).to.be.equal('#root/2')
         expect($('#a-pregrandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
@@ -239,7 +280,9 @@ describe.skip('RouterLink', () => {
 
     it('should call view.initialize with proper arguments', function () {
       let spy = PreRenderedView.prototype.initialize = sinon.spy()
-      return router.transitionTo('parent').then(function () {
+      return router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(parentTag)
+        await parentEl.updateComplete
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledWith({ x: 1 })
       })
@@ -248,11 +291,13 @@ describe.skip('RouterLink', () => {
 
   describe('with rootEl set', function () {
     beforeEach(function () {
-      ParentView.prototype.behaviors = [{ behaviorClass: RouterLink, rootEl: '#scoped' }]
+      parentRouterLinksOptions.rootEl = '#scoped'
     })
 
     it('should generate href attributes only in children of rootEl', function () {
-      return router.transitionTo('parent').then(function () {
+      return router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(parentTag)
+        await parentEl.updateComplete
         expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
         expect($('#a-rootlink2').attr('href')).to.be.equal(undefined)
         expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
