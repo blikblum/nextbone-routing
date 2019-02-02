@@ -11,7 +11,21 @@ function attrChanged (mutations, observer) {
   })
 }
 
+function elementsAdded (mutations, observer) {
+  const routerLinks = observer.link
+  mutations.forEach(function (mutation) {
+    _.each(mutation.addedNodes, node => {
+      if (node.nodeType === 1 && (node.route || node.getAttribute('route'))) {
+        if (updateHref(node, routerLinks)) {
+          if (routerLinks.attrObserver) routerLinks.attrObserver.observe(node, attrObserverConfig)
+        }
+      }
+    })
+  })
+}
+
 const attrObserverConfig = { attributes: true }
+const elementsObserverConfig = { childList: true, subtree: true }
 
 function getAttributeValues (el, prefix, result) {
   let attributes = el.attributes
@@ -65,11 +79,15 @@ const createClass = (ctor, options = {}) => {
     connectedCallback () {
       super.connectedCallback()
       this.listenTo(routerChannel, 'transition', this.onTransition)
-      if (window.MutationObserver) {
-        this.attrObserver = new window.MutationObserver(attrChanged)
-        this.attrObserver.link = this
-      }
+      this.attrObserver = new MutationObserver(attrChanged)
+      this.attrObserver.link = this
+
+      this.elObserver = new MutationObserver(elementsAdded)
+      this.elObserver.link = this
+
       this.updateComplete.then(() => {
+        const rootEl = options.rootEl ? this.renderRoot.querySelector(options.rootEl) : this.renderRoot
+        this.elObserver.observe(rootEl, elementsObserverConfig)
         createLinks(this, options)
       })
     }

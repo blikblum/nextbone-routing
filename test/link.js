@@ -255,6 +255,51 @@ describe('routerLinks', () => {
     })
   })
 
+  describe('when elements are added dynamically', () => {
+    it('should generate href attributes in anchor tags with route attribute', function (done) {
+      router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(parentTag)
+        await parentEl.updateComplete
+        $(`<a id="a-dyn-rootlink2" route="root" param-id="2"></a>
+          <a id="a-dyn-parentlink" route="parent"></a>
+          <a id="a-dyn-grandchildlink" route="grandchild" query-name="test"></a>
+        `).appendTo(parentEl.renderRoot)
+        
+        // links are updated asynchronously by MutationObserver
+        setTimeout(() => {
+          expect($('#a-dyn-parentlink').attr('href')).to.be.equal('#parent')
+          expect($('#a-dyn-rootlink2').attr('href')).to.be.equal('#root/2')
+          expect($('#a-dyn-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
+          done()
+        }, 0)
+      })
+    })
+
+    it('should call transitionTo when a non anchor tags with route attribute is clicked', function () {
+      return router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(parentTag)
+        await parentEl.updateComplete
+
+        $(`<div id="div-dyn-rootlink1" route="root" param-id="1"></div>
+        <div id="div-dyn-grandchildlink" route="grandchild" query-name="test"></div>
+        <div id="div-dyn-parentlink" route="parent"><div id="dyn-innerparent"></div></div>
+        `).appendTo(parentEl.renderRoot)
+
+        let spy = sinon.spy(router, 'transitionTo')
+        $('#div-dyn-rootlink1').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
+  
+        spy.resetHistory()
+        $('#div-dyn-grandchildlink').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('grandchild', {}, { name: 'test' })
+  
+        spy.resetHistory()
+        $('#dyn-innerparent').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
+      })
+    })    
+  })
+
   describe.skip('in a pre-rendered view', function () {
     beforeEach(function () {
       PreRenderedView = Mn.View.extend({
