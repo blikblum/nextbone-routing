@@ -19,10 +19,8 @@ for (const format of ['es']) {
     input: 'src/index.js',
     external: Object.keys(dependencies),
     plugins: [babel({
-      babelrc: false,
       exclude: 'node_modules/**',
-      sourceMaps: true,
-      presets: [['env', { targets: { chrome: '60' }, modules: false }]]
+      sourceMaps: true
     })]
   }).then(bundle => bundle.write({
     file: `dist/nextbone-routing.js`,

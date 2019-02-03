@@ -6,7 +6,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Route, Router, routerLinks } from '../src/index'
 import { view } from 'nextbone'
-import { fixture, defineCE } from '@open-wc/testing-helpers'
+import { defineCE } from '@open-wc/testing-helpers'
 import { LitElement, html } from 'lit-element'
 import $ from 'jquery'
 
@@ -35,13 +35,13 @@ const parentRouterLinksOptions = {
 }
 
 @routerLinks(parentRouterLinksOptions)
-class ParentView extends LitElement {  
+class ParentView extends LitElement {
   rootId = 5
 
-  createRenderRoot() {
+  createRenderRoot () {
     return this
   }
-  
+
   render () {
     return html`<div id="div-rootlink1" route="root" param-id="1"></div>
       <div id="div-grandchildlink" route="grandchild" query-name="test"></div>
@@ -58,7 +58,7 @@ class ParentView extends LitElement {
       <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
       <div class="child-view"></div>
      `
-  } 
+  }
 }
 const parentTag = defineCE(ParentView)
 
@@ -75,7 +75,7 @@ const parentTag = defineCE(ParentView)
   }
 })
 class GrandChildView extends LitElement {
-  createRenderRoot() {
+  createRenderRoot () {
     return this
   }
   render () {
@@ -83,7 +83,6 @@ class GrandChildView extends LitElement {
   }
 }
 const grandChildTag = defineCE(GrandChildView)
-
 
 describe('routerLinks', () => {
   beforeEach(() => {
@@ -264,7 +263,7 @@ describe('routerLinks', () => {
           <a id="a-dyn-parentlink" route="parent"></a>
           <a id="a-dyn-grandchildlink" route="grandchild" query-name="test"></a>
         `).appendTo(parentEl.renderRoot)
-        
+
         // links are updated asynchronously by MutationObserver
         setTimeout(() => {
           expect($('#a-dyn-parentlink').attr('href')).to.be.equal('#parent')
@@ -288,28 +287,20 @@ describe('routerLinks', () => {
         let spy = sinon.spy(router, 'transitionTo')
         $('#div-dyn-rootlink1').click()
         expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
-  
+
         spy.resetHistory()
         $('#div-dyn-grandchildlink').click()
         expect(spy).to.be.calledOnce.and.calledWithExactly('grandchild', {}, { name: 'test' })
-  
+
         spy.resetHistory()
         $('#dyn-innerparent').click()
         expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
       })
-    })    
+    })
   })
 
   describe.skip('in a pre-rendered view', function () {
     beforeEach(function () {
-      PreRenderedView = Mn.View.extend({
-        behaviors: [RouterLink],
-        el: '#prerendered'
-      })
-
-      ParentRoute.prototype.component = PreRenderedView
-
-      ParentRoute.prototype.properties = { x: 1 }
     })
 
     it('should generate href attributes in anchor tags with route attribute', function () {
