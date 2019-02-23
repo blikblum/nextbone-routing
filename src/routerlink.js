@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { delegate, Events } from 'nextbone'
+import { delegate } from 'nextbone'
 import { routerChannel } from './cherrytree-adapter'
 
 function attrChanged (mutations, observer) {
@@ -78,7 +78,7 @@ const createClass = (ctor, options = {}) => {
 
     connectedCallback () {
       super.connectedCallback()
-      this.listenTo(routerChannel, 'transition', this.onTransition)
+      routerChannel.on('transition', this.onTransition, this)
       this.attrObserver = new MutationObserver(attrChanged)
       this.attrObserver.link = this
 
@@ -94,7 +94,7 @@ const createClass = (ctor, options = {}) => {
 
     disconnectedCallback () {
       super.disconnectedCallback()
-      this.stopListening(routerChannel)
+      routerChannel.off('transition', this.onTransition, this)
     }
 
     onTransition () {
@@ -135,7 +135,6 @@ const createClass = (ctor, options = {}) => {
       return _.clone(result) || {}
     }
   }
-  Events.extend(RouterLinksMixin.prototype)
   return RouterLinksMixin
 }
 
