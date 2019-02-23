@@ -2,30 +2,24 @@ import _ from 'underscore'
 import { delegate } from 'nextbone'
 import { routerChannel } from './cherrytree-adapter'
 
-function attrChanged (mutations, observer) {
+function mutationHandler (mutations, observer) {
   mutations.forEach(function (mutation) {
-    let attr = mutation.attributeName
-    if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
-      updateHref(mutation.target, observer.link)
+    if (mutation.type === 'attributes') {
+      let attr = mutation.attributeName
+      if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
+        updateHref(mutation.target, observer.link)
+      }
+    } else {
+      _.each(mutation.addedNodes, node => {
+        if (node.nodeType === 1 && (node.route || node.getAttribute('route'))) {
+          updateHref(node, observer.link)
+        }
+      })
     }
   })
 }
 
-function elementsAdded (mutations, observer) {
-  const routerLinks = observer.link
-  mutations.forEach(function (mutation) {
-    _.each(mutation.addedNodes, node => {
-      if (node.nodeType === 1 && (node.route || node.getAttribute('route'))) {
-        if (updateHref(node, routerLinks)) {
-          if (routerLinks.attrObserver) routerLinks.attrObserver.observe(node, attrObserverConfig)
-        }
-      }
-    })
-  })
-}
-
-const attrObserverConfig = { attributes: true }
-const elementsObserverConfig = { childList: true, subtree: true }
+const elementsObserverConfig = { childList: true, subtree: true, attributes: true }
 
 function getAttributeValues (el, prefix, result) {
   let attributes = el.attributes
@@ -63,9 +57,7 @@ function createLinks (routerLinks, options) {
   const routes = renderRoot.querySelectorAll(selector)
 
   _.each(routes, (el) => {
-    if (updateHref(el, routerLinks)) {
-      if (routerLinks.attrObserver) routerLinks.attrObserver.observe(el, attrObserverConfig)
-    }
+    updateHref(el, routerLinks)
   })
 }
 
@@ -79,15 +71,12 @@ const createClass = (ctor, options = {}) => {
     connectedCallback () {
       super.connectedCallback()
       routerChannel.on('transition', this.onTransition, this)
-      this.attrObserver = new MutationObserver(attrChanged)
-      this.attrObserver.link = this
-
-      this.elObserver = new MutationObserver(elementsAdded)
-      this.elObserver.link = this
+      this.linksObserver = new MutationObserver(mutationHandler)
+      this.linksObserver.link = this
 
       this.updateComplete.then(() => {
         const rootEl = options.rootEl ? this.renderRoot.querySelector(options.rootEl) : this.renderRoot
-        this.elObserver.observe(rootEl, elementsObserverConfig)
+        this.linksObserver.observe(rootEl, elementsObserverConfig)
         createLinks(this, options)
       })
     }
