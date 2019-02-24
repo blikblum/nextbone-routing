@@ -3,18 +3,19 @@ import { delegate } from 'nextbone'
 import { routerChannel } from './cherrytree-adapter'
 
 const routerLinksData = Symbol()
+const resolved = Promise.resolve()
 
 function mutationHandler (mutations, observer) {
   mutations.forEach(function (mutation) {
     if (mutation.type === 'attributes') {
       let attr = mutation.attributeName
       if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
-        updateHref(mutation.target, observer.link)
+        updateHref(mutation.target, observer.ownerEl)
       }
     } else {
       _.each(mutation.addedNodes, node => {
         if (node.nodeType === 1 && (node.route || node.getAttribute('route'))) {
-          updateHref(node, observer.link)
+          updateHref(node, observer.ownerEl)
         }
       })
     }
@@ -46,11 +47,11 @@ function getDefaults (ownerEl, routeName, prop, routeEl) {
   return _.clone(result) || {}
 }
 
-function updateHref (el, routerLinks) {
+function updateHref (el, ownerEl) {
   let routeName = el.getAttribute('route')
   if (!routeName) return
-  let params = getAttributeValues(el, 'param-', getDefaults(routerLinks, routeName, 'params', el))
-  let query = getAttributeValues(el, 'query-', getDefaults(routerLinks, routeName, 'query', el))
+  let params = getAttributeValues(el, 'param-', getDefaults(ownerEl, routeName, 'params', el))
+  let query = getAttributeValues(el, 'query-', getDefaults(ownerEl, routeName, 'query', el))
   let href = routerChannel.request('generate', routeName, params, query)
   let anchorEl
   if (el.tagName === 'A') {
@@ -71,7 +72,7 @@ function createLinks (routerLinks, rootEl, options) {
 }
 
 function transitionHandler () {
-  this.updateComplete.then(() => {
+  (this.updateComplete || resolved).then(() => {
     const data = this[routerLinksData]
     _.each(data.rootEls, rootEl => {
       _.each(rootEl.querySelectorAll('[route]'), el => {
@@ -104,22 +105,24 @@ const createClass = (ctor, options = {}) => {
     constructor () {
       super()
       delegate(this, 'click', '[route]', linkClickHandler)
-      this[routerLinksData] = { options }
     }
 
     connectedCallback () {
       super.connectedCallback()
       routerChannel.on('transition', transitionHandler, this)
-      this.linksObserver = new MutationObserver(mutationHandler)
-      this.linksObserver.link = this
+
+      if (this[routerLinksData]) {
+        return
+      }
 
       this.updateComplete.then(() => {
         const rootEls = (this.renderRoot || this).querySelectorAll('[routerlinks]')
-        const data = this[routerLinksData]
-        data.rootEls = rootEls
+        const observer = new MutationObserver(mutationHandler)
+        observer.ownerEl = this
+        this[routerLinksData] = { options, rootEls, observer }
         _.each(rootEls, rootEl => {
-          this.linksObserver.observe(rootEl, elementsObserverConfig)
           createLinks(this, rootEl, options)
+          observer.observe(rootEl, elementsObserverConfig)
         })
       })
     }
@@ -152,5 +155,22 @@ export const routerLinks = (optionsOrCtorOrDescriptor, options) => {
   // optionsOrCtorOrDescriptor === options
   return (ctorOrDescriptor) => {
     return routerLinks(ctorOrDescriptor, optionsOrCtorOrDescriptor)
+  }
+}
+
+routerLinks.bind = function (ownerEl, options = {}) {
+  const rootEls = ownerEl.querySelectorAll('[routerlinks]')
+  const observer = new MutationObserver(mutationHandler)
+  const eventHandler = delegate(ownerEl, 'click', '[route]', linkClickHandler)
+  observer.ownerEl = ownerEl
+  ownerEl[routerLinksData] = { options, rootEls, observer }
+  _.each(rootEls, rootEl => {
+    createLinks(ownerEl, rootEl, options)
+    observer.observe(rootEl, elementsObserverConfig)
+  })
+  routerChannel.on('transition', transitionHandler, ownerEl)
+  return function () {
+    ownerEl.removeEventListener('click', eventHandler)
+    routerChannel.off('transition', transitionHandler, ownerEl)
   }
 }

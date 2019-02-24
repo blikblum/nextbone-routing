@@ -14,7 +14,7 @@ let expect = chai.expect
 chai.use(sinonChai)
 
 let router, routes
-let RootRoute, ParentRoute, ChildRoute, PreRenderedView
+let RootRoute, ParentRoute, ChildRoute
 
 const parentRouterLinksOptions = {
   defaults: {
@@ -47,7 +47,7 @@ class ParentView extends LitElement {
       <div routerlinks>
         <div id="div-rootlink1" route="root" param-id="1"></div>
         <div id="div-grandchildlink" route="grandchild" query-name="test"></div>
-        <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
+        <div id="div-parentlink" route="parent"><div id="innerparent"></div></div>
         <a id="a-parentlink" route="parent"></a>
         <a id="a-parentlink-customclass" active-class="my-active-class" route="parent"></a>
         <a id="a-parentlink-noclass" active-class="" route="parent"></a>
@@ -92,12 +92,7 @@ const grandChildTag = defineCE(GrandChildView)
 
 describe('routerLinks', () => {
   beforeEach(() => {
-    document.body.innerHTML = `<div id="main"></div>
-    <div id="prerendered">
-      <a id="a-prerootlink2" route="root" param-id="2"></a>
-      <a id="a-preparentlink" route="parent"></a>
-      <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
-    </div>`
+    document.body.innerHTML = `<div id="main"></div>`
 
     parentRouterLinksOptions.rootEl = undefined
 
@@ -313,8 +308,20 @@ describe('routerLinks', () => {
     })
   })
 
-  describe.skip('in a pre-rendered view', function () {
+  describe('when calling bind in pre-rendered HTML', function () {
+    let unbind
     beforeEach(function () {
+      $(`<div id="prerendered">
+        <div routerlinks>
+          <a id="a-prerootlink2" route="root" param-id="2"></a>
+          <a id="a-preparentlink" route="parent"></a>
+          <a id="a-pregrandchildlink" route="grandchild" query-name="test"></a>
+          <div id="div-prerootlink1" route="root" param-id="1"></div>
+          <div id="div-pregrandchildlink" route="grandchild" query-name="test"></div>
+          <div id="div-preparentlink" route="parent"><div id="preinnerparent"></div></div>
+        </div>
+      </div>`).appendTo(document.body)
+      unbind = routerLinks.bind(document.getElementById('prerendered'))
     })
 
     it('should generate href attributes in anchor tags with route attribute', function () {
@@ -327,13 +334,55 @@ describe('routerLinks', () => {
       })
     })
 
-    it('should call view.initialize with proper arguments', function () {
-      let spy = PreRenderedView.prototype.initialize = sinon.spy()
+    it('should call transitionTo when a non anchor tags with route attribute is clicked', function () {
       return router.transitionTo('parent').then(async function () {
         const parentEl = document.querySelector(parentTag)
         await parentEl.updateComplete
-        expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledWith({ x: 1 })
+        let spy = sinon.spy(router, 'transitionTo')
+        $('#div-prerootlink1').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
+
+        spy.resetHistory()
+        $('#div-pregrandchildlink').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('grandchild', {}, { name: 'test' })
+
+        spy.resetHistory()
+        $('#preinnerparent').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
+      })
+    })
+
+    it('should not call transitionTo after calling function returned by bind', function () {
+      unbind()
+      return router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(parentTag)
+        await parentEl.updateComplete
+        let spy = sinon.spy(router, 'transitionTo')
+        $('#div-prerootlink1').click()
+        $('#div-pregrandchildlink').click()
+        $('#preinnerparent').click()
+        expect(spy).to.not.be.called
+      })
+    })
+
+    describe('and nodes are added dynamically', () => {
+      it('should generate href attributes in anchor tags with route attribute', function (done) {
+        router.transitionTo('parent').then(async function () {
+          const parentEl = document.querySelector(parentTag)
+          await parentEl.updateComplete
+          $(`<a id="a-dyn-prerootlink2" route="root" param-id="2"></a>
+            <a id="a-dyn-preparentlink" route="parent"></a>
+            <a id="a-dyn-pregrandchildlink" route="grandchild" query-name="test"></a>
+          `).appendTo(document.querySelector('#prerendered [routerlinks]'))
+
+          // links are updated asynchronously by MutationObserver
+          setTimeout(() => {
+            expect($('#a-dyn-preparentlink').attr('href')).to.be.equal('#parent')
+            expect($('#a-dyn-prerootlink2').attr('href')).to.be.equal('#root/2')
+            expect($('#a-dyn-pregrandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
+            done()
+          }, 0)
+        })
       })
     })
   })
