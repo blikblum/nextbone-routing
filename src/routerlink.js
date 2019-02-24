@@ -2,6 +2,8 @@ import _ from 'underscore'
 import { delegate } from 'nextbone'
 import { routerChannel } from './cherrytree-adapter'
 
+const routerLinksData = Symbol()
+
 function mutationHandler (mutations, observer) {
   mutations.forEach(function (mutation) {
     if (mutation.type === 'attributes') {
@@ -34,11 +36,21 @@ function getAttributeValues (el, prefix, result) {
   return result
 }
 
+function getDefaults (ownerEl, routeName, prop, routeEl) {
+  const data = ownerEl[routerLinksData]
+  let defaults = data.options.defaults
+  if (_.isFunction(defaults)) defaults = defaults.call(ownerEl)
+  let routeDefaults = defaults && defaults[routeName]
+  let result = (routeDefaults && routeDefaults[prop])
+  if (_.isFunction(result)) result = result.call(ownerEl, routeEl)
+  return _.clone(result) || {}
+}
+
 function updateHref (el, routerLinks) {
   let routeName = el.getAttribute('route')
   if (!routeName) return
-  let params = getAttributeValues(el, 'param-', routerLinks.getDefaults(routeName, 'params', el))
-  let query = getAttributeValues(el, 'query-', routerLinks.getDefaults(routeName, 'query', el))
+  let params = getAttributeValues(el, 'param-', getDefaults(routerLinks, routeName, 'params', el))
+  let query = getAttributeValues(el, 'query-', getDefaults(routerLinks, routeName, 'query', el))
   let href = routerChannel.request('generate', routeName, params, query)
   let anchorEl
   if (el.tagName === 'A') {
@@ -58,19 +70,46 @@ function createLinks (routerLinks, rootEl, options) {
   })
 }
 
-const routerLinksData = Symbol()
+function transitionHandler () {
+  this.updateComplete.then(() => {
+    const data = this[routerLinksData]
+    _.each(data.rootEls, rootEl => {
+      _.each(rootEl.querySelectorAll('[route]'), el => {
+        let routeName = el.getAttribute('route')
+        if (!routeName) return
+        let params = getAttributeValues(el, 'param-', getDefaults(this, routeName, 'params', el))
+        let query = getAttributeValues(el, 'query-', getDefaults(this, routeName, 'query', el))
+        let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
+        if (activeClass) {
+          const isActive = routerChannel.request('isActive', routeName, params, query)
+          el.classList.toggle(activeClass, isActive)
+        }
+      })
+    })
+  })
+}
+
+function linkClickHandler (e) {
+  let el = e.delegateTarget
+  if (el.querySelectorAll('a').length) return
+  let routeName = el.getAttribute('route')
+  if (!routeName) return
+  let params = getAttributeValues(el, 'param-', getDefaults(this, routeName, 'params', el))
+  let query = getAttributeValues(el, 'query-', getDefaults(this, routeName, 'query', el))
+  routerChannel.request('transitionTo', routeName, params, query)
+}
 
 const createClass = (ctor, options = {}) => {
   class RouterLinksMixin extends ctor {
     constructor () {
       super()
-      delegate(this, 'click', '[route]', this.onLinkClick)
+      delegate(this, 'click', '[route]', linkClickHandler)
       this[routerLinksData] = { options }
     }
 
     connectedCallback () {
       super.connectedCallback()
-      routerChannel.on('transition', this.onTransition, this)
+      routerChannel.on('transition', transitionHandler, this)
       this.linksObserver = new MutationObserver(mutationHandler)
       this.linksObserver.link = this
 
@@ -87,45 +126,7 @@ const createClass = (ctor, options = {}) => {
 
     disconnectedCallback () {
       super.disconnectedCallback()
-      routerChannel.off('transition', this.onTransition, this)
-    }
-
-    onTransition () {
-      this.updateComplete.then(() => {
-        const data = this[routerLinksData]
-        _.each(data.rootEls, rootEl => {
-          _.each(rootEl.querySelectorAll('[route]'), el => {
-            let routeName = el.getAttribute('route')
-            if (!routeName) return
-            let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
-            let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
-            let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
-            if (activeClass) {
-              const isActive = routerChannel.request('isActive', routeName, params, query)
-              el.classList.toggle(activeClass, isActive)
-            }
-          })
-        })
-      })
-    }
-
-    onLinkClick (e) {
-      let el = e.delegateTarget
-      if (el.querySelectorAll('a').length) return
-      let routeName = el.getAttribute('route')
-      if (!routeName) return
-      let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
-      let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
-      routerChannel.request('transitionTo', routeName, params, query)
-    }
-
-    getDefaults (routeName, prop, el) {
-      let defaults = options.defaults
-      if (_.isFunction(defaults)) defaults = defaults.call(this)
-      let routeDefaults = defaults && defaults[routeName]
-      let result = (routeDefaults && routeDefaults[prop])
-      if (_.isFunction(result)) result = result.call(this, el)
-      return _.clone(result) || {}
+      routerChannel.off('transition', transitionHandler, this)
     }
   }
   return RouterLinksMixin
