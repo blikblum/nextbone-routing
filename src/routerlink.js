@@ -90,7 +90,7 @@ function transitionHandler () {
 }
 
 function linkClickHandler (e) {
-  let el = e.delegateTarget
+  let el = e.selectorTarget
   if (el.querySelectorAll('a').length) return
   let routeName = el.getAttribute('route')
   if (!routeName) return
