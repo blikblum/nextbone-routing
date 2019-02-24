@@ -43,20 +43,22 @@ class ParentView extends LitElement {
   }
 
   render () {
-    return html`<div id="div-rootlink1" route="root" param-id="1"></div>
-      <div id="div-grandchildlink" route="grandchild" query-name="test"></div>
-      <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
-      <a id="a-rootlink2" route="root" param-id="2"></a>
-      <a id="a-rootlink3" route="root"></a>
-      <div id="scoped">
+    return html`
+      <div routerlinks>
+        <div id="div-rootlink1" route="root" param-id="1"></div>
+        <div id="div-grandchildlink" route="grandchild" query-name="test"></div>
+        <div id="div-parentlink" route="parent"><div id="innerparent"></div> </div>
         <a id="a-parentlink" route="parent"></a>
         <a id="a-parentlink-customclass" active-class="my-active-class" route="parent"></a>
         <a id="a-parentlink-noclass" active-class="" route="parent"></a>
         <a id="a-grandchildlink" route="grandchild" query-name="test"></a>
-      </div>      
-      <a id="a-childlink" route="child" query-name="test"></a>
-      <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
-      <div class="child-view"></div>
+        <a id="a-rootlink2" route="root" param-id="2"></a>
+        <a id="a-rootlink3" route="root"></a>
+        <a id="a-childlink" route="child" query-name="test"></a>
+        <div id="div-a-parent" route="parent"><a id="childanchor"></a><a id="childanchor2"></a><div><a id="childanchor3"></a></div></div>
+        <div class="child-view"></div>
+      </div>
+      <a id="a-parentlink-outside" route="parent"></a>
      `
   }
 }
@@ -79,7 +81,11 @@ class GrandChildView extends LitElement {
     return this
   }
   render () {
-    return html`<a id="a-grandchildlink2" route="grandchild" query-name="test"></a>`
+    return html`
+    <div routerlinks>
+      <a id="a-grandchildlink2" route="grandchild" query-name="test"></a>
+    </div>    
+    `
   }
 }
 const grandChildTag = defineCE(GrandChildView)
@@ -254,6 +260,14 @@ describe('routerLinks', () => {
     })
   })
 
+  it('should not generate href attributes outside of elements with routerlinks attribute', function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
+      expect($('#a-parentlink-outside').attr('href')).to.be.equal(undefined)
+    })
+  })
+
   describe('when elements are added dynamically', () => {
     it('should generate href attributes in anchor tags with route attribute', function (done) {
       router.transitionTo('parent').then(async function () {
@@ -262,7 +276,7 @@ describe('routerLinks', () => {
         $(`<a id="a-dyn-rootlink2" route="root" param-id="2"></a>
           <a id="a-dyn-parentlink" route="parent"></a>
           <a id="a-dyn-grandchildlink" route="grandchild" query-name="test"></a>
-        `).appendTo(parentEl.renderRoot)
+        `).appendTo(parentEl.renderRoot.querySelector('[routerlinks]'))
 
         // links are updated asynchronously by MutationObserver
         setTimeout(() => {
@@ -320,22 +334,6 @@ describe('routerLinks', () => {
         await parentEl.updateComplete
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledWith({ x: 1 })
-      })
-    })
-  })
-
-  describe('with rootEl set', function () {
-    beforeEach(function () {
-      parentRouterLinksOptions.rootEl = '#scoped'
-    })
-
-    it('should generate href attributes only in children of rootEl', function () {
-      return router.transitionTo('parent').then(async function () {
-        const parentEl = document.querySelector(parentTag)
-        await parentEl.updateComplete
-        expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
-        expect($('#a-rootlink2').attr('href')).to.be.equal(undefined)
-        expect($('#a-grandchildlink').attr('href')).to.be.equal('#parent/child/grandchild?name=test')
       })
     })
   })

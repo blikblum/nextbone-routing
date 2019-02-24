@@ -50,22 +50,22 @@ function updateHref (el, routerLinks) {
   return anchorEl
 }
 
-function createLinks (routerLinks, options) {
-  const renderRoot = routerLinks.renderRoot || this
-  const rootEl = options.rootEl
-  const selector = rootEl ? rootEl + ' [route]' : '[route]'
-  const routes = renderRoot.querySelectorAll(selector)
+function createLinks (routerLinks, rootEl, options) {
+  const routeEls = rootEl.querySelectorAll('[route]')
 
-  _.each(routes, (el) => {
+  _.each(routeEls, (el) => {
     updateHref(el, routerLinks)
   })
 }
+
+const routerLinksData = Symbol()
 
 const createClass = (ctor, options = {}) => {
   class RouterLinksMixin extends ctor {
     constructor () {
       super()
       delegate(this, 'click', '[route]', this.onLinkClick)
+      this[routerLinksData] = { options }
     }
 
     connectedCallback () {
@@ -75,9 +75,13 @@ const createClass = (ctor, options = {}) => {
       this.linksObserver.link = this
 
       this.updateComplete.then(() => {
-        const rootEl = options.rootEl ? this.renderRoot.querySelector(options.rootEl) : this.renderRoot
-        this.linksObserver.observe(rootEl, elementsObserverConfig)
-        createLinks(this, options)
+        const rootEls = (this.renderRoot || this).querySelectorAll('[routerlinks]')
+        const data = this[routerLinksData]
+        data.rootEls = rootEls
+        _.each(rootEls, rootEl => {
+          this.linksObserver.observe(rootEl, elementsObserverConfig)
+          createLinks(this, rootEl, options)
+        })
       })
     }
 
@@ -88,19 +92,19 @@ const createClass = (ctor, options = {}) => {
 
     onTransition () {
       this.updateComplete.then(() => {
-        const rootEl = options.rootEl
-        const selector = rootEl ? rootEl + ' [route]' : '[route]'
-        const renderRoot = this.renderRoot || this
-        _.each(renderRoot.querySelectorAll(selector), el => {
-          let routeName = el.getAttribute('route')
-          if (!routeName) return
-          let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
-          let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
-          let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
-          if (activeClass) {
-            const isActive = routerChannel.request('isActive', routeName, params, query)
-            el.classList.toggle(activeClass, isActive)
-          }
+        const data = this[routerLinksData]
+        _.each(data.rootEls, rootEl => {
+          _.each(rootEl.querySelectorAll('[route]'), el => {
+            let routeName = el.getAttribute('route')
+            if (!routeName) return
+            let params = getAttributeValues(el, 'param-', this.getDefaults(routeName, 'params', el))
+            let query = getAttributeValues(el, 'query-', this.getDefaults(routeName, 'query', el))
+            let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
+            if (activeClass) {
+              const isActive = routerChannel.request('isActive', routeName, params, query)
+              el.classList.toggle(activeClass, isActive)
+            }
+          })
         })
       })
     }
