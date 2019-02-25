@@ -116,7 +116,8 @@ const createClass = (ctor, options = {}) => {
       }
 
       this.updateComplete.then(() => {
-        const rootEls = (this.renderRoot || this).querySelectorAll('[routerlinks]')
+        const { selector = '[routerlinks]' } = options
+        const rootEls = selector ? (this.renderRoot || this).querySelectorAll(selector) : [this]
         const observer = new MutationObserver(mutationHandler)
         observer.ownerEl = this
         this[routerLinksData] = { options, rootEls, observer }
@@ -159,7 +160,8 @@ export const routerLinks = (optionsOrCtorOrDescriptor, options) => {
 }
 
 routerLinks.bind = function (ownerEl, options = {}) {
-  const rootEls = ownerEl.querySelectorAll('[routerlinks]')
+  const { selector = '[routerlinks]' } = options
+  const rootEls = selector ? ownerEl.querySelectorAll(selector) : [ownerEl]
   const observer = new MutationObserver(mutationHandler)
   const eventHandler = delegate(ownerEl, 'click', '[route]', linkClickHandler)
   observer.ownerEl = ownerEl

@@ -94,8 +94,6 @@ describe('routerLinks', () => {
   beforeEach(() => {
     document.body.innerHTML = `<div id="main"></div>`
 
-    parentRouterLinksOptions.rootEl = undefined
-
     router = new Router({}, '#main')
     ParentRoute = class extends Route {
       static outletSelector = '.child-view'
@@ -383,6 +381,77 @@ describe('routerLinks', () => {
             done()
           }, 0)
         })
+      })
+    })
+  })
+
+  describe('setting selector option', () => {
+    const customSelectorOptions = {}
+    @routerLinks(customSelectorOptions)
+    class ParentCustomSelectorView extends LitElement {
+      rootId = 5
+
+      createRenderRoot () {
+        return this
+      }
+
+      render () {
+        return html`
+          <div class="my-router-links">
+            <div id="div-parentlink" route="parent"><div id="innerparent"></div></div>
+            <a id="a-parentlink" route="parent"></a>
+          </div>
+          <a id="a-parentlink-outside" route="parent"></a>
+          <div id="div-parentlink-outside" route="parent"><div id="innerparent-outside"></div></div>
+        `
+      }
+    }
+    const customParentTag = defineCE(ParentCustomSelectorView)
+
+    beforeEach(() => {
+      ParentRoute.prototype.component = function () {
+        return ParentCustomSelectorView
+      }
+    })
+
+    it('to a valid one should configure links inside elements that matches selector', async function () {
+      customSelectorOptions.selector = '.my-router-links'
+      return router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(customParentTag)
+        await parentEl.updateComplete
+
+        expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
+
+        expect($('#a-parentlink-outside').attr('href')).to.be.equal(undefined)
+
+        const spy = sinon.spy(router, 'transitionTo')
+        $('#innerparent').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
+
+        // fix me
+        // spy.resetHistory()
+        // $('#innerparent-outside').click()
+        // expect(spy).not.to.be.called
+      })
+    })
+
+    it('to a falsy one should configure all links in owner element', async function () {
+      customSelectorOptions.selector = false
+      return router.transitionTo('parent').then(async function () {
+        const parentEl = document.querySelector(customParentTag)
+        await parentEl.updateComplete
+
+        expect($('#a-parentlink').attr('href')).to.be.equal('#parent')
+
+        expect($('#a-parentlink-outside').attr('href')).to.be.equal('#parent')
+
+        const spy = sinon.spy(router, 'transitionTo')
+        $('#innerparent').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
+
+        spy.resetHistory()
+        $('#innerparent-outside').click()
+        expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
       })
     })
   })
