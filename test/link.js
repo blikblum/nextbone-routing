@@ -59,6 +59,7 @@ class ParentView extends LitElement {
         <div class="child-view"></div>
       </div>
       <a id="a-parentlink-outside" route="parent"></a>
+      <div id="div-parentlink-outside" route="parent"><div id="innerparent-outside"></div></div>
      `
   }
 }
@@ -261,6 +262,16 @@ describe('routerLinks', () => {
     })
   })
 
+  it('should not call transitionTo outside of elements with routerlinks attribute', function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
+      const spy = sinon.spy(router, 'transitionTo')
+      $('#innerparent-outside').click()
+      expect(spy).to.not.be.called
+    })
+  })
+
   describe('when elements are added dynamically', () => {
     it('should generate href attributes in anchor tags with route attribute', function (done) {
       router.transitionTo('parent').then(async function () {
@@ -289,7 +300,7 @@ describe('routerLinks', () => {
         $(`<div id="div-dyn-rootlink1" route="root" param-id="1"></div>
         <div id="div-dyn-grandchildlink" route="grandchild" query-name="test"></div>
         <div id="div-dyn-parentlink" route="parent"><div id="dyn-innerparent"></div></div>
-        `).appendTo(parentEl.renderRoot)
+        `).appendTo(parentEl.renderRoot.querySelector('[routerlinks]'))
 
         let spy = sinon.spy(router, 'transitionTo')
         $('#div-dyn-rootlink1').click()
@@ -428,10 +439,9 @@ describe('routerLinks', () => {
         $('#innerparent').click()
         expect(spy).to.be.calledOnce.and.calledWithExactly('parent', {}, {})
 
-        // fix me
-        // spy.resetHistory()
-        // $('#innerparent-outside').click()
-        // expect(spy).not.to.be.called
+        spy.resetHistory()
+        $('#innerparent-outside').click()
+        expect(spy).not.to.be.called
       })
     })
 

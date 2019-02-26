@@ -102,11 +102,6 @@ function linkClickHandler (e) {
 
 const createClass = (ctor, options = {}) => {
   class RouterLinksMixin extends ctor {
-    constructor () {
-      super()
-      delegate(this, 'click', '[route]', linkClickHandler)
-    }
-
     connectedCallback () {
       super.connectedCallback()
       routerChannel.on('transition', transitionHandler, this)
@@ -122,6 +117,7 @@ const createClass = (ctor, options = {}) => {
         observer.ownerEl = this
         this[routerLinksData] = { options, rootEls, observer }
         _.each(rootEls, rootEl => {
+          delegate(rootEl, 'click', '[route]', linkClickHandler.bind(this))
           createLinks(this, rootEl, options)
           observer.observe(rootEl, elementsObserverConfig)
         })
@@ -163,16 +159,17 @@ routerLinks.bind = function (ownerEl, options = {}) {
   const { selector = '[routerlinks]' } = options
   const rootEls = selector ? ownerEl.querySelectorAll(selector) : [ownerEl]
   const observer = new MutationObserver(mutationHandler)
-  const eventHandler = delegate(ownerEl, 'click', '[route]', linkClickHandler)
+  const eventHandlers = []
   observer.ownerEl = ownerEl
   ownerEl[routerLinksData] = { options, rootEls, observer }
   _.each(rootEls, rootEl => {
+    eventHandlers.push(delegate(rootEl, 'click', '[route]', linkClickHandler.bind(ownerEl)))
     createLinks(ownerEl, rootEl, options)
     observer.observe(rootEl, elementsObserverConfig)
   })
   routerChannel.on('transition', transitionHandler, ownerEl)
   return function () {
-    ownerEl.removeEventListener('click', eventHandler)
+    eventHandlers.forEach((eventHandler, i) => rootEls[i].removeEventListener('click', eventHandler))
     routerChannel.off('transition', transitionHandler, ownerEl)
   }
 }
