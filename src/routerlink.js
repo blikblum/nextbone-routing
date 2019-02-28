@@ -48,19 +48,13 @@ function getDefaults (ownerEl, routeName, prop, routeEl) {
 }
 
 function updateHref (el, ownerEl) {
-  let routeName = el.getAttribute('route')
+  const routeName = el.getAttribute('route')
   if (!routeName) return
-  let params = getAttributeValues(el, 'param-', getDefaults(ownerEl, routeName, 'params', el))
-  let query = getAttributeValues(el, 'query-', getDefaults(ownerEl, routeName, 'query', el))
-  let href = routerChannel.request('generate', routeName, params, query)
-  let anchorEl
-  if (el.tagName === 'A') {
-    anchorEl = el
-  } else {
-    anchorEl = el.querySelectorAll('a')[0]
-  }
+  const params = getAttributeValues(el, 'param-', getDefaults(ownerEl, routeName, 'params', el))
+  const query = getAttributeValues(el, 'query-', getDefaults(ownerEl, routeName, 'query', el))
+  const href = routerChannel.request('generate', routeName, params, query)
+  const anchorEl = el.tagName === 'A' ? el : el.querySelector('a')
   if (anchorEl) anchorEl.setAttribute('href', href)
-  return anchorEl
 }
 
 function createLinks (routerLinks, rootEl, options) {
