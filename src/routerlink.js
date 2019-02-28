@@ -2,7 +2,7 @@ import _ from 'underscore'
 import { delegate } from 'nextbone'
 import { routerChannel } from './cherrytree-adapter'
 
-const routerLinksData = Symbol()
+const routerLinksData = Symbol('routerLinksData')
 const resolved = Promise.resolve()
 
 function mutationHandler (mutations, observer) {
