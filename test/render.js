@@ -18,6 +18,9 @@ let router, routes
 let RootRoute, ParentRoute, ChildRoute, LeafRoute
 
 class ParentView extends withEvents(HTMLElement) {
+  static get outlet () {
+    return '.child-el'
+  }
   connectedCallback () {
     this.innerHTML = '<div class="child-el"></div>'
   }
@@ -74,9 +77,6 @@ describe('Render', () => {
   beforeEach(() => {
     router = new Router({ location: 'memory' })
     ParentRoute = class extends Route {
-      static get outletSelector () {
-        return '.child-el'
-      }
       static get component () {
         return ParentView
       }

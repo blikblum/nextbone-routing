@@ -16,6 +16,10 @@ let router, routes
 let ParentRoute, ChildRoute, GrandchildRoute
 
 class ParentView extends withEvents(LitElement) {
+  static get outlet () {
+    return '.child-el'
+  }
+
   createRenderRoot () {
     return this
   }
@@ -55,9 +59,6 @@ describe('Async Render', () => {
   beforeEach(() => {
     router = new Router({ location: 'memory' })
     ParentRoute = class extends Route {
-      static get outletSelector () {
-        return '.child-el'
-      }
       component () { return ParentView }
     }
     ChildRoute = class extends Route {}

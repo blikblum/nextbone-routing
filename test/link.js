@@ -36,6 +36,8 @@ const parentRouterLinksOptions = {
 
 @routerLinks(parentRouterLinksOptions)
 class ParentView extends LitElement {
+  static outlet = '.child-view'
+
   rootId = 5
 
   createRenderRoot () {
@@ -97,7 +99,6 @@ describe('routerLinks', () => {
 
     router = new Router({}, '#main')
     ParentRoute = class extends Route {
-      static outletSelector = '.child-view'
       component () { return ParentView }
     }
     RootRoute = class extends Route {}

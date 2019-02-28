@@ -88,7 +88,7 @@ export default class Route extends Events {
     let outletRegion = outletRegionMap.get(this.el)
     if (!outletRegion) {
       const root = this.el.shadowRoot ? this.el.shadowRoot : this.el
-      const selector = this.constructor.outletSelector || 'router-outlet'
+      const selector = this.el.constructor.outlet || 'router-outlet'
       const el = root.querySelector(selector)
       if (el) {
         outletRegion = new Region(el)
