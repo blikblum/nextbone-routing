@@ -84,7 +84,7 @@ describe('Async Render', () => {
     let grandChildRenderCb
 
     beforeEach(() => {
-      router.on('route:render', route => {
+      router.on('render', route => {
         if (route.$name === 'grandchild' && grandChildRenderCb) {
           grandChildRenderCb(route)
         }

@@ -69,7 +69,7 @@ export default class Route extends Events {
       throw new Error('No root outlet region defined')
     }
     this.el = el
-    router.trigger('route:render', this)
+    router.trigger('render', this)
   }
 
   updateEl () {
