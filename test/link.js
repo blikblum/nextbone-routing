@@ -116,6 +116,7 @@ describe('routerLinks', () => {
   })
 
   afterEach(() => {
+    document.body.innerHTML = ''
     router.destroy()
   })
 
@@ -130,7 +131,7 @@ describe('routerLinks', () => {
     })
   })
 
-  it('should update href attributes in anchor tags when attribute is changed', async function () {
+  it('should update href attributes in anchor tags when attribute is changed', function () {
     return router.transitionTo('parent').then(async function () {
       const parentEl = document.querySelector(parentTag)
       await parentEl.updateComplete

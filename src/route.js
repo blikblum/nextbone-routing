@@ -1,7 +1,7 @@
 import { Events } from 'nextbone'
 import { Region } from './utils/region'
 import { findContext } from './routecontext'
-import { routerChannel } from './cherrytree-adapter'
+import { router } from './cherrytree-adapter'
 
 const createElement = (route, Definition) => {
   if (typeof Definition === 'function') {
@@ -69,7 +69,7 @@ export default class Route extends Events {
       throw new Error('No root outlet region defined')
     }
     this.el = el
-    routerChannel.trigger('route:render', this)
+    router.trigger('route:render', this)
   }
 
   updateEl () {

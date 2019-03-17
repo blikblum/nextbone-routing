@@ -7,7 +7,6 @@ import { Route, Router, Region } from '../src/index'
 import { withEvents } from 'nextbone'
 import { defineCE } from '@open-wc/testing-helpers'
 import { LitElement, html } from 'lit-element'
-import { Radio } from 'nextbone-radio'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -85,7 +84,7 @@ describe('Async Render', () => {
     let grandChildRenderCb
 
     beforeEach(() => {
-      Radio.channel('router').on('route:render', route => {
+      router.on('route:render', route => {
         if (route.$name === 'grandchild' && grandChildRenderCb) {
           grandChildRenderCb(route)
         }
@@ -93,7 +92,7 @@ describe('Async Render', () => {
     })
 
     afterEach(() => {
-      Radio.channel('router').reset()
+      router.off()
     })
 
     it('should render each route element in parent outlet', function (done) {

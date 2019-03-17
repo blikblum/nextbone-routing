@@ -6,7 +6,6 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Route, Router, Region } from '../src/index'
 import { withEvents } from 'nextbone'
-import { Radio } from 'nextbone-radio'
 import _ from 'underscore'
 import $ from 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
@@ -243,7 +242,7 @@ describe('Render', () => {
           setTimeout(resolve, 100)
         })
       }
-      Radio.channel('router').on('activate', activateSpy)
+      router.on('activate', activateSpy)
 
       return router.transitionTo('parent').then(function () {
         expect(spy).to.be.calledAfter(activateSpy)

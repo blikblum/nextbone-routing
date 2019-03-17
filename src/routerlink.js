@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import { delegate } from 'nextbone'
-import { routerChannel } from './cherrytree-adapter'
+import { router } from './cherrytree-adapter'
 
 const routerLinksData = Symbol('routerLinksData')
 const resolved = Promise.resolve()
@@ -52,7 +52,7 @@ function updateHref (el, ownerEl) {
   if (!routeName) return
   const params = getAttributeValues(el, 'param-', getDefaults(ownerEl, routeName, 'params', el))
   const query = getAttributeValues(el, 'query-', getDefaults(ownerEl, routeName, 'query', el))
-  const href = routerChannel.request('generate', routeName, params, query)
+  const href = router.generate(routeName, params, query)
   const anchorEl = el.tagName === 'A' ? el : el.querySelector('a')
   if (anchorEl) anchorEl.setAttribute('href', href)
 }
@@ -76,7 +76,7 @@ function transitionHandler () {
         let query = getAttributeValues(el, 'query-', getDefaults(this, routeName, 'query', el))
         let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
         if (activeClass) {
-          const isActive = routerChannel.request('isActive', routeName, params, query)
+          const isActive = router.isActive(routeName, params, query)
           el.classList.toggle(activeClass, isActive)
         }
       })
@@ -91,14 +91,14 @@ function linkClickHandler (e) {
   if (!routeName) return
   let params = getAttributeValues(el, 'param-', getDefaults(this, routeName, 'params', el))
   let query = getAttributeValues(el, 'query-', getDefaults(this, routeName, 'query', el))
-  routerChannel.request('transitionTo', routeName, params, query)
+  router.transitionTo(routeName, params, query)
 }
 
 const createClass = (ctor, options = {}) => {
   class RouterLinksMixin extends ctor {
     connectedCallback () {
       super.connectedCallback()
-      routerChannel.on('transition', transitionHandler, this)
+      router.on('transition', transitionHandler, this)
 
       if (this[routerLinksData]) {
         return
@@ -120,7 +120,7 @@ const createClass = (ctor, options = {}) => {
 
     disconnectedCallback () {
       super.disconnectedCallback()
-      routerChannel.off('transition', transitionHandler, this)
+      router.off('transition', transitionHandler, this)
     }
   }
   return RouterLinksMixin
@@ -161,9 +161,9 @@ routerLinks.bind = function (ownerEl, options = {}) {
     createLinks(ownerEl, rootEl, options)
     observer.observe(rootEl, elementsObserverConfig)
   })
-  routerChannel.on('transition', transitionHandler, ownerEl)
+  router.on('transition', transitionHandler, ownerEl)
   return function () {
     eventHandlers.forEach((eventHandler, i) => rootEls[i].removeEventListener('click', eventHandler))
-    routerChannel.off('transition', transitionHandler, ownerEl)
+    router.off('transition', transitionHandler, ownerEl)
   }
 }

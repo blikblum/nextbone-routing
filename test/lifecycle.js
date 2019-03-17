@@ -313,7 +313,7 @@ describe('Lifecycle hooks', () => {
     it('should always be called even if not activating', function () {
       let activateSpy = sinon.spy(ParentRoute.prototype, 'activate')
       let loadSpy = sinon.spy(ParentRoute.prototype, 'load')
-      router.transitionTo('child').then(function () {
+      return router.transitionTo('child').then(function () {
         return router.transitionTo('child2')
       }).then(function () {
         expect(activateSpy).to.be.calledOnce

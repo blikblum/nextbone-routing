@@ -9,14 +9,14 @@
  */
 
 import _ from 'underscore'
-import { Radio } from 'nextbone-radio'
 import Cherrytree from 'cherrytreex'
 import Route, { getComponent } from './route'
 import { Region } from './utils/region'
+import { Events } from 'nextbone'
 
 let mnRouteMap = Object.create(null)
-export const routerChannel = Radio.channel('router')
-let router
+
+export let router
 
 export function Router (options, renderRoot) {
   if (router) {
@@ -53,33 +53,19 @@ Router.prototype.use = function (customMiddleware, options = {}) {
 }
 
 Router.prototype.destroy = function () {
+  this.off()
   router = null
   mnRouteMap = Object.create(null)
   Cherrytree.prototype.destroy.call(this)
 }
+
+Events.extend(Router.prototype)
 
 export function getMnRoutes (routes) {
   return routes.map(function (route) {
     return mnRouteMap[route.name]
   })
 }
-
-routerChannel.reply('transitionTo', function () {
-  return router.transitionTo.apply(router, arguments)
-})
-
-routerChannel.reply('isActive', function () {
-  return router.isActive.apply(router, arguments)
-})
-
-routerChannel.reply('generate', function () {
-  return router.generate.apply(router, arguments)
-})
-
-routerChannel.reply('goBack', function () {
-  // in wait of a better implementation
-  history.back()
-})
 
 function getChangingIndex (prevRoutes, currentRoutes) {
   let index, prev, current
@@ -196,12 +182,12 @@ function renderElements (mnRoutes, activated, transition) {
 
 function runAsyncMethod (transition, routes, method) {
   return routes.reduce(function (prevPromise, mnRoute) {
-    routerChannel.trigger(`before:${method}`, transition, mnRoute)
+    router.trigger(`before:${method}`, transition, mnRoute)
     return prevPromise.then(function () {
       if (!transition.isCancelled) {
         return Promise.resolve(mnRoute[method](transition)).then(function () {
           if (!transition.isCancelled) {
-            routerChannel.trigger(method, transition, mnRoute)
+            router.trigger(method, transition, mnRoute)
           }
         })
       }
@@ -222,7 +208,7 @@ const middleware = {
     transition.isActivating = isActivatingRoute
     transition.isTarget = isTargetRoute
 
-    routerChannel.trigger('before:transition', transition)
+    router.trigger('before:transition', transition)
 
     if (transition.isCancelled) return
 
@@ -318,17 +304,17 @@ const middleware = {
 
   done: function (transition) {
     router.state.mnRoutes = transition.mnRoutes
-    routerChannel.trigger('transition', transition)
+    router.trigger('transition', transition)
   },
 
   cancel: function (transition, err) {
     if (err.type !== 'TransitionRedirected') {
-      routerChannel.trigger('transition:abort', transition, err)
+      router.trigger('transition:abort', transition, err)
     }
   },
 
   error: function (transition, err) {
-    routerChannel.trigger('transition:abort', transition, err)
-    routerChannel.trigger('transition:error', transition, err)
+    router.trigger('transition:abort', transition, err)
+    router.trigger('transition:error', transition, err)
   }
 }

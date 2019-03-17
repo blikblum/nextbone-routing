@@ -19,7 +19,6 @@
   },
   "peerDependencies": {
     "nextbone": "^0.5.0",
-    "nextbone-radio": "^0.1.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
@@ -40,7 +39,6 @@
     "lit-element": "^2.0.0-rc.5",
     "mocha": "^5.2.0",
     "nextbone": "^0.8.1",
-    "nextbone-radio": "^0.1.0",
     "rollup": "0.67",
     "rollup-plugin-babel": "^4.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
