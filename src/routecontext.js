@@ -1,26 +1,19 @@
-function RouteContext (routes, route) {
-  let routeIndex = routes.indexOf(route)
-  this.parentRoutes = routes.slice(0, routeIndex)
-}
+import { getMnRoutes } from './cherrytree-adapter'
 
-RouteContext.prototype.trigger = function () {
-  let parentRoutes = this.parentRoutes
+export function findContext (route, property) {
+  const state = route.$router.state
+  let mnRoutes = (state.activeTransition || state).mnRoutes
+  if (!mnRoutes) {
+    mnRoutes = getMnRoutes(state.routes)
+  }
+  const routeIndex = mnRoutes.indexOf(route)
+  const parentRoutes = mnRoutes.slice(0, routeIndex)
   for (let i = parentRoutes.length - 1; i >= 0; i--) {
-    let channel = parentRoutes[i]._contextChannel
-    if (channel) {
-      channel.trigger.apply(channel, arguments)
+    const parentRoute = parentRoutes[i]
+    const providedContexts = parentRoute.constructor.providedContexts
+    const contextDef = providedContexts && providedContexts[property]
+    if (contextDef) {
+      return contextDef.property ? parentRoute[contextDef.property] : contextDef.value
     }
   }
 }
-
-RouteContext.prototype.request = function (name) {
-  let parentRoutes = this.parentRoutes
-  for (let i = parentRoutes.length - 1; i >= 0; i--) {
-    let channel = parentRoutes[i]._contextChannel
-    if (channel && channel._requests[name]) {
-      return channel.request.apply(channel, arguments)
-    }
-  }
-}
-
-export default RouteContext

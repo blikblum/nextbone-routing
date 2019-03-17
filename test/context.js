@@ -16,9 +16,13 @@ describe('Route context', () => {
   beforeEach(() => {
     router = new Router({ location: 'memory' })
     RootRoute = class extends Route {}
-    ParentRoute = class extends Route {}
+    ParentRoute = class extends Route {
+      internalProp = 'Parent Internal Stuff'
+    }
     ChildRoute = class extends Route {}
-    GrandChildRoute = class extends Route {}
+    GrandChildRoute = class extends Route {
+      internalProp = 'Internal Stuff'
+    }
     LeafRoute = class extends Route {}
     routes = function (route) {
       route('parent', { class: ParentRoute, classOptions: { x: 1 } }, function () {
@@ -38,145 +42,100 @@ describe('Route context', () => {
     router.destroy()
   })
 
-  describe('request', () => {
-    it('should be replied by a parent route', function (done) {
-      let contextValue
-      let spy = sinon.spy(function () {
-        return 'The Context'
-      })
-      GrandChildRoute.contextRequests = {
-        value: spy
-      }
-      sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
-        contextValue = this.getContext().request('value', 'a', 5)
-      })
-      router.transitionTo('leaf').then(function () {
-        expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledWith('a', 5)
-        expect(contextValue).to.be.equal('The Context')
-        done()
-      }).catch(done)
+  it('should get the value from a parent route', function (done) {
+    let contextValue, contextProperty
+    GrandChildRoute.providedContexts = {
+      parentValue: { value: 'The Context Reloaded' },
+      parentProperty: { property: 'internalProp' }
+    }
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
     })
-
-    it('should work outside of transition lifecycle', function (done) {
-      let leafRoute
-      GrandChildRoute.contextRequests = {
-        value: function () {
-          return 'The Context'
-        }
-      }
-      sinon.stub(LeafRoute.prototype, 'activate').callsFake(function () {
-        leafRoute = this
-      })
-      router.transitionTo('leaf').then(function () {
-        let contextValue = leafRoute.getContext().request('value')
-        expect(router.state.activeTransition).to.be.equal(null)
-        expect(contextValue).to.be.equal('The Context')
-        done()
-      }).catch(done)
-    })
-
-    it('should not be replied by a child route', function (done) {
-      let contextValue = 'Original Value'
-      GrandChildRoute.contextRequests = {
-        value: function () {
-          return 'The Context'
-        }
-      }
-      sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
-        contextValue = this.getContext().request('value')
-      })
-      router.transitionTo('leaf').then(function () {
-        expect(contextValue).to.be.equal(undefined)
-        done()
-      }).catch(done)
-    })
-
-    it('should be replied by the nearest parent route', function (done) {
-      let contextValue
-
-      ParentRoute.contextRequests = {
-        value: function () {
-          return 'Parent Context'
-        }
-      }
-
-      GrandChildRoute.contextRequests = {
-        value: function () {
-          return 'Grand Child Context'
-        }
-      }
-      sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
-        contextValue = this.getContext().request('value')
-      })
-      router.transitionTo('leaf').then(function () {
-        expect(contextValue).to.be.equal('Grand Child Context')
-        done()
-      }).catch(done)
-    })
-
-    it('should return undefined if no reply is defined in a parent route', function (done) {
-      let contextValue = 'Original value'
-      GrandChildRoute.contextRequests = {
-        value: function () {
-          return 'The Context'
-        }
-      }
-      sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
-        contextValue = this.getContext().request('othervalue')
-      })
-      router.transitionTo('leaf').then(function () {
-        expect(contextValue).to.be.equal(undefined)
-        done()
-      }).catch(done)
-    })
+    router.transitionTo('leaf').then(function () {
+      expect(contextValue).to.be.equal('The Context Reloaded')
+      expect(contextProperty).to.be.equal('Internal Stuff')
+      done()
+    }).catch(done)
   })
 
-  describe('trigger', () => {
-    it('should be captured by a parent route', function (done) {
-      let spy = sinon.spy()
-      GrandChildRoute.contextEvents = {
-        'my:event': spy
-      }
-      sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
-        this.getContext().trigger('my:event', 'a', 5)
-      })
-      router.transitionTo('leaf').then(function () {
-        expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledWith('a', 5)
-        done()
-      }).catch(done)
+  it('should work outside of transition lifecycle', function (done) {
+    let leafRoute
+    GrandChildRoute.providedContexts = {
+      parentValue: { value: 'The Context Reloaded' },
+      parentProperty: { property: 'internalProp' }
+    }
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function () {
+      leafRoute = this
     })
+    router.transitionTo('leaf').then(function () {
+      let contextValue = leafRoute.context.parentValue
+      let contextProperty = leafRoute.context.parentProperty
+      expect(router.state.activeTransition).to.be.equal(null)
+      expect(contextValue).to.be.equal('The Context Reloaded')
+      expect(contextProperty).to.be.equal('Internal Stuff')
+      done()
+    }).catch(done)
+  })
 
-    it('should work outside of transition lifecycle', function (done) {
-      let spy = sinon.spy()
-      let leafRoute
-      GrandChildRoute.contextEvents = {
-        'my:event': spy
-      }
-      sinon.stub(LeafRoute.prototype, 'activate').callsFake(function () {
-        leafRoute = this
-      })
-      router.transitionTo('leaf').then(function () {
-        leafRoute.getContext().trigger('my:event')
-        expect(router.state.activeTransition).to.be.equal(null)
-        expect(spy).to.be.calledOnce
-        done()
-      }).catch(done)
+  it('should not get the values from a child route', function (done) {
+    let contextValue = 'Original Value'
+    let contextProperty = 'Original Property'
+    GrandChildRoute.providedContexts = {
+      parentValue: { value: 'The Context Reloaded' },
+      parentProperty: { property: 'internalProp' }
+    }
+    sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
     })
+    router.transitionTo('leaf').then(function () {
+      expect(contextValue).to.be.equal(undefined)
+      expect(contextProperty).to.be.equal(undefined)
+      done()
+    }).catch(done)
+  })
 
-    it('should not be captured by a child route', function (done) {
-      let spy = sinon.spy()
-      GrandChildRoute.contextEvents = {
-        'my:event': spy
-      }
-      sinon.stub(ChildRoute.prototype, 'activate').callsFake(function () {
-        this.getContext().trigger('my:event')
-      })
-      router.transitionTo('leaf').then(function () {
-        expect(spy).to.not.be.called
-        done()
-      }).catch(done)
+  it('should be replied by the nearest parent route', function (done) {
+    let contextValue, contextProperty
+
+    ParentRoute.providedContexts = {
+      parentValue: { value: 'Parent Context' },
+      parentProperty: { property: 'internalProp' }
+    }
+
+    GrandChildRoute.providedContexts = {
+      parentValue: { value: 'Grand Child Context' },
+      parentProperty: { property: 'internalProp' }
+    }
+
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
     })
+    router.transitionTo('leaf').then(function () {
+      expect(contextValue).to.be.equal('Grand Child Context')
+      expect(contextProperty).to.be.equal('Internal Stuff')
+      done()
+    }).catch(done)
+  })
+
+  it('should return undefined if is not defined in a parent route', function (done) {
+    let contextValue = 'Original value'
+    let contextProperty = 'Original Property'
+    GrandChildRoute.providedContexts = {
+      parentValue: { value: 'Grand Child Context' },
+      parentProperty: { property: 'internalProp' }
+    }
+
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.otherParentValue
+      contextProperty = this.context.otherParentProperty
+    })
+    router.transitionTo('leaf').then(function () {
+      expect(contextValue).to.be.equal(undefined)
+      expect(contextProperty).to.be.equal(undefined)
+      done()
+    }).catch(done)
   })
 })

@@ -1,10 +1,7 @@
 import { Events } from 'nextbone'
-import { Channel } from 'nextbone-radio'
-import { bindEvents } from './utils/bind-events'
-import { bindRequests } from './utils/bind-requests'
 import { Region } from './utils/region'
-import RouteContext from './routecontext'
-import { getMnRoutes, routerChannel } from './cherrytree-adapter'
+import { findContext } from './routecontext'
+import { routerChannel } from './cherrytree-adapter'
 
 const createElement = (route, Definition) => {
   if (typeof Definition === 'function') {
@@ -24,6 +21,12 @@ export const getComponent = route => {
   return route.component || route.constructor.component
 }
 
+const contextProxyHandler = {
+  get: function (target, property, receiver) {
+    return findContext(target, property)
+  }
+}
+
 export default class Route extends Events {
   constructor (classOptions, router, { name, path, options }) {
     super()
@@ -31,7 +34,6 @@ export default class Route extends Events {
     this.$name = name
     this.$path = path
     this.$options = options
-    this._bindContext()
     this.initialize(classOptions)
   }
 
@@ -74,14 +76,8 @@ export default class Route extends Events {
 
   }
 
-  getContext () {
-    // todo: cache context??
-    let state = this.$router.state
-    let mnRoutes = (state.activeTransition || state).mnRoutes
-    if (!mnRoutes) {
-      mnRoutes = getMnRoutes(state.routes)
-    }
-    return new RouteContext(mnRoutes, this)
+  get context () {
+    return new Proxy(this, contextProxyHandler)
   }
 
   getOutlet () {
@@ -96,20 +92,6 @@ export default class Route extends Events {
       }
     }
     return outletRegion
-  }
-
-  _bindContext () {
-    const requests = this.constructor.contextRequests
-    const events = this.constructor.contextEvents
-    let channel
-    if (!requests && !events) {
-      return
-    }
-
-    this._contextChannel = channel = new Channel('__routeContext_' + this.cid)
-
-    bindRequests.call(this, channel, requests)
-    bindEvents.call(this, channel, events)
   }
 
   destroy () {
