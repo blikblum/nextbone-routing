@@ -1224,10 +1224,10 @@ check-error@^1.0.2:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=
 
-cherrytreex@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.4.0.tgz#6cebcad3959339002970ea33026861ec8698f75c"
-  integrity sha512-Ana5FOyQq7LbmKaolHZ89XhgOHzRADTTX2Xc2VX9yziPEZ9roKnE9uG2Ou7cdcxwChKo9uNxzWW84Ah00jtZ+g==
+cherrytreex@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.5.0.tgz#b30a49791d0ab1e68d43ce802fca740ddff1f4ff"
+  integrity sha512-9BNSw2uLJzN1YPA2+hpm+NOTTiRKMVT6nSeWoEj/h3qqIVNS+XNTJcKhSWXqF2PM2RSkwG+4xf5wpXNGco8oCA==
   dependencies:
     path-to-regexp "^2.1.0"
 

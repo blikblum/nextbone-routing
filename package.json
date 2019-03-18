@@ -15,7 +15,7 @@
   "module": "nextbone-routing.js",
   "sideEffects": false,
   "dependencies": {
-    "cherrytreex": "^3.4.0"
+    "cherrytreex": "^3.5.0"
   },
   "peerDependencies": {
     "nextbone": "^0.5.0",
