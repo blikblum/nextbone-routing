@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { delegate } from 'nextbone'
+import { delegate, undelegate } from 'nextbone'
 import { router } from './cherrytree-adapter'
 
 const routerLinksData = Symbol('routerLinksData')
@@ -111,7 +111,7 @@ const createClass = (ctor, options = {}) => {
         observer.ownerEl = this
         this[routerLinksData] = { options, rootEls, observer }
         _.each(rootEls, rootEl => {
-          delegate(rootEl, 'click', '[route]', linkClickHandler.bind(this))
+          delegate(rootEl, 'click', '[route]', linkClickHandler, this)
           createLinks(this, rootEl, options)
           observer.observe(rootEl, elementsObserverConfig)
         })
@@ -157,13 +157,13 @@ routerLinks.bind = function (ownerEl, options = {}) {
   observer.ownerEl = ownerEl
   ownerEl[routerLinksData] = { options, rootEls, observer }
   _.each(rootEls, rootEl => {
-    eventHandlers.push(delegate(rootEl, 'click', '[route]', linkClickHandler.bind(ownerEl)))
+    eventHandlers.push(delegate(rootEl, 'click', '[route]', linkClickHandler, ownerEl))
     createLinks(ownerEl, rootEl, options)
     observer.observe(rootEl, elementsObserverConfig)
   })
   router.on('transition', transitionHandler, ownerEl)
   return function () {
-    eventHandlers.forEach((eventHandler, i) => rootEls[i].removeEventListener('click', eventHandler))
+    eventHandlers.forEach((eventHandler, i) => undelegate(rootEls[i], eventHandler))
     router.off('transition', transitionHandler, ownerEl)
   }
 }
