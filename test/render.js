@@ -5,10 +5,11 @@ import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Route, Router, Region } from '../src/index'
-import { withEvents } from 'nextbone'
+import { withEvents, view } from 'nextbone'
 import _ from 'underscore'
 import $ from 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
+import { elEvent } from '../src/route'
 
 let expect = chai.expect
 chai.use(sinonChai)
@@ -16,7 +17,8 @@ chai.use(sinonChai)
 let router, routes
 let RootRoute, ParentRoute, ChildRoute, LeafRoute
 
-class ParentView extends withEvents(HTMLElement) {
+@view
+class ParentView extends HTMLElement {
   static get outlet () {
     return '.child-el'
   }
@@ -351,6 +353,73 @@ describe('Render', () => {
         return router.transitionTo('parent', {}, { page: 1 })
       }).then(function () {
         expect(routeInstance.el).to.exist
+      })
+    })
+  })
+
+  describe('elEvent', function () {
+    let spy1, spy2
+    beforeEach(() => {
+      spy1 = sinon.spy()
+      spy2 = sinon.spy()
+
+      RootRoute = class extends Route {
+        component () {
+          return ParentView
+        }
+
+        @elEvent('my:event')
+        myEventHandler (...args) {
+          spy1.apply(this, args)
+        }
+
+        @elEvent('other:event')
+        otherEventHandler (...args) {
+          spy2.apply(this, args)
+        }
+      }
+
+      const rootRoute = router.routes.find(route => route.name === 'root')
+      rootRoute.options.class = RootRoute
+    })
+
+    it('will listen to view events and call registered handlers', function (done) {
+      router.transitionTo('root').then(function () {
+        const routeInstance = router.state.mnRoutes[0]
+        routeInstance.el.trigger('my:event', 1, 'a')
+        expect(spy1).to.be.calledOn(routeInstance)
+        expect(spy1).to.be.calledOnceWithExactly(1, 'a')
+        expect(spy2).to.not.be.called
+        done()
+      }).catch(done)
+    })
+
+    it('will stop listening to view events when deactivated', function (done) {
+      let rootEl
+      router.transitionTo('root').then(function () {
+        const routeInstance = router.state.mnRoutes[0]
+        rootEl = routeInstance.el
+        return router.transitionTo('parent')
+      }).then(function () {
+        rootEl.trigger('my:event')
+        expect(spy1).to.not.be.called
+        expect(spy2).to.not.be.called
+        done()
+      }).catch(done)
+    })
+
+    it('will throw if element is not decorated with nextbone#view', function (done) {
+      RootRoute.prototype.component = function () {
+        class Vanilla extends HTMLElement {}
+        defineCE(Vanilla)
+        return Vanilla
+      }
+      router.transitionTo('root').then(function () {
+        done('should throw')
+      }).catch(function (err) {
+        expect(err).to.be.instanceOf(Error)
+        expect(err.message).to.be.equal('elEvent: component "Vanilla" is not a view')
+        done()
       })
     })
   })

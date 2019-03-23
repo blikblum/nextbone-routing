@@ -1,4 +1,4 @@
-import { Events } from 'nextbone'
+import { Events, isView } from 'nextbone'
 import { Region } from './utils/region'
 import { findContext } from './routecontext'
 import { router } from './cherrytree-adapter'
@@ -25,6 +25,38 @@ const contextProxyHandler = {
   get: function (target, property, receiver) {
     return findContext(target, property)
   }
+}
+
+const bindElEvents = (el, events, context) => {
+  if (!isView(el)) {
+    throw new Error(`elEvent: component "${el.constructor.name}" is not a view`)
+  }
+  events.forEach(({ eventName, listener }) => {
+    el.listenTo(el, eventName, listener.bind(context))
+  })
+}
+
+const registerElEvent = (ctor, eventName, listener) => {
+  const elEvents = ctor._elEvents || (ctor._elEvents = [])
+  elEvents.push({ eventName, listener })
+}
+
+export const elEvent = eventName => (targetOrDescriptor, methodName, fieldDescriptor) => {
+  if (typeof methodName !== 'string') {
+    // spec
+    const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
+    return {
+      kind,
+      placement,
+      descriptor,
+      initializer,
+      key,
+      finisher (ctor) {
+        registerElEvent(ctor, eventName, descriptor.value)
+      }
+    }
+  }
+  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value)
 }
 
 export default class Route extends Events {
@@ -61,6 +93,7 @@ export default class Route extends Events {
     if (!el) {
       throw new Error(`${this.constructor.name}: component has invalid value ${getComponent(this)}. Expected a string or HTMLElement`)
     }
+    if (this.constructor._elEvents) bindElEvents(el, this.constructor._elEvents, this)
     this.prepareEl(el, transition)
     if (region) {
       region.show(el)
