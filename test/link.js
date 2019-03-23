@@ -97,7 +97,7 @@ describe('routerLinks', () => {
   beforeEach(() => {
     document.body.innerHTML = `<div id="main"></div>`
 
-    router = new Router({}, '#main')
+    router = new Router({ outlet: '#main' })
     ParentRoute = class extends Route {
       component () { return ParentView }
     }

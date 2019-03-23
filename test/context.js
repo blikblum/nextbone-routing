@@ -14,7 +14,7 @@ let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
 
 describe('Route context', () => {
   beforeEach(() => {
-    router = new Router({ location: 'memory' })
+    router = new Router({ location: 'memory', outlet: null })
     RootRoute = class extends Route {}
     ParentRoute = class extends Route {
       internalProp = 'Parent Internal Stuff'

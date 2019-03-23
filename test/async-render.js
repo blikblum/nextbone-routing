@@ -56,7 +56,8 @@ const grandChildTag = defineCE(GrandChildView)
 
 describe('Async Render', () => {
   beforeEach(() => {
-    router = new Router({ location: 'memory' })
+    document.body.innerHTML = '<div id="main"></div>'
+    router = new Router({ location: 'memory', outlet: document.getElementById('main') })
     ParentRoute = class extends Route {
       component () { return ParentView }
     }
@@ -71,9 +72,6 @@ describe('Async Render', () => {
     }
     router.map(routes)
     router.listen()
-
-    document.body.innerHTML = '<div id="main"></div>'
-    router.rootRegion = new Region(document.getElementById('main'))
   })
 
   afterEach(() => {

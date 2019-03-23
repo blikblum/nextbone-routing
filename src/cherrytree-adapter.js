@@ -18,22 +18,23 @@ let mnRouteMap = Object.create(null)
 
 export let router
 
-export function Router (options, renderRoot) {
+export function Router (options = {}) {
   if (router) {
     throw new Error('Instance of router already created')
   }
   Cherrytree.call(this, options)
   this.middleware.push(middleware)
-  if (renderRoot) {
-    if (typeof renderRoot === 'string') {
-      renderRoot = document.querySelector(renderRoot)
+  let { outlet = 'app-root' } = options
+  if (outlet) {
+    if (typeof outlet === 'string') {
+      outlet = document.querySelector(outlet)
     }
-    if (renderRoot instanceof HTMLElement) {
-      this.rootRegion = new Region(renderRoot)
-    } else if (renderRoot instanceof Region) {
-      this.rootRegion = renderRoot
+    if (outlet instanceof HTMLElement) {
+      this.rootOutlet = new Region(outlet)
+    } else if (outlet instanceof Region) {
+      this.rootOutlet = outlet
     } else {
-      throw new Error(`Invalid renderRoot argument: ${renderRoot}`)
+      throw new Error(`Router: invalid outlet argument: ${outlet}`)
     }
   }
   router = this
@@ -142,7 +143,7 @@ function getParentRegion (routes, route) {
     }
     routeIndex--
   }
-  return router.rootRegion
+  return router.rootOutlet
 }
 
 const resolved = Promise.resolve()

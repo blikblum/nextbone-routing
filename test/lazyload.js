@@ -22,7 +22,7 @@ function AsyncChildRoute () {
 
 describe('Route configuration', () => {
   beforeEach(() => {
-    router = new Router({ location: 'memory' })
+    router = new Router({ location: 'memory', outlet: null })
     ParentRoute = class extends Route {}
     ChildRoute = class extends Route {}
     GrandChildRoute = class extends Route {}

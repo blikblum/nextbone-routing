@@ -45,38 +45,45 @@ class LeafView extends HTMLElement {
 
 const leafTag = defineCE(LeafView)
 
-describe('rootRegion', () => {
+describe('root outlet', () => {
   beforeEach(() => {
-    document.body.innerHTML = '<div id="main"></div>'
+    document.body.innerHTML = '<div id="main"></div><app-root></app-root>'
   })
 
   afterEach(() => {
     router.destroy()
   })
 
+  it('defaults to app-root', () => {
+    router = new Router({})
+    expect(router.rootOutlet).to.be.instanceOf(Region)
+    expect(router.rootOutlet.targetEl).to.be.equal(document.querySelector('app-root'))
+  })
+
   it('can be defined as a Region instance', () => {
     const region = new Region(document.getElementById('main'))
-    router = new Router({}, region)
-    expect(router.rootRegion).to.be.equal(region)
+    router = new Router({ outlet: region })
+    expect(router.rootOutlet).to.be.equal(region)
   })
 
   it('can be defined as a HTML element', () => {
     const el = document.getElementById('main')
-    router = new Router({}, el)
-    expect(router.rootRegion).to.be.instanceOf(Region)
-    expect(router.rootRegion.targetEl).to.be.equal(el)
+    router = new Router({ outlet: el })
+    expect(router.rootOutlet).to.be.instanceOf(Region)
+    expect(router.rootOutlet.targetEl).to.be.equal(el)
   })
 
   it('can be defined as a CSS selector', () => {
-    router = new Router({}, '#main')
-    expect(router.rootRegion).to.be.instanceOf(Region)
-    expect(router.rootRegion.targetEl).to.be.equal(document.getElementById('main'))
+    router = new Router({ outlet: '#main' })
+    expect(router.rootOutlet).to.be.instanceOf(Region)
+    expect(router.rootOutlet.targetEl).to.be.equal(document.getElementById('main'))
   })
 })
 
 describe('Render', () => {
   beforeEach(() => {
-    router = new Router({ location: 'memory' })
+    document.body.innerHTML = '<div id="main"></div>'
+    router = new Router({ location: 'memory', outlet: document.getElementById('main') })
     ParentRoute = class extends Route {
       static get component () {
         return ParentView
@@ -105,9 +112,6 @@ describe('Render', () => {
     }
     router.map(routes)
     router.listen()
-
-    document.body.innerHTML = '<div id="main"></div>'
-    router.rootRegion = new Region(document.getElementById('main'))
   })
 
   afterEach(() => {
@@ -147,15 +151,15 @@ describe('Render', () => {
     })
 
     describe('of a root route', function () {
-      it('should be rendered in rootRegion', function (done) {
+      it('should be rendered in rootOutlet', function (done) {
         router.transitionTo('parent').then(function () {
           expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
           done()
         }).catch(done)
       })
 
-      it('should abort transition when no rootRegion is defined', function (done) {
-        router.rootRegion = null
+      it('should abort transition when no rootOutlet is defined', function (done) {
+        router.rootOutlet = null
         router.transitionTo('parent').then(function () {
           done('transition resolved')
         }).catch(function (error) {
@@ -165,9 +169,9 @@ describe('Render', () => {
         })
       })
 
-      it.skip('should not abort transition when no rootRegion is defined and el is prerendered', function () {
+      it.skip('should not abort transition when no rootOutlet is defined and el is prerendered', function () {
         // todo is possible to implement such feature with web component?
-        router.rootRegion = null
+        router.rootOutlet = null
         // RootRoute.prototype.component = Mn.View.extend({ el: '#main' })
         return router.transitionTo('root3').then(function () {
           expect(router.isActive('root3'))
@@ -232,7 +236,7 @@ describe('Render', () => {
       let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       let transition = router.transitionTo('parent')
       return transition.then(function () {
-        expect(spy).to.be.calledOnceWithExactly(router.rootRegion, transition)
+        expect(spy).to.be.calledOnceWithExactly(router.rootOutlet, transition)
       })
     })
 

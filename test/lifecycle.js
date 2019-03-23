@@ -16,7 +16,7 @@ let currentTransition
 
 describe('Lifecycle hooks', () => {
   beforeEach(() => {
-    router = new Router({ location: 'memory' })
+    router = new Router({ location: 'memory', outlet: null })
     router.use(function (transition) {
       currentTransition = transition
     }, { before: true })

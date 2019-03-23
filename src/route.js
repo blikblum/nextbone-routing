@@ -98,7 +98,7 @@ export default class Route extends Events {
     if (region) {
       region.show(el)
     } else {
-      // if region is undefined means no rootRegion is defined
+      // if region is undefined means no rootOutlet is defined
       throw new Error('No root outlet region defined')
     }
     this.el = el
