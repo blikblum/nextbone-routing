@@ -19,8 +19,8 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'node_modules/underscore/underscore.js',
-      'test/index.js'
+      '../node_modules/underscore/underscore.js',
+      'index.js'
     ],
 
     exclude: [
@@ -29,7 +29,7 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'test/index.js': ['rollup']
+      'index.js': ['rollup']
     },
 
     rollupPreprocessor: {

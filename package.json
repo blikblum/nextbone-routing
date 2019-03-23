@@ -50,8 +50,8 @@
   },
   "scripts": {
     "lint": "standard \"test/**/*.js\" \"src/**/*.js\"",
-    "test": "karma start",
-    "test:debug": "karma start --browsers ChromeDebugging --no-single-run",
+    "test": "karma start test/karma.conf.js",
+    "test:debug": "karma start --browsers ChromeDebugging --no-single-run test/karma.conf.js",
     "build": "npm run lint && node tools/build",
     "prepublishOnly": "npm run build"
   },
