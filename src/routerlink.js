@@ -1,4 +1,4 @@
-import _ from 'underscore'
+import { each, isFunction, clone } from 'underscore'
 import { delegate, undelegate } from 'nextbone'
 import { router } from './cherrytree-adapter'
 
@@ -13,7 +13,7 @@ function mutationHandler (mutations, observer) {
         updateHref(mutation.target, observer.ownerEl)
       }
     } else {
-      _.each(mutation.addedNodes, node => {
+      each(mutation.addedNodes, node => {
         if (node.nodeType === 1 && (node.route || node.getAttribute('route'))) {
           updateHref(node, observer.ownerEl)
         }
@@ -40,11 +40,11 @@ function getAttributeValues (el, prefix, result) {
 function getDefaults (ownerEl, routeName, prop, routeEl) {
   const data = ownerEl[routerLinksData]
   let defaults = data.options.defaults
-  if (_.isFunction(defaults)) defaults = defaults.call(ownerEl)
+  if (isFunction(defaults)) defaults = defaults.call(ownerEl)
   let routeDefaults = defaults && defaults[routeName]
   let result = (routeDefaults && routeDefaults[prop])
-  if (_.isFunction(result)) result = result.call(ownerEl, routeEl)
-  return _.clone(result) || {}
+  if (isFunction(result)) result = result.call(ownerEl, routeEl)
+  return clone(result) || {}
 }
 
 function updateHref (el, ownerEl) {
@@ -60,7 +60,7 @@ function updateHref (el, ownerEl) {
 function createLinks (routerLinks, rootEl, options) {
   const routeEls = rootEl.querySelectorAll('[route]')
 
-  _.each(routeEls, (el) => {
+  each(routeEls, (el) => {
     updateHref(el, routerLinks)
   })
 }
@@ -68,8 +68,8 @@ function createLinks (routerLinks, rootEl, options) {
 function transitionHandler () {
   (this.updateComplete || resolved).then(() => {
     const data = this[routerLinksData]
-    _.each(data.rootEls, rootEl => {
-      _.each(rootEl.querySelectorAll('[route]'), el => {
+    each(data.rootEls, rootEl => {
+      each(rootEl.querySelectorAll('[route]'), el => {
         let routeName = el.getAttribute('route')
         if (!routeName) return
         let params = getAttributeValues(el, 'param-', getDefaults(this, routeName, 'params', el))
@@ -110,7 +110,7 @@ const createClass = (ctor, options = {}) => {
         const observer = new MutationObserver(mutationHandler)
         observer.ownerEl = this
         this[routerLinksData] = { options, rootEls, observer }
-        _.each(rootEls, rootEl => {
+        each(rootEls, rootEl => {
           delegate(rootEl, 'click', '[route]', linkClickHandler, this)
           createLinks(this, rootEl, options)
           observer.observe(rootEl, elementsObserverConfig)
@@ -156,7 +156,7 @@ routerLinks.bind = function (ownerEl, options = {}) {
   const eventHandlers = []
   observer.ownerEl = ownerEl
   ownerEl[routerLinksData] = { options, rootEls, observer }
-  _.each(rootEls, rootEl => {
+  each(rootEls, rootEl => {
     eventHandlers.push(delegate(rootEl, 'click', '[route]', linkClickHandler, ownerEl))
     createLinks(ownerEl, rootEl, options)
     observer.observe(rootEl, elementsObserverConfig)

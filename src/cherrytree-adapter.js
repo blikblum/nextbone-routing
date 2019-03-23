@@ -8,7 +8,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import _ from 'underscore'
+import { isEqual, isFunction, extend } from 'underscore'
 import Cherrytree from 'cherrytreex'
 import Route, { getComponent } from './route'
 import { Region } from './utils/region'
@@ -73,7 +73,7 @@ function getChangingIndex (prevRoutes, currentRoutes) {
   for (index = 0; index < count; index++) {
     prev = prevRoutes[index]
     current = currentRoutes[index]
-    if (!(prev && current) || (prev.name !== current.name) || !_.isEqual(prev.params, current.params)) {
+    if (!(prev && current) || (prev.name !== current.name) || !isEqual(prev.params, current.params)) {
       break
     }
   }
@@ -98,7 +98,7 @@ function findRouteClass (options, routeName, index, routes) {
 
 function createRouteInstance (RouteClass, route) {
   const options = route.options
-  const classOptions = _.extend({}, options.classOptions)
+  const classOptions = extend({}, options.classOptions)
   if (!RouteClass && options.component) {
     RouteClass = Route
   }
@@ -114,7 +114,7 @@ function createRouteInstance (RouteClass, route) {
 
 function createMnRoute (route, index, routes) {
   let RouteClass = findRouteClass(route.options, route.name, index, routes)
-  if (_.isFunction(RouteClass) && !(RouteClass.prototype instanceof Route)) {
+  if (isFunction(RouteClass) && !(RouteClass.prototype instanceof Route)) {
     // possible async route definition
     RouteClass = RouteClass.call(route)
     return Promise.resolve(RouteClass).then(function (result) {
@@ -270,7 +270,7 @@ const middleware = {
       if (transition.isCancelled) return
 
       let loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
-        if (_.isFunction(mnRoute.load)) {
+        if (isFunction(mnRoute.load)) {
           if (prevPromise) {
             return prevPromise.then(function () {
               return Promise.resolve(mnRoute.load(transition))

@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import _ from 'underscore'
+import { defer } from 'underscore'
 import { Route, Router } from '../src/index'
 
 let expect = chai.expect
@@ -338,7 +338,7 @@ describe('Events', () => {
         transition.cancel()
       })
       router.transitionTo('root').catch(function () {
-        _.defer(function () {
+        defer(function () {
           expect(spy).to.not.be.called
           done()
         })
