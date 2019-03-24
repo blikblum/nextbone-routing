@@ -1,94 +1,100 @@
-# Marionette Routing
+# Nextbone Routing
 
-[![NPM version](http://img.shields.io/npm/v/marionette.routing.svg?style=flat-square)](https://www.npmjs.com/package/marionette.routing)
-[![NPM downloads](http://img.shields.io/npm/dm/marionette.routing.svg?style=flat-square)](https://www.npmjs.com/package/marionette.routing)
-[![Build Status](http://img.shields.io/travis/blikblum/marionette.routing.svg?style=flat-square)](https://travis-ci.org/blikblum/marionette.routing)
-[![Coverage Status](https://img.shields.io/coveralls/blikblum/marionette.routing.svg?style=flat-square)](https://coveralls.io/github/blikblum/marionette.routing)
-[![Dependency Status](http://img.shields.io/david/dev/blikblum/marionette.routing.svg?style=flat-square)](https://david-dm.org/blikblum/marionette.routing#info=devDependencies)
+[![NPM version](http://img.shields.io/npm/v/nextbone-routing.svg?style=flat-square)](https://www.npmjs.com/package/nextbone-routing)
+[![NPM downloads](http://img.shields.io/npm/dm/nextbone-routing.svg?style=flat-square)](https://www.npmjs.com/package/nextbone-routing)
+[![Build Status](http://img.shields.io/travis/blikblum/nextbone-routing.svg?style=flat-square)](https://travis-ci.org/blikblum/nextbone-routing)
+[![Coverage Status](https://img.shields.io/coveralls/blikblum/nextbone-routing.svg?style=flat-square)](https://coveralls.io/github/blikblum/nextbone-routing)
+[![Dependency Status](http://img.shields.io/david/dev/blikblum/nextbone-routing.svg?style=flat-square)](https://david-dm.org/blikblum/nextbone-routing#info=devDependencies)
 
-> An advanced router for MarionetteJS applications
+> An advanced router for Web Components
 
 ### Features
 
 &nbsp; &nbsp; ✓ Nested routes / states / rendering<br>
-&nbsp; &nbsp; ✓ Handle asynchronous operations<br>
+&nbsp; &nbsp; ✓ Handles asynchronous data fetching<br>
 &nbsp; &nbsp; ✓ Lazy loading of routes with code splitting<br>
-&nbsp; &nbsp; ✓ Expose route events through [Radio](https://github.com/marionettejs/backbone.radio)<br>
-&nbsp; &nbsp; ✓ Implement route context for scoped messaging<br>
-&nbsp; &nbsp; ✓ API interface semantics similar to MarionetteJS one<br>
-&nbsp; &nbsp; ✓ Inherits most of [Cherrytree](https://github.com/QubitProducts/cherrytree) features<br>
+&nbsp; &nbsp; ✓ Exposes events through a pub/sub mechanism<br>
+&nbsp; &nbsp; ✓ Implements route context for scoped messaging<br>
+&nbsp; &nbsp; ✓ Handles nested asynchronous rendering (LitElement, SkateJs)<br>
+&nbsp; &nbsp; ✓ Automatic configuration of router links<br>
+&nbsp; &nbsp; ✓ Inherits [Cherrytree](https://github.com/QubitProducts/cherrytree) features<br>
+&nbsp; &nbsp; ✓ Minimal dependencies: an optimized Cherrytree fork and Events/delegate from [nextbone](https://github.com/blikblum/nextbone)<br>
 
 
 ### Installation
 
-    $ npm install --save marionette.routing
-
-Requires MarionetteJS v4+, Radio v2+, underscore v1.8+ as peer dependencies
+    $ npm install --save nextbone-routing nextbone
 
 Requires a ES6 Promise implementation attached in window (native or polyfill)
 
 ### Usage
 
-Define a Route class
-
-```js
-import {Route} from 'marionette.routing';
-import {Contacts} from '../entities';
-import ContactsView from './view';
-
-export default Route.extend({
-  activate(){
-    const contactsPromise = Radio.channel('api').request('getContactList');
-    return contactsPromise.then(contactsData => {
-      this.contacts = new Contacts(contactsData)
-    });
-  },
-
-  component: ContactsView,
-
-  viewOptions() {
-    return {
-      contacts: this.contacts
-    }
-  }
-})
-
-```
-
 Configure and start the router
 
 ```js
-import { Router } from 'marionette.routing';
-import ContactsRoute from './contacts/route';
-import LoginView from './login/view';
-import Mn from 'backbone.marionette';
-import Radio from 'backbone.radio';
+import { Router } from 'nextbone-routing'
+import LoginComponent from './login/component'
+import ContactsRoute from './contacts/route'
 
-//create the router
-let router = new Router({log: true, logError: true});
+function TasksRoute() {
+  return import('./tasks/route')
+}
 
-//define the routes
-router.map(function (route) {
-  route('application', {path: '/', abstract: true}, function () {
-    route('contacts', {class: ContactsRoute})
-    route('login', {component: LoginView})
+// callback function that defines the route tree
+// can be defined also as an array
+const routes = function (route) {
+  route('application', { path: '/', abstract: true }, function () {
+    route('home', { path: '', component: 'home-component' }) // define component with a tag name...
+    route('login', { component: LoginComponent }) // ... or with a constructor
+    route('contacts', { class: ContactsRoute }) // define a route class that can control lifecycle and component
+    route('tasks', { class: TasksRoute }) // lazy load a route class. Webpack and Rollup does code splitting 
   })
-});
+}
 
-//define a root region
-router.rootRegion = new Mn.Region({el: '#app'});
+const router = new Router({
+  routes,
+  outlet: '#app-container', // element where the root routes will be rendered
+  log: true, 
+  logError: true
+});
 
 //start listening to URL changes
 router.listen();
 
-//listen to events using Radio
-Radio.channel('router').on('before:activate', function(transition, route) {
+//listen an react to events
+router.on('before:activate', function(transition, route) {
   let isAuthenticate = checkAuth();
   if (!isAuthenticate && route.requiresAuth) {
     transition.redirectTo('login');
   }
 })
 ```
+
+Define a Route class
+
+```js
+import { Route } from 'nextbone-routing';
+import { API } from '../data-api';
+import ContactsComponent from './component';
+
+export default class extends Route {
+  static component = ContactsComponent,
+
+  activate(){
+    // the route children will only be activated after API.getContactList is resolved 
+    return API.getContactList().then(contacts => {
+      this.contacts = contacts
+    });
+  }
+
+  prepareEl(el) {
+    // called just after creating the element
+    super.prepareEl(el)
+    el.contacts = this.contacts
+  }
+})
+```
+
 
 ### Documentation
 
@@ -110,12 +116,12 @@ Radio.channel('router').on('before:activate', function(transition, route) {
 ### Related Projects
 
 * [Cherrytree](https://github.com/QubitProducts/cherrytree) — The router library used by Marionette Routing under the hood 
-* [Babel Starter Kit](https://github.com/kriasoft/babel-starter-kit) — Template used to bootstrap this project
+* [Marionette Routing](https://github.com/blikblum/marionette.routing) — Original project
 
 
 ### License
 
-Copyright © 2016 Luiz Américo Pereira Câmara. This source code is licensed under the MIT license found in
-the [LICENSE.txt](https://github.com/blikblum/marionette.routing/blob/master/LICENSE.txt) file.
+Copyright © 2019 Luiz Américo Pereira Câmara. This source code is licensed under the MIT license found in
+the [LICENSE.txt](https://github.com/blikblum/nextbone-routing/blob/master/LICENSE.txt) file.
 The documentation to the project is licensed under the [CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)
 license.
