@@ -4,12 +4,11 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, Router, Region } from '../src/index'
+import { Route, Router, Region, elEvent } from '../src/index'
 import { view } from 'nextbone'
 import _ from 'underscore'
 import $ from 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
-import { elEvent } from '../src/route'
 
 let expect = chai.expect
 chai.use(sinonChai)

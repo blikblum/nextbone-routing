@@ -9,7 +9,7 @@
 
 export { Region } from './utils/region'
 
-export { Route } from './route'
+export { Route, elEvent } from './route'
 
 export { Router } from './cherrytree-adapter'
 
