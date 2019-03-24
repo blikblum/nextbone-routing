@@ -261,11 +261,6 @@ const middleware = {
       return runAsyncMethod(transition, activated, 'activate')
     })
 
-    promise.catch(() => {
-      // catch errors occurred inside routing classes / methods
-      // Should be handled in error event or in a transition.catch method
-    })
-
     // render components
     return promise.then(function () {
       if (transition.isCancelled) return
