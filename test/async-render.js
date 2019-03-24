@@ -3,7 +3,7 @@
 
 import chai from 'chai'
 import sinonChai from 'sinon-chai'
-import { Route, Router, Region } from '../src/index'
+import { Route, Router } from '../src/index'
 import { withEvents } from 'nextbone'
 import { defineCE } from '@open-wc/testing-helpers'
 import { LitElement, html } from 'lit-element'
