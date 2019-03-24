@@ -1,5 +1,4 @@
-{
-  "private": true,
+{  
   "name": "nextbone-routing",
   "version": "0.5.0",
   "description": "A state based router for Nextbone applications",
@@ -11,8 +10,8 @@
   ],
   "license": "MIT",
   "keywords": [],
-  "main": "nextbone-routing.js",
-  "module": "nextbone-routing.js",
+  "main": "dist/nextbone-routing.js",
+  "module": "dist/nextbone-routing.js",
   "sideEffects": false,
   "dependencies": {
     "cherrytreex": "^3.5.0"
