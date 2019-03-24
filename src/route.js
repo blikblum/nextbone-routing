@@ -56,12 +56,14 @@ const bindElEvents = (route, el, events) => {
   })
 }
 
-const registerElEvent = (ctor, eventName, listener, { dom }) => {
+const registerElEvent = (ctor, eventName, listener, dom) => {
   const elEvents = ctor._elEvents || (ctor._elEvents = [])
   elEvents.push({ eventName, listener, dom })
 }
 
 export const elEvent = (eventName, options = {}) => (targetOrDescriptor, methodName, fieldDescriptor) => {
+  const { elEventDom = true } = router.options
+  const { dom = elEventDom } = options
   if (typeof methodName !== 'string') {
     // spec
     const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
@@ -72,11 +74,11 @@ export const elEvent = (eventName, options = {}) => (targetOrDescriptor, methodN
       initializer,
       key,
       finisher (ctor) {
-        registerElEvent(ctor, eventName, descriptor.value, options)
+        registerElEvent(ctor, eventName, descriptor.value, dom)
       }
     }
   }
-  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, options)
+  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, dom)
 }
 
 export default class Route extends Events {

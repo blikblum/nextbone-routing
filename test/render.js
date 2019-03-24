@@ -374,22 +374,22 @@ describe('Render', () => {
           return ParentView
         }
 
-        @elEvent('my:event')
+        @elEvent('my:event', { dom: false })
         myEventHandler (...args) {
           mySpy.apply(this, args)
         }
 
-        @elEvent('other:event')
+        @elEvent('other:event', { dom: false })
         otherEventHandler (...args) {
           otherSpy.apply(this, args)
         }
 
-        @elEvent('my:native:event', { dom: true })
+        @elEvent('my:native:event')
         myNativeEventHandler (...args) {
           myNativeSpy.apply(this, args)
         }
 
-        @elEvent('other:native:event', { dom: true })
+        @elEvent('other:native:event')
         otherNativeEventHandler (...args) {
           otherNativeSpy.apply(this, args)
         }
