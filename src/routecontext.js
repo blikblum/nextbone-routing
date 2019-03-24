@@ -6,10 +6,8 @@ export function findContext (route, property) {
   if (!mnRoutes) {
     mnRoutes = getMnRoutes(state.routes)
   }
-  const routeIndex = mnRoutes.indexOf(route)
-  const parentRoutes = mnRoutes.slice(0, routeIndex)
-  for (let i = parentRoutes.length - 1; i >= 0; i--) {
-    const parentRoute = parentRoutes[i]
+  for (let i = mnRoutes.indexOf(route) - 1; i >= 0; i--) {
+    const parentRoute = mnRoutes[i]
     const providedContexts = parentRoute.constructor.providedContexts
     const contextDef = providedContexts && providedContexts[property]
     if (contextDef) {
