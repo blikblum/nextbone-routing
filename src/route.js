@@ -81,7 +81,7 @@ export const elEvent = (eventName, options = {}) => (targetOrDescriptor, methodN
   registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, dom)
 }
 
-export default class Route extends Events {
+export class Route extends Events {
   constructor (classOptions, router, { name, path, options }) {
     super()
     this.$router = router

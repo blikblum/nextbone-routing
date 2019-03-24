@@ -10,7 +10,7 @@
 
 import { isEqual, isFunction, extend } from 'underscore'
 import Cherrytree from 'cherrytreex'
-import Route, { getComponent } from './route'
+import { Route, getComponent } from './route'
 import { Region } from './utils/region'
 import { Events } from 'nextbone'
 

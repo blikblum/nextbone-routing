@@ -9,7 +9,7 @@
 
 export { Region } from './utils/region'
 
-export { default as Route } from './route'
+export { Route } from './route'
 
 export { Router } from './cherrytree-adapter'
 
