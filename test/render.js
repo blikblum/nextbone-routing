@@ -362,10 +362,12 @@ describe('Render', () => {
   })
 
   describe('elEvent', function () {
-    let spy1, spy2
+    let mySpy, otherSpy, myNativeSpy, otherNativeSpy
     beforeEach(() => {
-      spy1 = sinon.spy()
-      spy2 = sinon.spy()
+      mySpy = sinon.spy()
+      otherSpy = sinon.spy()
+      myNativeSpy = sinon.spy()
+      otherNativeSpy = sinon.spy()
 
       RootRoute = class extends Route {
         component () {
@@ -374,12 +376,22 @@ describe('Render', () => {
 
         @elEvent('my:event')
         myEventHandler (...args) {
-          spy1.apply(this, args)
+          mySpy.apply(this, args)
         }
 
         @elEvent('other:event')
         otherEventHandler (...args) {
-          spy2.apply(this, args)
+          otherSpy.apply(this, args)
+        }
+
+        @elEvent('my:native:event', { dom: true })
+        myNativeEventHandler (...args) {
+          myNativeSpy.apply(this, args)
+        }
+
+        @elEvent('other:native:event', { dom: true })
+        otherNativeEventHandler (...args) {
+          otherNativeSpy.apply(this, args)
         }
       }
 
@@ -391,9 +403,14 @@ describe('Render', () => {
       router.transitionTo('root').then(function () {
         const routeInstance = router.state.mnRoutes[0]
         routeInstance.el.trigger('my:event', 1, 'a')
-        expect(spy1).to.be.calledOn(routeInstance)
-        expect(spy1).to.be.calledOnceWithExactly(1, 'a')
-        expect(spy2).to.not.be.called
+        routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
+        expect(mySpy).to.be.calledOn(routeInstance)
+        expect(mySpy).to.be.calledOnceWithExactly(1, 'a')
+        expect(otherSpy).to.not.be.called
+
+        expect(myNativeSpy).to.be.calledOn(routeInstance)
+        expect(myNativeSpy).to.be.calledOnceWith(sinon.match({ type: 'my:native:event' }))
+        expect(otherNativeSpy).to.not.be.called
         done()
       }).catch(done)
     })
@@ -406,8 +423,11 @@ describe('Render', () => {
         return router.transitionTo('parent')
       }).then(function () {
         rootEl.trigger('my:event')
-        expect(spy1).to.not.be.called
-        expect(spy2).to.not.be.called
+        rootEl.dispatchEvent(new CustomEvent('my:native:event'))
+        expect(mySpy).to.not.be.called
+        expect(otherSpy).to.not.be.called
+        expect(myNativeSpy).to.not.be.called
+        expect(otherNativeSpy).to.not.be.called
         done()
       }).catch(done)
     })

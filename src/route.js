@@ -27,21 +27,41 @@ const contextProxyHandler = {
   }
 }
 
-const bindElEvents = (el, events, context) => {
-  if (!isView(el)) {
-    throw new Error(`elEvent: component "${el.constructor.name}" is not a view`)
+const createDomCallback = (route, listener) => {
+  return function domCallback (event) {
+    if (event.currentTarget === route.el) {
+      listener.call(route, event)
+    }
   }
-  events.forEach(({ eventName, listener }) => {
-    el.listenTo(el, eventName, listener.bind(context))
+}
+
+const createNextboneCallback = (route, listener) => {
+  return function nextboneCallback (...args) {
+    if (this === route.el) {
+      listener.apply(route, args)
+    }
+  }
+}
+
+const bindElEvents = (route, el, events) => {
+  events.forEach(({ eventName, listener, dom }) => {
+    if (dom) {
+      el.addEventListener(eventName, createDomCallback(route, listener))
+    } else {
+      if (!isView(el)) {
+        throw new Error(`elEvent: component "${el.constructor.name}" is not a view`)
+      }
+      el.on(eventName, createNextboneCallback(route, listener))
+    }
   })
 }
 
-const registerElEvent = (ctor, eventName, listener) => {
+const registerElEvent = (ctor, eventName, listener, { dom }) => {
   const elEvents = ctor._elEvents || (ctor._elEvents = [])
-  elEvents.push({ eventName, listener })
+  elEvents.push({ eventName, listener, dom })
 }
 
-export const elEvent = eventName => (targetOrDescriptor, methodName, fieldDescriptor) => {
+export const elEvent = (eventName, options = {}) => (targetOrDescriptor, methodName, fieldDescriptor) => {
   if (typeof methodName !== 'string') {
     // spec
     const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
@@ -52,11 +72,11 @@ export const elEvent = eventName => (targetOrDescriptor, methodName, fieldDescri
       initializer,
       key,
       finisher (ctor) {
-        registerElEvent(ctor, eventName, descriptor.value)
+        registerElEvent(ctor, eventName, descriptor.value, options)
       }
     }
   }
-  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value)
+  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, options)
 }
 
 export default class Route extends Events {
@@ -93,7 +113,7 @@ export default class Route extends Events {
     if (!el) {
       throw new Error(`${this.constructor.name}: component has invalid value ${getComponent(this)}. Expected a string or HTMLElement`)
     }
-    if (this.constructor._elEvents) bindElEvents(el, this.constructor._elEvents, this)
+    if (this.constructor._elEvents) bindElEvents(this, el, this.constructor._elEvents)
     this.prepareEl(el, transition)
     if (region) {
       region.show(el)
