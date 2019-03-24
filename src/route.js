@@ -62,8 +62,8 @@ const registerElEvent = (ctor, eventName, listener, dom) => {
 }
 
 export const elEvent = (eventName, options = {}) => (targetOrDescriptor, methodName, fieldDescriptor) => {
-  const { elEventDom = true } = router.options
-  const { dom = elEventDom } = options
+  const { dom: defaultDom = true } = elEvent
+  const { dom = defaultDom } = options
   if (typeof methodName !== 'string') {
     // spec
     const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
