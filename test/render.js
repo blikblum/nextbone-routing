@@ -445,5 +445,19 @@ describe('Render', () => {
         done()
       })
     })
+
+    it('will throw if element is not registered', function (done) {
+      RootRoute.prototype.component = function () {
+        class NonRegistered extends view(HTMLElement) {}
+        return NonRegistered
+      }
+      router.transitionTo('root').then(function () {
+        done('should throw')
+      }).catch(function (err) {
+        expect(err).to.be.instanceOf(Error)
+        expect(err.message).to.be.equal('Unable to create instance of "NonRegistered" for "root" route')
+        done()
+      })
+    })
   })
 })

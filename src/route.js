@@ -6,7 +6,11 @@ import { router } from './cherrytree-adapter'
 const createElement = (route, Definition) => {
   if (typeof Definition === 'function') {
     if (Definition.prototype instanceof HTMLElement) {
-      return new Definition()
+      try {
+        return new Definition()
+      } catch (error) {
+        throw new Error(`Unable to create instance of "${Definition.name}" for "${route.$name}" route`)
+      }
     }
     return createElement(route, Definition.call(route))
   } else if (typeof Definition === 'string') {
