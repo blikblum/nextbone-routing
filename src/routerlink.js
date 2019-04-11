@@ -95,7 +95,7 @@ function linkClickHandler (e) {
 }
 
 const createClass = (ctor, options = {}) => {
-  class RouterLinksMixin extends ctor {
+  return class extends ctor {
     connectedCallback () {
       super.connectedCallback()
       router.on('transition', transitionHandler, this)
@@ -123,7 +123,6 @@ const createClass = (ctor, options = {}) => {
       router.off('transition', transitionHandler, this)
     }
   }
-  return RouterLinksMixin
 }
 
 export const routerLinks = (optionsOrCtorOrDescriptor, options) => {
