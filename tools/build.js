@@ -24,17 +24,13 @@ for (const format of ['es']) {
   }).then(bundle => bundle.write({
     file: `dist/nextbone-routing.js`,
     format,
-    sourcemap: true,
-    globals: {
-      backbone: 'Backbone',
-      underscore: '_',
-      'backbone.marionette': 'Backbone.Marionette',
-      'backbone.radio': 'Backbone.Radio'
-    }
+    sourcemap: true
   })))
 }
 
 promise.catch(err => {
   console.error(err.stack) // eslint-disable-line no-console
   process.exit(1)
+}).then(() => {
+  console.log('Build finished')
 })
