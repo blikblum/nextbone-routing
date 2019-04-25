@@ -87,6 +87,36 @@ export const elEvent = (eventName, options = {}) => (targetOrDescriptor, methodN
   registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, dom)
 }
 
+const registerElProperty = (ctor, routeProperty, elProperty) => {
+  const elProperties = ctor._elProperties || (ctor._elProperties = [])
+  elProperties.push({ routeProperty, elProperty })
+}
+
+export const elProperty = (propertyOrProtoOrDescriptor, fieldName, property) => {
+  const isLegacy = typeof fieldName === 'string'
+  if (!isLegacy && typeof propertyOrProtoOrDescriptor.kind !== 'string') {
+    // passed property name
+    return function (protoOrDescriptor) {
+      return elProperty(protoOrDescriptor, fieldName, propertyOrProtoOrDescriptor)
+    }
+  }
+
+  if (!isLegacy) {
+    const { kind, placement, descriptor, initializer, key } = propertyOrProtoOrDescriptor
+    return {
+      kind,
+      placement,
+      descriptor,
+      initializer,
+      key,
+      finisher (ctor) {
+        registerElProperty(ctor, key, property || key)
+      }
+    }
+  }
+  registerElProperty(propertyOrProtoOrDescriptor.constructor, fieldName, property || fieldName)
+}
+
 export class Route extends Events {
   constructor (classOptions, router, { name, path, options }) {
     super()
@@ -112,6 +142,10 @@ export class Route extends Events {
   prepareEl (el, transition) {
     const properties = this.$options.properties
     if (properties) Object.assign(el, properties)
+    const elProperties = this.constructor._elProperties || []
+    elProperties.forEach(({ routeProperty, elProperty }) => {
+      el[elProperty] = this[routeProperty]
+    })
   }
 
   renderEl (region, transition) {

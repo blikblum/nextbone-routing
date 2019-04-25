@@ -4,7 +4,7 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Route, Router, Region, elEvent } from '../src/index'
+import { Route, Router, Region, elEvent, elProperty } from '../src/index'
 import { view } from 'nextbone'
 import _ from 'underscore'
 import $ from 'jquery'
@@ -457,6 +457,42 @@ describe('Render', () => {
         expect(err.message).to.be.equal('Unable to create instance of "NonRegistered" for "root" route')
         done()
       })
+    })
+  })
+
+  describe('elProperty', function () {
+    beforeEach(() => {
+      RootRoute = class extends Route {
+        component () {
+          return ParentView
+        }
+
+        activate () {
+          this.prop1 = 'xx'
+          this.prop2 = 'yy'
+        }
+
+        @elProperty
+        prop1
+
+        @elProperty('xProp')
+        prop2
+      }
+
+      const rootRoute = router.routes.find(route => route.name === 'root')
+      rootRoute.options.class = RootRoute
+    })
+
+    it('will set defined properties to el when rendered', function (done) {
+      router.transitionTo('root').then(function () {
+        const routeInstance = router.state.mnRoutes[0]
+        routeInstance.el.trigger('my:event', 1, 'a')
+        routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
+        expect(routeInstance.el.prop1).to.be.equal('xx')
+        expect(routeInstance.el.prop2).to.be.undefined
+        expect(routeInstance.el.xProp).to.be.equal('yy')
+        done()
+      }).catch(done)
     })
   })
 })
