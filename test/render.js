@@ -168,10 +168,9 @@ describe('Render', () => {
         })
       })
 
-      it.skip('should not abort transition when no rootOutlet is defined and el is prerendered', function () {
-        // todo is possible to implement such feature with web component?
+      it('should not abort transition when no rootOutlet is defined and el is prerendered', function () {
         router.rootOutlet = null
-        // RootRoute.prototype.component = Mn.View.extend({ el: '#main' })
+        RootRoute.prototype.component = document.querySelector('#main')
         return router.transitionTo('root3').then(function () {
           expect(router.isActive('root3'))
         })

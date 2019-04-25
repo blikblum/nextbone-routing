@@ -15,6 +15,8 @@ const createElement = (route, Definition) => {
     return createElement(route, Definition.call(route))
   } else if (typeof Definition === 'string') {
     return document.createElement(Definition)
+  } else if (Definition instanceof HTMLElement) {
+    return Definition
   }
 }
 
@@ -123,7 +125,7 @@ export class Route extends Events {
     this.prepareEl(el, transition)
     if (region) {
       region.show(el)
-    } else {
+    } else if (!el.isConnected) {
       // if region is undefined means no rootOutlet is defined
       throw new Error('No root outlet region defined')
     }
