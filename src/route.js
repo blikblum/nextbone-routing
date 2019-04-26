@@ -175,6 +175,10 @@ export class Route extends Events {
     return new Proxy(this, contextProxyHandler)
   }
 
+  createOutlet (el) {
+    return new Region(el)
+  }
+
   getOutlet () {
     let outletRegion = outletRegionMap.get(this.el)
     if (!outletRegion) {
@@ -182,7 +186,7 @@ export class Route extends Events {
       const selector = this.el.constructor.outlet || 'router-outlet'
       const el = root.querySelector(selector)
       if (el) {
-        outletRegion = new Region(el)
+        outletRegion = this.createOutlet(el)
         outletRegionMap.set(this.el, outletRegion)
       }
     }
