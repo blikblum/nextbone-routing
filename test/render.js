@@ -357,6 +357,17 @@ describe('Render', () => {
         expect(routeInstance.el).to.exist
       })
     })
+
+    it('should have a $router property pointing to router', function (done) {
+      let routeInstance
+      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
+        routeInstance = this
+      })
+      router.transitionTo('parent').then(function () {
+        expect(routeInstance.el.$router).to.be.equal(router)
+        done()
+      }).catch(done)
+    })
   })
 
   describe('elEvent', function () {

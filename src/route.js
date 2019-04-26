@@ -157,6 +157,7 @@ export class Route extends Events {
     }
     if (this.constructor._elEvents) bindElEvents(this, el, this.constructor._elEvents)
     this.prepareEl(el, transition)
+    el.$router = this.$router
     if (region) {
       region.show(el)
     } else if (!el.isConnected) {
