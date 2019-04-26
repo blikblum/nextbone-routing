@@ -300,6 +300,11 @@ const middleware = {
 
   done: function (transition) {
     router.state.mnRoutes = transition.mnRoutes
+    transition.mnRoutes.forEach((route) => {
+      if (route.el) {
+        route.el.$route = router.state
+      }
+    })
     router.trigger('transition', transition)
   },
 
