@@ -42,7 +42,7 @@ describe('Route context', () => {
     router.destroy()
   })
 
-  it('should get the value from a parent route', function (done) {
+  it('should get the value from a parent route in activate', function (done) {
     let contextValue, contextProperty
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'The Context Reloaded' },
@@ -59,6 +59,25 @@ describe('Route context', () => {
     }).catch(done)
   })
 
+  it('should get the value from a parent route in deactivate', function (done) {
+    let contextValue, contextProperty
+    GrandChildRoute.providedContexts = {
+      parentValue: { value: 'The Context Reloaded' },
+      parentProperty: { property: 'internalProp' }
+    }
+    sinon.stub(LeafRoute.prototype, 'deactivate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
+    })
+    router.transitionTo('leaf').then(function () {
+      return router.transitionTo('root')
+    }).then(function () {
+      expect(contextValue).to.be.equal('The Context Reloaded')
+      expect(contextProperty).to.be.equal('Internal Stuff')
+      done()
+    }).catch(done)
+  })
+
   it('should work outside of transition lifecycle', function (done) {
     let leafRoute
     GrandChildRoute.providedContexts = {
@@ -69,6 +88,27 @@ describe('Route context', () => {
       leafRoute = this
     })
     router.transitionTo('leaf').then(function () {
+      let contextValue = leafRoute.context.parentValue
+      let contextProperty = leafRoute.context.parentProperty
+      expect(router.state.activeTransition).to.be.equal(null)
+      expect(contextValue).to.be.equal('The Context Reloaded')
+      expect(contextProperty).to.be.equal('Internal Stuff')
+      done()
+    }).catch(done)
+  })
+
+  it('should work on inactive routes', function (done) {
+    let leafRoute
+    GrandChildRoute.providedContexts = {
+      parentValue: { value: 'The Context Reloaded' },
+      parentProperty: { property: 'internalProp' }
+    }
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function () {
+      leafRoute = this
+    })
+    router.transitionTo('leaf').then(function () {
+      return router.transitionTo('root')
+    }).then(function () {
       let contextValue = leafRoute.context.parentValue
       let contextProperty = leafRoute.context.parentProperty
       expect(router.state.activeTransition).to.be.equal(null)

@@ -245,6 +245,7 @@ const middleware = {
                 throw new Error(`Unable to create route ${route.name}: class or component must be defined`)
               }
               mnRouteMap[route.name] = mnRoute
+              mnRoute.$parent = res[i - 1]
               res.push(mnRoute)
               return res
             })
