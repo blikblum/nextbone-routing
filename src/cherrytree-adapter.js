@@ -14,7 +14,7 @@ import { Route, getComponent } from './route'
 import { Region } from './utils/region'
 import { Events } from 'nextbone'
 
-let mnRouteMap = Object.create(null)
+let instanceMap = Object.create(null)
 
 export let router
 
@@ -56,7 +56,7 @@ Router.prototype.use = function (customMiddleware, options = {}) {
 Router.prototype.destroy = function () {
   this.off()
   router = null
-  mnRouteMap = Object.create(null)
+  instanceMap = Object.create(null)
   Cherrytree.prototype.destroy.call(this)
 }
 
@@ -64,7 +64,7 @@ Events.extend(Router.prototype)
 
 export function getMnRoutes (routes) {
   return routes.map(function (route) {
-    return mnRouteMap[route.name]
+    return instanceMap[route.name]
   })
 }
 
@@ -86,7 +86,7 @@ function findRouteClass (options, routeName, index, routes) {
   // look in parent routes
   if (!result) {
     const parentRoutes = routes.slice(0, index).reverse().map(function (route) {
-      return mnRouteMap[route.name]
+      return instanceMap[route.name]
     })
     parentRoutes.some(function (route) {
       let childRoutes = route.constructor.childRoutes
@@ -148,47 +148,47 @@ function getParentRegion (routes, route) {
 
 const resolved = Promise.resolve()
 
-function renderElements (mnRoutes, activated, transition) {
+function renderElements (instances, activated, transition) {
   // ensure at least the target (last) route is rendered
-  let renderCandidates = activated.length ? activated : mnRoutes.slice(-1)
+  let renderCandidates = activated.length ? activated : instances.slice(-1)
 
-  let renderQueue = renderCandidates.reduce(function (memo, mnRoute) {
-    if (getComponent(mnRoute)) {
+  let renderQueue = renderCandidates.reduce(function (memo, instance) {
+    if (getComponent(instance)) {
       if (memo.length && memo[memo.length - 1].$options.outlet === false) {
         memo.pop()
       }
-      memo.push(mnRoute)
+      memo.push(instance)
     }
     return memo
   }, [])
 
-  renderQueue.reduce((prevPromise, mnRoute) => {
+  renderQueue.reduce((prevPromise, instance) => {
     let parentRegion
     if (prevPromise) {
       return prevPromise.then(function () {
-        parentRegion = getParentRegion(mnRoutes, mnRoute)
-        mnRoute.renderEl(parentRegion, transition)
-        return mnRoute.el.updateComplete
+        parentRegion = getParentRegion(instances, instance)
+        instance.renderEl(parentRegion, transition)
+        return instance.el.updateComplete
       }).catch(function () {
-        parentRegion = getParentRegion(mnRoutes, mnRoute)
-        mnRoute.renderEl(parentRegion, transition)
-        return mnRoute.el.updateComplete
+        parentRegion = getParentRegion(instances, instance)
+        instance.renderEl(parentRegion, transition)
+        return instance.el.updateComplete
       })
     }
-    parentRegion = getParentRegion(mnRoutes, mnRoute)
-    mnRoute.renderEl(parentRegion, transition)
-    return mnRoute.el.updateComplete
+    parentRegion = getParentRegion(instances, instance)
+    instance.renderEl(parentRegion, transition)
+    return instance.el.updateComplete
   }, undefined)
 }
 
 function runAsyncMethod (transition, routes, method) {
-  return routes.reduce(function (prevPromise, mnRoute) {
-    router.trigger(`before:${method}`, transition, mnRoute)
+  return routes.reduce(function (prevPromise, instance) {
+    router.trigger(`before:${method}`, transition, instance)
     return prevPromise.then(function () {
       if (!transition.isCancelled) {
-        return Promise.resolve(mnRoute[method](transition)).then(function () {
+        return Promise.resolve(instance[method](transition)).then(function () {
           if (!transition.isCancelled) {
-            router.trigger(method, transition, mnRoute)
+            router.trigger(method, transition, instance)
           }
         })
       }
@@ -201,7 +201,7 @@ function isActivatingRoute (route) {
 }
 
 function isTargetRoute (route) {
-  return this.mnRoutes && this.mnRoutes.indexOf(route) === this.mnRoutes.length - 1
+  return this.instances && this.instances.indexOf(route) === this.instances.length - 1
 }
 
 const middleware = {
@@ -220,7 +220,7 @@ const middleware = {
 
     // deactivate previous routes
     for (routeIndex = prevRoutes.length - 1; routeIndex >= changingIndex; routeIndex--) {
-      routeInstance = mnRouteMap[prevRoutes[routeIndex].name]
+      routeInstance = instanceMap[prevRoutes[routeIndex].name]
       if (routeInstance) {
         deactivated.push(routeInstance)
       }
@@ -229,36 +229,36 @@ const middleware = {
     let promise = runAsyncMethod(transition, deactivated, 'deactivate')
 
     // build route tree and creating instances if necessary
-    let mnRoutes = transition.mnRoutes = []
+    let instances = transition.instances = []
 
     promise = promise.then(() => {
       return transition.routes.reduce(function (acc, route, i, routes) {
         return acc.then(function (res) {
-          let instance = mnRouteMap[route.name]
+          let instance = instanceMap[route.name]
           if (instance) {
             res.push(instance)
             return res
           } else {
             instance = createMnRoute(route, i, routes)
-            return Promise.resolve(instance).then(function (mnRoute) {
-              if (!mnRoute) {
+            return Promise.resolve(instance).then(function (resolvedInstance) {
+              if (!resolvedInstance) {
                 throw new Error(`Unable to create route ${route.name}: class or component must be defined`)
               }
-              mnRouteMap[route.name] = mnRoute
-              mnRoute.$parent = res[i - 1]
-              res.push(mnRoute)
+              instanceMap[route.name] = resolvedInstance
+              resolvedInstance.$parent = res[i - 1]
+              res.push(resolvedInstance)
               return res
             })
           }
         })
-      }, Promise.resolve(mnRoutes))
+      }, Promise.resolve(instances))
     })
 
     // activate routes in order
     let activated
 
     promise = promise.then(function () {
-      activated = transition.activating = mnRoutes.slice(changingIndex)
+      activated = transition.activating = instances.slice(changingIndex)
       return runAsyncMethod(transition, activated, 'activate')
     })
 
@@ -266,16 +266,16 @@ const middleware = {
     return promise.then(function () {
       if (transition.isCancelled) return
 
-      let loadPromise = mnRoutes.reduce(function (prevPromise, mnRoute) {
-        if (isFunction(mnRoute.load)) {
+      let loadPromise = instances.reduce(function (prevPromise, instance) {
+        if (isFunction(instance.load)) {
           if (prevPromise) {
             return prevPromise.then(function () {
-              return Promise.resolve(mnRoute.load(transition))
+              return Promise.resolve(instance.load(transition))
             }).catch(function () {
-              return Promise.resolve(mnRoute.load(transition))
+              return Promise.resolve(instance.load(transition))
             })
           } else {
-            return Promise.resolve(mnRoute.load(transition))
+            return Promise.resolve(instance.load(transition))
           }
         }
         return prevPromise
@@ -286,22 +286,22 @@ const middleware = {
       if (loadPromise) {
         return new Promise(function (resolve) {
           loadPromise.then(function () {
-            renderElements(mnRoutes, activated, transition)
+            renderElements(instances, activated, transition)
             resolve()
           }).catch(function () {
-            renderElements(mnRoutes, activated, transition)
+            renderElements(instances, activated, transition)
             resolve()
           })
         })
       } else {
-        renderElements(mnRoutes, activated, transition)
+        renderElements(instances, activated, transition)
       }
     })
   },
 
   done: function (transition) {
-    router.state.mnRoutes = transition.mnRoutes
-    transition.mnRoutes.forEach((route) => {
+    router.state.instances = transition.instances
+    transition.instances.forEach((route) => {
       if (route.el) {
         route.el.$route = router.state
       }

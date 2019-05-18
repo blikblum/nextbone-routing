@@ -130,7 +130,7 @@ describe('Render', () => {
       router.transitionTo('root').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
         expect(componentSpy).to.be.calledOnce
-        expect(componentSpy).to.be.calledOn(router.state.mnRoutes[0])
+        expect(componentSpy).to.be.calledOn(router.state.instances[0])
         done()
       }).catch(done)
     })
@@ -313,8 +313,8 @@ describe('Render', () => {
 
     it('should assign properties defined in route options to el', function () {
       return router.transitionTo('root3').then(function () {
-        expect(router.state.mnRoutes[0].el).to.have.property('a', 'b')
-        expect(router.state.mnRoutes[0].el).to.have.property('c', 1)
+        expect(router.state.instances[0].el).to.have.property('a', 'b')
+        expect(router.state.instances[0].el).to.have.property('c', 1)
       })
     })
   })
@@ -336,7 +336,7 @@ describe('Render', () => {
     it('should be set to undefined when a child of a route with option outlet = false is rendered', function () {
       let routeInstance
       return router.transitionTo('root2').then(function () {
-        routeInstance = router.state.mnRoutes[0]
+        routeInstance = router.state.instances[0]
         expect(routeInstance.el).to.exist
         // force root2 render el before going to leaf2
         return router.transitionTo('leaf2')
@@ -424,7 +424,7 @@ describe('Render', () => {
 
     it('will listen to view events and call registered handlers', function (done) {
       router.transitionTo('root').then(function () {
-        const routeInstance = router.state.mnRoutes[0]
+        const routeInstance = router.state.instances[0]
         routeInstance.el.trigger('my:event', 1, 'a')
         routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
         expect(mySpy).to.be.calledOn(routeInstance)
@@ -441,7 +441,7 @@ describe('Render', () => {
     it('will stop listening to view events when deactivated', function (done) {
       let rootEl
       router.transitionTo('root').then(function () {
-        const routeInstance = router.state.mnRoutes[0]
+        const routeInstance = router.state.instances[0]
         rootEl = routeInstance.el
         return router.transitionTo('parent')
       }).then(function () {
@@ -510,7 +510,7 @@ describe('Render', () => {
 
     it('will set defined properties to el when rendered', function (done) {
       router.transitionTo('root').then(function () {
-        const routeInstance = router.state.mnRoutes[0]
+        const routeInstance = router.state.instances[0]
         routeInstance.el.trigger('my:event', 1, 'a')
         routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
         expect(routeInstance.el.prop1).to.be.equal('xx')
