@@ -10,9 +10,9 @@
 
 import { isEqual, isFunction, extend } from 'underscore'
 import Cherrytree from 'cherrytreex'
-import { Route, getComponent } from './route'
-import { Region } from './utils/region'
 import { Events } from 'nextbone'
+import { Region } from 'nextbone/dom-utils'
+import { Route, getComponent } from './route'
 
 let instanceMap = Object.create(null)
 

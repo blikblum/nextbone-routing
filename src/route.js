@@ -1,5 +1,5 @@
 import { Events, isView } from 'nextbone'
-import { Region } from './utils/region'
+import { Region } from 'nextbone/dom-utils'
 import { findContext } from './routecontext'
 import { router } from './cherrytree-adapter'
 

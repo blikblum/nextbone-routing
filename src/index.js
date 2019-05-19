@@ -7,8 +7,6 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-export { Region } from './utils/region'
-
 export { Route, elEvent, elProperty } from './route'
 
 export { Router } from './cherrytree-adapter'
