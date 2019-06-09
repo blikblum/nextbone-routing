@@ -52,6 +52,9 @@ class ParentView extends LitElement {
       </div>
       <a id="a-parentlink-outside" route="parent"></a>
       <div id="div-parentlink-outside" route="parent"><div id="innerparent-outside"></div></div>
+      <div routerlinks param-id="10" query-test="xxx">
+        <a id="a-rootlink4" route="root"></a>
+      </div>
      `
   }
 }
@@ -145,7 +148,14 @@ describe('routerLinks', () => {
     return router.transitionTo('parent').then(async function () {
       const parentEl = document.querySelector(parentTag)
       await parentEl.updateComplete
-      expect($('#a-childlink').attr('href')).to.be.equal('#parent/child?foo=bar&name=test')
+      expect($('#a-rootlink4').attr('href')).to.be.equal('#root/10?test=xxx')
+    })
+  })
+
+  it('should use defaults defined in root el', function () {
+    return router.transitionTo('parent').then(async function () {
+      const parentEl = document.querySelector(parentTag)
+      await parentEl.updateComplete
       expect($('#a-rootlink3').attr('href')).to.be.equal('#root/5?tag=A')
     })
   })

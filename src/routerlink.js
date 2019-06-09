@@ -37,18 +37,27 @@ function getAttributeValues (el, prefix, result) {
   return result
 }
 
-function getDefaults (ownerEl, routeName, prop, routeEl) {
-  const data = ownerEl[routerLinksData]
-  let result = data.options[prop]
+function getDefaults (ownerEl, routeName, propName, routeEl, options) {
+  let result = options[propName]
   if (isFunction(result)) result = result.call(ownerEl, routeName, routeEl)
   return clone(result) || {}
+}
+
+function getRouteProp (ownerEl, routeName, routeEl, propName, attrPrefix) {
+  const options = ownerEl[routerLinksData].options
+  let defaults = getDefaults(ownerEl, routeName, propName, routeEl, options)
+  const rootEl = routeEl.closest(options.selector || '[routerlinks]')
+  if (rootEl) {
+    getAttributeValues(rootEl, attrPrefix, defaults)
+  }
+  return getAttributeValues(routeEl, attrPrefix, defaults)
 }
 
 function updateHref (el, ownerEl) {
   const routeName = el.getAttribute('route')
   if (!routeName) return
-  const params = getAttributeValues(el, 'param-', getDefaults(ownerEl, routeName, 'params', el))
-  const query = getAttributeValues(el, 'query-', getDefaults(ownerEl, routeName, 'query', el))
+  const params = getRouteProp(ownerEl, routeName, el, 'params', 'param-')
+  const query = getRouteProp(ownerEl, routeName, el, 'query', 'query-')
   const href = router.generate(routeName, params, query)
   const anchorEl = el.tagName === 'A' ? el : el.querySelector('a')
   if (anchorEl) anchorEl.setAttribute('href', href)
@@ -69,8 +78,8 @@ function transitionHandler () {
       each(rootEl.querySelectorAll('[route]'), el => {
         let routeName = el.getAttribute('route')
         if (!routeName) return
-        let params = getAttributeValues(el, 'param-', getDefaults(this, routeName, 'params', el))
-        let query = getAttributeValues(el, 'query-', getDefaults(this, routeName, 'query', el))
+        let params = getRouteProp(this, routeName, el, 'params', 'param-')
+        let query = getRouteProp(this, routeName, el, 'query', 'query-')
         let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
         if (activeClass) {
           const isActive = router.isActive(routeName, params, query)
@@ -86,8 +95,8 @@ function linkClickHandler (e) {
   if (el.querySelectorAll('a').length) return
   let routeName = el.getAttribute('route')
   if (!routeName) return
-  let params = getAttributeValues(el, 'param-', getDefaults(this, routeName, 'params', el))
-  let query = getAttributeValues(el, 'query-', getDefaults(this, routeName, 'query', el))
+  let params = getRouteProp(this, routeName, el, 'params', 'param-')
+  let query = getRouteProp(this, routeName, el, 'query', 'query-')
   router.transitionTo(routeName, params, query)
 }
 
