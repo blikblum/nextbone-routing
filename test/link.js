@@ -16,25 +16,15 @@ chai.use(sinonChai)
 let router, routes
 let RootRoute, ParentRoute, ChildRoute
 
-const parentRouterLinksOptions = {
-  defaults: {
-    child: {
-      query: {
-        foo: 'bar'
-      }
-    },
-    root: {
-      params: function () {
-        return { id: this.rootId }
-      },
-      query: function (el) {
-        if (el.id === 'a-rootlink3') return { tag: el.tagName }
-      }
-    }
+@routerLinks({
+  params: function (route) {
+    if (route === 'root') return { id: this.rootId }
+  },
+  query: function (route, el) {
+    if (route === 'child') return { foo: 'bar' }
+    if (el.id === 'a-rootlink3') return { tag: el.tagName }
   }
-}
-
-@routerLinks(parentRouterLinksOptions)
+})
 class ParentView extends LitElement {
   static outlet = '.child-view'
 
@@ -69,14 +59,8 @@ const parentTag = defineCE(ParentView)
 
 @view
 @routerLinks({
-  defaults () {
-    return {
-      grandchild: {
-        query: {
-          other: 'xx'
-        }
-      }
-    }
+  query: {
+    other: 'xx'
   }
 })
 class GrandChildView extends LitElement {

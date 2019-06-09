@@ -39,11 +39,8 @@ function getAttributeValues (el, prefix, result) {
 
 function getDefaults (ownerEl, routeName, prop, routeEl) {
   const data = ownerEl[routerLinksData]
-  let defaults = data.options.defaults
-  if (isFunction(defaults)) defaults = defaults.call(ownerEl)
-  let routeDefaults = defaults && defaults[routeName]
-  let result = (routeDefaults && routeDefaults[prop])
-  if (isFunction(result)) result = result.call(ownerEl, routeEl)
+  let result = data.options[prop]
+  if (isFunction(result)) result = result.call(ownerEl, routeName, routeEl)
   return clone(result) || {}
 }
 
