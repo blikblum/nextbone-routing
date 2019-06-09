@@ -109,6 +109,7 @@ describe('Render', () => {
         route('leaf2', { class: LeafRoute, component: leafTag })
       })
       route('root3', { class: RootRoute, properties: { a: 'b', c: 1 } })
+      route('rootWithParam', { path: 'root/:id', class: RootRoute })
     }
     router.map(routes)
     router.listen()
@@ -270,13 +271,26 @@ describe('Render', () => {
   })
 
   describe('updateEl', function () {
-    it('should be called only if route has a rendered el', function () {
-      let spy = sinon.spy(ParentRoute.prototype, 'updateEl')
+    it('should be called when the route is re rendered', function () {
+      let spy = sinon.spy(RootRoute.prototype, 'updateEl')
       let transition
-      return router.transitionTo('parent').then(function () {
+      return router.transitionTo('root').then(function () {
         expect(spy).not.to.be.called
         // force a new render
-        transition = router.transitionTo('parent', {}, { id: 1 })
+        transition = router.transitionTo('root', {}, { id: 1 })
+        return transition
+      }).then(function () {
+        expect(spy).to.be.calledOnceWithExactly(transition)
+      })
+    })
+
+    it('should be called when the route is re activated', function () {
+      let spy = sinon.spy(RootRoute.prototype, 'updateEl')
+      let transition
+      return router.transitionTo('rootWithParam', { id: 0 }).then(function () {
+        expect(spy).not.to.be.called
+        // force a new render
+        transition = router.transitionTo('rootWithParam', { id: 1 })
         return transition
       }).then(function () {
         expect(spy).to.be.calledOnceWithExactly(transition)

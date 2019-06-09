@@ -281,7 +281,11 @@ const middleware = {
         return prevPromise
       }, undefined)
 
-      deactivated.forEach(route => { route.el = undefined })
+      deactivated.forEach(route => {
+        if (activated.indexOf(route) === -1) {
+          route.el = undefined
+        }
+      })
 
       if (loadPromise) {
         return new Promise(function (resolve) {
