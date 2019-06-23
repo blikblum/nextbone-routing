@@ -8,7 +8,7 @@ const createElement = (route, Definition) => {
       try {
         return new Definition()
       } catch (error) {
-        throw new Error(`Unable to create instance of "${Definition.name}" for "${route.$name}" route`)
+        throw new Error(`Unable to create instance of "${Definition.name}" for "${route.$name}" route\n${error}`)
       }
     }
     return createElement(route, Definition.call(route))

@@ -494,7 +494,7 @@ describe('Render', () => {
         done('should throw')
       }).catch(function (err) {
         expect(err).to.be.instanceOf(Error)
-        expect(err.message).to.be.equal('Unable to create instance of "NonRegistered" for "root" route')
+        expect(err.message).to.be.equal(`Unable to create instance of "NonRegistered" for "root" route\nTypeError: Illegal constructor`)
         done()
       })
     })
