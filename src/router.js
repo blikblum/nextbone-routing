@@ -9,7 +9,7 @@
  */
 
 import { isEqual, isFunction, extend } from 'underscore'
-import Cherrytree from 'cherrytreex'
+import SlickRouter from 'slick-router'
 import { Events } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import { Route, getComponent } from './route'
@@ -22,7 +22,7 @@ export function Router (options = {}) {
   if (router) {
     throw new Error('Instance of router already created')
   }
-  Cherrytree.call(this, options)
+  SlickRouter.call(this, options)
   this.middleware.push(middleware)
   let { outlet = 'app-root' } = options
   if (outlet) {
@@ -40,7 +40,7 @@ export function Router (options = {}) {
   router = this
 }
 
-Router.prototype = Object.create(Cherrytree.prototype)
+Router.prototype = Object.create(SlickRouter.prototype)
 Router.prototype.constructor = Router
 
 Router.prototype.use = function (customMiddleware, options = {}) {
@@ -57,7 +57,7 @@ Router.prototype.destroy = function () {
   this.off()
   router = null
   instanceMap = Object.create(null)
-  Cherrytree.prototype.destroy.call(this)
+  SlickRouter.prototype.destroy.call(this)
 }
 
 Events.extend(Router.prototype)

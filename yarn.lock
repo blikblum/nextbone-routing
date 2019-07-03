@@ -1314,13 +1314,6 @@ check-error@^1.0.2:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=
 
-cherrytreex@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/cherrytreex/-/cherrytreex-3.5.0.tgz#b30a49791d0ab1e68d43ce802fca740ddff1f4ff"
-  integrity sha512-9BNSw2uLJzN1YPA2+hpm+NOTTiRKMVT6nSeWoEj/h3qqIVNS+XNTJcKhSWXqF2PM2RSkwG+4xf5wpXNGco8oCA==
-  dependencies:
-    path-to-regexp "^2.1.0"
-
 chokidar@^2.0.3:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.0.4.tgz#356ff4e2b0e8e43e322d18a372460bbcf3accd26"
@@ -3839,17 +3832,17 @@ path-parse@^1.0.6:
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
   integrity sha512-GSmOT2EbHrINBf9SR7CDELwlJ8AENk3Qn7OikK4nFYAu3Ote2+JYNVvkpAEQm3/TLNEJFD/xZJjzyxg3KBWOzw==
 
+path-to-regexp-es@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/path-to-regexp-es/-/path-to-regexp-es-3.0.0.tgz#7668bc1957cf32ea41be2820e55d910f36934930"
+  integrity sha512-ZVVZin2R0eNUiUQNAdk+YDPEPI5Y1hXM6aAa3ZdkEjR85ou5OotFbgqnyDBU7Ty7kmCe7sGyYFMIJuFb1Gf05Q==
+
 path-to-regexp@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.7.0.tgz#59fde0f435badacba103a84e9d3bc64e96b9937d"
   integrity sha1-Wf3g9DW62suhA6hOnTvGTpa5k30=
   dependencies:
     isarray "0.0.1"
-
-path-to-regexp@^2.1.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-2.4.0.tgz#35ce7f333d5616f1c1e1bfe266c3aba2e5b2e704"
-  integrity sha512-G6zHoVqC6GGTQkZwF4lkuEyMbVOjoBKAEybQUypI1WTkqinCOrq2x6U2+phkJ1XsEMTy4LjtwPI7HW+NVrRR2w==
 
 path-type@^2.0.0:
   version "2.0.0"
@@ -4404,6 +4397,13 @@ slice-ansi@1.0.0:
   integrity sha512-POqxBK6Lb3q6s047D/XsDVNPnF9Dl8JSaqe9h9lURl0OdNqy/ujDrOiIHtsqXMGbWWTIomRzAMaTyawAU//Reg==
   dependencies:
     is-fullwidth-code-point "^2.0.0"
+
+slick-router@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/slick-router/-/slick-router-1.0.0.tgz#b7169e5e1cb7e050b0e3e4a755f9d50909388ddf"
+  integrity sha512-ALMZHvXzVoTfRBhYXErc42hbGVbByiHOjAPcdep6jJ1CwNleTmt3ob0l6wXKRRZizHIshLq2ZqcUl1NSB0jwMQ==
+  dependencies:
+    path-to-regexp-es "^3.0.0"
 
 snapdragon-node@^2.0.1:
   version "2.1.1"
