@@ -1,6 +1,6 @@
 import { each, isFunction, clone } from 'underscore'
 import { delegate, undelegate } from 'nextbone'
-import { router } from './cherrytree-adapter'
+import { router } from './router'
 
 const routerLinksData = Symbol('routerLinksData')
 const resolved = Promise.resolve()

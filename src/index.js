@@ -9,6 +9,6 @@
 
 export { Route, elEvent, elProperty } from './route'
 
-export { Router } from './cherrytree-adapter'
+export { Router } from './router'
 
 export { routerLinks } from './routerlink'
