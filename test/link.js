@@ -1,17 +1,11 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it */
+/* global describe,beforeEach,afterEach,it,sinon,expect */
 
-import chai from 'chai'
-import sinon from 'sinon'
-import sinonChai from 'sinon-chai'
 import { Route, Router, routerLinks } from '../src/index'
 import { view } from 'nextbone'
 import { defineCE } from '@open-wc/testing-helpers'
 import { LitElement, html } from 'lit-element'
 import $ from 'jquery'
-
-let expect = chai.expect
-chai.use(sinonChai)
 
 let router, routes
 let RootRoute, ParentRoute, ChildRoute

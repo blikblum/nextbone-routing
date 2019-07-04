@@ -1,15 +1,8 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it */
+/* global describe,beforeEach,afterEach,it,sinon,expect,assert */
 
-import chai from 'chai'
-import sinon from 'sinon'
-import sinonChai from 'sinon-chai'
 import { defer } from 'underscore'
 import { Route, Router } from '../src/index'
-
-let expect = chai.expect
-let assert = chai.assert
-chai.use(sinonChai)
 
 let router, routes
 let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
