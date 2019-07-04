@@ -18,46 +18,45 @@ let instanceMap = Object.create(null)
 
 export let router
 
-export function Router (options = {}) {
-  if (router) {
-    throw new Error('Instance of router already created')
-  }
-  SlickRouter.call(this, options)
-  this.middleware.push(middleware)
-  let { outlet = 'app-root' } = options
-  if (outlet) {
-    if (typeof outlet === 'string') {
-      outlet = document.querySelector(outlet)
+export class Router extends SlickRouter {
+  constructor (options = {}) {
+    if (router) {
+      throw new Error('Instance of router already created')
     }
-    if (outlet instanceof HTMLElement) {
-      this.rootOutlet = new Region(outlet)
-    } else if (outlet instanceof Region) {
-      this.rootOutlet = outlet
+    super(options)
+    this.middleware.push(middleware)
+    let { outlet = 'app-root' } = options
+    if (outlet) {
+      if (typeof outlet === 'string') {
+        outlet = document.querySelector(outlet)
+      }
+      if (outlet instanceof HTMLElement) {
+        this.rootOutlet = new Region(outlet)
+      } else if (outlet instanceof Region) {
+        this.rootOutlet = outlet
+      } else {
+        throw new Error(`Router: invalid outlet argument: ${outlet}`)
+      }
+    }
+    router = this
+  }
+
+  use (customMiddleware, options = {}) {
+    const m = typeof customMiddleware === 'function' ? { next: customMiddleware } : customMiddleware
+    if (options.before) {
+      this.middleware.splice(this.middleware.indexOf(middleware), 0, m)
     } else {
-      throw new Error(`Router: invalid outlet argument: ${outlet}`)
+      this.middleware.push(m)
     }
+    return this
   }
-  router = this
-}
 
-Router.prototype = Object.create(SlickRouter.prototype)
-Router.prototype.constructor = Router
-
-Router.prototype.use = function (customMiddleware, options = {}) {
-  const m = typeof customMiddleware === 'function' ? { next: customMiddleware } : customMiddleware
-  if (options.before) {
-    this.middleware.splice(this.middleware.indexOf(middleware), 0, m)
-  } else {
-    this.middleware.push(m)
+  destroy () {
+    this.off()
+    router = null
+    instanceMap = Object.create(null)
+    super.destroy()
   }
-  return this
-}
-
-Router.prototype.destroy = function () {
-  this.off()
-  router = null
-  instanceMap = Object.create(null)
-  SlickRouter.prototype.destroy.call(this)
 }
 
 Events.extend(Router.prototype)
