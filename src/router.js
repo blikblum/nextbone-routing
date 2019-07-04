@@ -61,12 +61,6 @@ export class Router extends SlickRouter {
 
 Events.extend(Router.prototype)
 
-export function getMnRoutes (routes) {
-  return routes.map(function (route) {
-    return instanceMap[route.name]
-  })
-}
-
 function getChangingIndex (prevRoutes, currentRoutes) {
   let index, prev, current
   const count = Math.max(prevRoutes.length, currentRoutes.length)
