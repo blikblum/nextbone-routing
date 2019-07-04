@@ -186,7 +186,10 @@ function runAsyncMethod (transition, routes, method) {
     router.trigger(`before:${method}`, transition, instance)
     return prevPromise.then(function () {
       if (!transition.isCancelled) {
-        return Promise.resolve(instance[method](transition)).then(function () {
+        return Promise.resolve(instance[method](transition)).then(function (result) {
+          if (result === false) {
+            transition.cancel()
+          }
           if (!transition.isCancelled) {
             router.trigger(method, transition, instance)
           }

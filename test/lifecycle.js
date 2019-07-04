@@ -213,6 +213,27 @@ describe('Lifecycle hooks', () => {
       })
     })
 
+    it('should cancel transition if returns false', function (done) {
+      let transition
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      let childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (t) {
+        transition = t
+        return false
+      })
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
+      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      router.transitionTo('leaf').then(function () {
+        done('Transition promise should be rejected')
+      }).catch(function () {
+        expect(parentSpy).to.have.been.calledOnce
+        expect(childStub).to.have.been.calledOnce
+        expect(grandChildSpy).to.not.have.been.called
+        expect(leafSpy).to.not.have.been.called
+        expect(transition.isCancelled).to.be.true
+        done()
+      })
+    })
+
     it('should be called when child route change to a route with some parent', function (done) {
       let parentSpy
       let child2Spy
@@ -445,6 +466,29 @@ describe('Lifecycle hooks', () => {
         expect(childStub).to.have.been.calledOnce
         expect(grandChildSpy).to.have.been.calledOnce
         expect(leafSpy).to.have.been.calledOnce
+        done()
+      })
+    })
+
+    it('should cancel the transition if returns false', function (done) {
+      let transition
+      let parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
+      let childStub = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (t) {
+        transition = t
+        return false
+      })
+      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
+      let leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
+      router.transitionTo('leaf').then(function () {
+        return router.transitionTo('root')
+      }).then(function () {
+        done('Transition promise should be rejected')
+      }).catch(function () {
+        expect(parentSpy).to.not.have.been.called
+        expect(childStub).to.have.been.calledOnce
+        expect(grandChildSpy).to.have.been.calledOnce
+        expect(leafSpy).to.have.been.calledOnce
+        expect(transition.isCancelled).to.be.true
         done()
       })
     })
