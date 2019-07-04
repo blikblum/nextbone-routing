@@ -16,7 +16,7 @@ promise = promise.then(() => del(['dist/*']))
 for (const format of ['es']) {
   promise = promise.then(() => rollup.rollup({
     input: 'src/index.js',
-    external: Object.keys(dependencies),
+    external: ['underscore', 'nextbone/dom-utils', ...Object.keys(dependencies)],
     plugins: [babel({
       exclude: 'node_modules/**',
       sourceMaps: true
