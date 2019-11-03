@@ -64,6 +64,7 @@ class GrandChildView extends LitElement {
   createRenderRoot () {
     return this
   }
+
   render () {
     return html`
     <div routerlinks>
@@ -76,7 +77,7 @@ const grandChildTag = defineCE(GrandChildView)
 
 describe('routerLinks', () => {
   beforeEach(() => {
-    document.body.innerHTML = `<div id="main"></div>`
+    document.body.innerHTML = '<div id="main"></div>'
 
     router = new Router({ outlet: '#main' })
     ParentRoute = class extends Route {
@@ -117,8 +118,8 @@ describe('routerLinks', () => {
       const parentEl = document.querySelector(parentTag)
       await parentEl.updateComplete
 
-      let rootLink = $('#a-rootlink2')
-      let grandChildLink = $('#a-grandchildlink')
+      const rootLink = $('#a-rootlink2')
+      const grandChildLink = $('#a-grandchildlink')
       rootLink.attr('param-id', '3')
       grandChildLink.attr('query-other', 'boo')
       return Promise.resolve().then(() => {
@@ -168,9 +169,9 @@ describe('routerLinks', () => {
     return router.transitionTo('parent').then(async function () {
       const parentEl = document.querySelector(parentTag)
       await parentEl.updateComplete
-      let spy = sinon.spy(router, 'transitionTo')
+      const spy = sinon.spy(router, 'transitionTo')
       $('#div-rootlink1').click()
-      expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
+      expect(spy).to.be.calledOnce.and.calledWithExactly('root', { id: '1' }, {})
 
       spy.resetHistory()
       $('#div-grandchildlink').click()
@@ -186,7 +187,7 @@ describe('routerLinks', () => {
     return router.transitionTo('parent').then(async function () {
       const parentEl = document.querySelector(parentTag)
       await parentEl.updateComplete
-      let spy = sinon.spy(router, 'transitionTo')
+      const spy = sinon.spy(router, 'transitionTo')
       $('#div-a-parent').click()
       expect(spy).not.to.be.called
     })
@@ -292,9 +293,9 @@ describe('routerLinks', () => {
         <div id="div-dyn-parentlink" route="parent"><div id="dyn-innerparent"></div></div>
         `).appendTo(parentEl.renderRoot.querySelector('[routerlinks]'))
 
-        let spy = sinon.spy(router, 'transitionTo')
+        const spy = sinon.spy(router, 'transitionTo')
         $('#div-dyn-rootlink1').click()
-        expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
+        expect(spy).to.be.calledOnce.and.calledWithExactly('root', { id: '1' }, {})
 
         spy.resetHistory()
         $('#div-dyn-grandchildlink').click()
@@ -337,9 +338,9 @@ describe('routerLinks', () => {
       return router.transitionTo('parent').then(async function () {
         const parentEl = document.querySelector(parentTag)
         await parentEl.updateComplete
-        let spy = sinon.spy(router, 'transitionTo')
+        const spy = sinon.spy(router, 'transitionTo')
         $('#div-prerootlink1').click()
-        expect(spy).to.be.calledOnce.and.calledWithExactly('root', { 'id': '1' }, {})
+        expect(spy).to.be.calledOnce.and.calledWithExactly('root', { id: '1' }, {})
 
         spy.resetHistory()
         $('#div-pregrandchildlink').click()
@@ -356,7 +357,7 @@ describe('routerLinks', () => {
       return router.transitionTo('parent').then(async function () {
         const parentEl = document.querySelector(parentTag)
         await parentEl.updateComplete
-        let spy = sinon.spy(router, 'transitionTo')
+        const spy = sinon.spy(router, 'transitionTo')
         $('#div-prerootlink1').click()
         $('#div-pregrandchildlink').click()
         $('#preinnerparent').click()

@@ -39,7 +39,7 @@ describe('Events', () => {
 
   describe('before:transition', () => {
     it('should be called with transition as argument', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:transition', function (transition) {
         spy()
         expect(transition).to.be.equal(currentTransition)
@@ -51,9 +51,9 @@ describe('Events', () => {
     })
 
     it('should be triggered before a transition', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:transition', spy)
-      let rootSpy = sinon.spy(RootRoute.prototype, 'initialize')
+      const rootSpy = sinon.spy(RootRoute.prototype, 'initialize')
       router.transitionTo('root').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledBefore(rootSpy)
@@ -62,12 +62,12 @@ describe('Events', () => {
     })
 
     it('should allow to cancel the transition', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:transition', function (transition) {
         spy()
         transition.cancel()
       })
-      let rootSpy = sinon.spy(RootRoute.prototype, 'initialize')
+      const rootSpy = sinon.spy(RootRoute.prototype, 'initialize')
       router.transitionTo('root').then(function () {
         assert.fail('resolve transition should not be called')
         done()
@@ -81,7 +81,7 @@ describe('Events', () => {
 
   describe('transition', () => {
     it('should be called with transition as argument', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('transition', function (transition) {
         spy()
         expect(transition).to.be.equal(currentTransition)
@@ -95,12 +95,12 @@ describe('Events', () => {
     })
 
     it('should be triggered after a transition is resolved', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('transition', function () {
         expect(router.state.activeTransition).to.be.equal(null)
         spy()
       })
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router.transitionTo('leaf').then(function () {
         Promise.resolve().then(function () {
           expect(spy).to.be.calledOnce
@@ -113,7 +113,7 @@ describe('Events', () => {
 
   describe('transition:error', () => {
     it('should be called when an error occurs in middle of transaction', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
 
       router.on('transition:error', spy)
 
@@ -143,7 +143,7 @@ describe('Events', () => {
     })
 
     it('should not be called when transaction is redirected', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
 
       router.on('transition:error', spy)
 
@@ -159,7 +159,7 @@ describe('Events', () => {
     })
 
     it('should not be called when transaction is cancelled', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
 
       router.on('transition:error', spy)
 
@@ -177,7 +177,7 @@ describe('Events', () => {
 
   describe('transition:abort', () => {
     it('should be called when an error occurs in middle of transaction', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
 
       router.on('transition:abort', spy)
 
@@ -207,7 +207,7 @@ describe('Events', () => {
     })
 
     it('should not be called when transaction is redirected', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
 
       router.on('transition:abort', spy)
 
@@ -223,7 +223,7 @@ describe('Events', () => {
     })
 
     it('should be called when transaction is cancelled', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
 
       router.on('transition:abort', spy)
 
@@ -241,7 +241,7 @@ describe('Events', () => {
 
   describe('before:activate', () => {
     it('should be called with transition and route as arguments', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:activate', function (transition, route) {
         spy()
         expect(transition).to.be.equal(currentTransition)
@@ -253,9 +253,9 @@ describe('Events', () => {
     })
 
     it('should be triggered before activate of same route', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:activate', spy)
-      let rootSpy = sinon.spy(RootRoute.prototype, 'activate')
+      const rootSpy = sinon.spy(RootRoute.prototype, 'activate')
       return router.transitionTo('root').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledBefore(rootSpy)
@@ -263,13 +263,13 @@ describe('Events', () => {
     })
 
     it('should be triggered before activate of parent route', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:activate', function (transition, route) {
         if (route instanceof GrandChildRoute) {
           spy()
         }
       })
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
       return router.transitionTo('grandchild').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledBefore(parentSpy)
@@ -277,12 +277,12 @@ describe('Events', () => {
     })
 
     it('should allow to cancel the transition', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:activate', function (transition) {
         spy()
         transition.cancel()
       })
-      let rootSpy = sinon.spy(RootRoute.prototype, 'activate')
+      const rootSpy = sinon.spy(RootRoute.prototype, 'activate')
       router.transitionTo('root').then(function () {
         assert.fail('resolve transition should not be called')
         done()
@@ -296,7 +296,7 @@ describe('Events', () => {
 
   describe('activate', () => {
     it('should be called with transition and route as arguments', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('activate', function (transition, route) {
         spy()
         expect(transition).to.be.equal(currentTransition)
@@ -309,10 +309,10 @@ describe('Events', () => {
     })
 
     it('should be triggered after activate method is resolved', function (done) {
-      let spy = sinon.spy()
-      let promiseSpy = sinon.spy()
+      const spy = sinon.spy()
+      const promiseSpy = sinon.spy()
       router.on('activate', spy)
-      let rootSpy = sinon.stub(RootRoute.prototype, 'activate').callsFake(function () {
+      const rootSpy = sinon.stub(RootRoute.prototype, 'activate').callsFake(function () {
         return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
       })
       router.transitionTo('root').then(function () {
@@ -325,7 +325,7 @@ describe('Events', () => {
     })
 
     it('should not be triggered when transition is cancelled in activate method', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('activate', spy)
       sinon.stub(RootRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
@@ -339,14 +339,14 @@ describe('Events', () => {
     })
 
     it('should allow to cancel the transition', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('activate', function (transition, route) {
         spy()
         if (route instanceof GrandChildRoute) {
           transition.cancel()
         }
       })
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router.transitionTo('leaf').then(function () {
         assert.fail('resolve transition should not be called')
         done()
@@ -360,7 +360,7 @@ describe('Events', () => {
 
   describe('before:deactivate', () => {
     it('should be called with transition and route as arguments', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:deactivate', function (transition, route) {
         spy()
         expect(transition).to.be.equal(currentTransition)
@@ -375,9 +375,9 @@ describe('Events', () => {
     })
 
     it('should be triggered before deactivate of same route', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:deactivate', spy)
-      let rootSpy = sinon.spy(RootRoute.prototype, 'deactivate')
+      const rootSpy = sinon.spy(RootRoute.prototype, 'deactivate')
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {
@@ -388,13 +388,13 @@ describe('Events', () => {
     })
 
     it('should be triggered before deactivate of child route', function () {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:deactivate', function (transition, route) {
         if (route instanceof ParentRoute) {
           spy()
         }
       })
-      let childSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
+      const childSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
       return router.transitionTo('grandchild').then(function () {
         return router.transitionTo('root')
       }).then(function () {
@@ -404,12 +404,12 @@ describe('Events', () => {
     })
 
     it('should allow to cancel the transition', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('before:deactivate', function (transition) {
         spy()
         transition.cancel()
       })
-      let rootSpy = sinon.spy(RootRoute.prototype, 'deactivate')
+      const rootSpy = sinon.spy(RootRoute.prototype, 'deactivate')
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {
@@ -425,7 +425,7 @@ describe('Events', () => {
 
   describe('deactivate', () => {
     it('should be called with transition and route as arguments', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('deactivate', function (transition, route) {
         spy()
         expect(transition).to.be.equal(currentTransition)
@@ -443,7 +443,7 @@ describe('Events', () => {
       const spy = sinon.spy()
       const promiseSpy = sinon.spy()
       router.on('deactivate', spy)
-      let rootSpy = sinon.stub(RootRoute.prototype, 'deactivate').callsFake(function () {
+      const rootSpy = sinon.stub(RootRoute.prototype, 'deactivate').callsFake(function () {
         return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
       })
       router.transitionTo('root').then(function () {
@@ -457,12 +457,12 @@ describe('Events', () => {
     })
 
     it('should allow to cancel the transition', function (done) {
-      let spy = sinon.spy()
+      const spy = sinon.spy()
       router.on('deactivate', function (transition, route) {
         spy()
         transition.cancel()
       })
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {

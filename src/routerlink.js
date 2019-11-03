@@ -8,7 +8,7 @@ const resolved = Promise.resolve()
 function mutationHandler (mutations, observer) {
   mutations.forEach(function (mutation) {
     if (mutation.type === 'attributes') {
-      let attr = mutation.attributeName
+      const attr = mutation.attributeName
       if (attr.indexOf('param-') === 0 || attr.indexOf('query-') === 0) {
         updateHref(mutation.target, observer.ownerEl)
       }
@@ -25,12 +25,12 @@ function mutationHandler (mutations, observer) {
 const elementsObserverConfig = { childList: true, subtree: true, attributes: true }
 
 function getAttributeValues (el, prefix, result) {
-  let attributes = el.attributes
+  const attributes = el.attributes
 
   for (let i = 0; i < attributes.length; i++) {
-    let attr = attributes[i]
+    const attr = attributes[i]
     if (attr.name.indexOf(prefix) === 0) {
-      let paramName = attr.name.slice(prefix.length)
+      const paramName = attr.name.slice(prefix.length)
       result[paramName] = attr.value
     }
   }
@@ -45,7 +45,7 @@ function getDefaults (ownerEl, routeName, propName, routeEl, options) {
 
 function getRouteProp (ownerEl, routeName, routeEl, propName, attrPrefix) {
   const options = ownerEl[routerLinksData].options
-  let defaults = getDefaults(ownerEl, routeName, propName, routeEl, options)
+  const defaults = getDefaults(ownerEl, routeName, propName, routeEl, options)
   const rootEl = routeEl.closest(options.selector || '[routerlinks]')
   if (rootEl) {
     getAttributeValues(rootEl, attrPrefix, defaults)
@@ -76,11 +76,11 @@ function transitionHandler () {
     const data = this[routerLinksData]
     each(data.rootEls, rootEl => {
       each(rootEl.querySelectorAll('[route]'), el => {
-        let routeName = el.getAttribute('route')
+        const routeName = el.getAttribute('route')
         if (!routeName) return
-        let params = getRouteProp(this, routeName, el, 'params', 'param-')
-        let query = getRouteProp(this, routeName, el, 'query', 'query-')
-        let activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
+        const params = getRouteProp(this, routeName, el, 'params', 'param-')
+        const query = getRouteProp(this, routeName, el, 'query', 'query-')
+        const activeClass = el.hasAttribute('active-class') ? el.getAttribute('active-class') : 'active'
         if (activeClass) {
           const isActive = router.isActive(routeName, params, query)
           el.classList.toggle(activeClass, isActive)
@@ -91,12 +91,12 @@ function transitionHandler () {
 }
 
 function linkClickHandler (e) {
-  let el = e.selectorTarget
+  const el = e.selectorTarget
   if (el.querySelectorAll('a').length) return
-  let routeName = el.getAttribute('route')
+  const routeName = el.getAttribute('route')
   if (!routeName) return
-  let params = getRouteProp(this, routeName, el, 'params', 'param-')
-  let query = getRouteProp(this, routeName, el, 'query', 'query-')
+  const params = getRouteProp(this, routeName, el, 'params', 'param-')
+  const query = getRouteProp(this, routeName, el, 'query', 'query-')
   router.transitionTo(routeName, params, query)
 }
 

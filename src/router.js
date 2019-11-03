@@ -1,4 +1,3 @@
-/* global history */
 /**
  * Nextbone Routing
  *
@@ -82,7 +81,7 @@ function findRouteClass (options, routeName, index, routes) {
       return instanceMap[route.name]
     })
     parentRoutes.some(function (route) {
-      let childRoutes = route.constructor.childRoutes
+      const childRoutes = route.constructor.childRoutes
       result = childRoutes && childRoutes[routeName]
       return result
     })
@@ -143,9 +142,9 @@ const resolved = Promise.resolve()
 
 function renderElements (instances, activated, transition) {
   // ensure at least the target (last) route is rendered
-  let renderCandidates = activated.length ? activated : instances.slice(-1)
+  const renderCandidates = activated.length ? activated : instances.slice(-1)
 
-  let renderQueue = renderCandidates.reduce(function (memo, instance) {
+  const renderQueue = renderCandidates.reduce(function (memo, instance) {
     if (getComponent(instance)) {
       if (memo.length && memo[memo.length - 1].$options.outlet === false) {
         memo.pop()
@@ -209,9 +208,9 @@ const middleware = {
 
     if (transition.isCancelled) return
 
-    let prevRoutes = transition.prev.routes
-    let changingIndex = getChangingIndex(prevRoutes, transition.routes)
-    let deactivated = []
+    const prevRoutes = transition.prev.routes
+    const changingIndex = getChangingIndex(prevRoutes, transition.routes)
+    const deactivated = []
     let routeIndex, routeInstance
 
     // deactivate previous routes
@@ -225,7 +224,7 @@ const middleware = {
     let promise = runAsyncMethod(transition, deactivated, 'deactivate')
 
     // build route tree and creating instances if necessary
-    let instances = transition.instances = []
+    const instances = transition.instances = []
 
     promise = promise.then(() => {
       return transition.routes.reduce(function (acc, route, i, routes) {
@@ -262,7 +261,7 @@ const middleware = {
     return promise.then(function () {
       if (transition.isCancelled) return
 
-      let loadPromise = instances.reduce(function (prevPromise, instance) {
+      const loadPromise = instances.reduce(function (prevPromise, instance) {
         if (isFunction(instance.load)) {
           if (prevPromise) {
             return prevPromise.then(function () {

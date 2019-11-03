@@ -63,7 +63,7 @@ describe('Lifecycle hooks', () => {
 
   describe('initialize', () => {
     it('should be called once with classOptions', function (done) {
-      let spy = sinon.spy(ParentRoute.prototype, 'initialize')
+      const spy = sinon.spy(ParentRoute.prototype, 'initialize')
       router.transitionTo('parent').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledWith({ x: 1 })
@@ -72,7 +72,7 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called once even when enter route a second time', function (done) {
-      let spy = sinon.spy(RootRoute.prototype, 'initialize')
+      const spy = sinon.spy(RootRoute.prototype, 'initialize')
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {
@@ -84,10 +84,10 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called in order from root to leave once', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'initialize')
-      let childSpy = sinon.spy(ChildRoute.prototype, 'initialize')
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'initialize')
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'initialize')
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'initialize')
+      const childSpy = sinon.spy(ChildRoute.prototype, 'initialize')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'initialize')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'initialize')
       router.transitionTo('leaf').then(function () {
         return router.transitionTo('root')
       }).then(function () {
@@ -119,7 +119,7 @@ describe('Lifecycle hooks', () => {
 
   describe('activate', () => {
     it('should be called once with transition when enter route', function (done) {
-      let spy = sinon.spy(ParentRoute.prototype, 'activate')
+      const spy = sinon.spy(ParentRoute.prototype, 'activate')
       router.transitionTo('parent').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledWith(currentTransition)
@@ -128,7 +128,7 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called twice when enter route a second time', function (done) {
-      let spy = sinon.spy(RootRoute.prototype, 'activate')
+      const spy = sinon.spy(RootRoute.prototype, 'activate')
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {
@@ -140,10 +140,10 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called in order from root to leaf, once', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      let childSpy = sinon.spy(ChildRoute.prototype, 'activate')
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const childSpy = sinon.spy(ChildRoute.prototype, 'activate')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router.transitionTo('leaf').then(function () {
         // once
         expect(parentSpy).to.have.been.calledOnce
@@ -171,7 +171,7 @@ describe('Lifecycle hooks', () => {
       const grandChildSpy = sinon.stub(GrandChildRoute.prototype, 'activate').callsFake(function () {
         return new Promise((resolve) => setTimeout(resolve, 100)).then(grandChildPromiseSpy)
       })
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router.transitionTo('leaf').then(function () {
         // once
         expect(parentSpy).to.have.been.calledOnce
@@ -190,12 +190,12 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should not be called if transition is canceled in a parent route', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      let childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
       })
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router.transitionTo('leaf').then(function () {
         done('Transition promise should be rejected')
       }).catch(function () {
@@ -209,13 +209,13 @@ describe('Lifecycle hooks', () => {
 
     it('should cancel transition if returns false', function (done) {
       let transition
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      let childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (t) {
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (t) {
         transition = t
         return false
       })
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router.transitionTo('leaf').then(function () {
         done('Transition promise should be rejected')
       }).catch(function () {
@@ -260,7 +260,7 @@ describe('Lifecycle hooks', () => {
 
   describe('load', () => {
     it('should be called once with transition when enter route', function (done) {
-      let spy = sinon.spy(ParentRoute.prototype, 'load')
+      const spy = sinon.spy(ParentRoute.prototype, 'load')
       router.transitionTo('parent').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy).to.be.calledWith(currentTransition)
@@ -269,7 +269,7 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called twice when enter route a second time', function (done) {
-      let spy = sinon.spy(RootRoute.prototype, 'load')
+      const spy = sinon.spy(RootRoute.prototype, 'load')
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {
@@ -281,8 +281,8 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called in order from root to leaf, once', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'load')
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'load')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
       router.transitionTo('leaf').then(function () {
         // once
         expect(parentSpy).to.have.been.calledOnce
@@ -294,11 +294,11 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should not be called if transition is canceled in a parent route', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      let childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
       })
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
       router.transitionTo('leaf').then(function () {
         done('Transition promise should be rejected')
       }).catch(function () {
@@ -310,11 +310,11 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should not be called if transition is cancelled in same route', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      let childStub = sinon.stub(GrandChildRoute.prototype, 'activate').callsFake(function (transition) {
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const childStub = sinon.stub(GrandChildRoute.prototype, 'activate').callsFake(function (transition) {
         transition.cancel()
       })
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
       router.transitionTo('leaf').then(function () {
         done('Transition promise should be rejected')
       }).catch(function () {
@@ -326,8 +326,8 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should always be called even if not activating', function () {
-      let activateSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      let loadSpy = sinon.spy(ParentRoute.prototype, 'load')
+      const activateSpy = sinon.spy(ParentRoute.prototype, 'activate')
+      const loadSpy = sinon.spy(ParentRoute.prototype, 'load')
       return router.transitionTo('child').then(function () {
         return router.transitionTo('child2')
       }).then(function () {
@@ -337,7 +337,7 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should not cancel the transition when returned promise is rejected', function () {
-      let parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
+      const parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
         // eslint-disable-next-line prefer-promise-reject-errors
         return Promise.reject()
       })
@@ -347,11 +347,11 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called even if a parent load is rejected', function (done) {
-      let parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
+      const parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
         // eslint-disable-next-line prefer-promise-reject-errors
         return Promise.reject()
       })
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
       router.transitionTo('leaf').then(function () {
         // once
         expect(parentStub).to.have.been.calledOnce
@@ -365,7 +365,7 @@ describe('Lifecycle hooks', () => {
 
   describe('deactivate', () => {
     it('should be called once with transition when leave route', function (done) {
-      let spy = sinon.spy(ParentRoute.prototype, 'deactivate')
+      const spy = sinon.spy(ParentRoute.prototype, 'deactivate')
       router.transitionTo('parent').then(function () {
         return router.transitionTo('root')
       }).then(function () {
@@ -376,7 +376,7 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called twice when leave route a second time', function (done) {
-      let spy = sinon.spy(RootRoute.prototype, 'deactivate')
+      const spy = sinon.spy(RootRoute.prototype, 'deactivate')
       router.transitionTo('root').then(function () {
         return router.transitionTo('parent')
       }).then(function () {
@@ -390,10 +390,10 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should be called in order from leaf to root, once', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
-      let childSpy = sinon.spy(ChildRoute.prototype, 'deactivate')
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
+      const childSpy = sinon.spy(ChildRoute.prototype, 'deactivate')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
       router.transitionTo('leaf').then(function () {
         return router.transitionTo('root')
       }).then(function () {
@@ -414,15 +414,15 @@ describe('Lifecycle hooks', () => {
       const parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
 
       const childPromiseSpy = sinon.spy()
-      let childSpy = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (transition) {
+      const childSpy = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (transition) {
         return new Promise((resolve) => setTimeout(resolve, 50)).then(childPromiseSpy)
       })
       const grandChildPromiseSpy = sinon.spy()
-      let grandChildSpy = sinon.stub(GrandChildRoute.prototype, 'deactivate').callsFake(function (transition) {
+      const grandChildSpy = sinon.stub(GrandChildRoute.prototype, 'deactivate').callsFake(function (transition) {
         return new Promise((resolve) => setTimeout(resolve, 50)).then(grandChildPromiseSpy)
       })
       const leafPromiseSpy = sinon.spy()
-      let leafSpy = sinon.stub(LeafRoute.prototype, 'deactivate').callsFake(function (transition) {
+      const leafSpy = sinon.stub(LeafRoute.prototype, 'deactivate').callsFake(function (transition) {
         return new Promise((resolve) => setTimeout(resolve, 100)).then(leafPromiseSpy)
       })
       router.transitionTo('leaf').then(function () {
@@ -445,12 +445,12 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should not be called if transition is canceled in a child route', function (done) {
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
-      let childStub = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (transition) {
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
+      const childStub = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (transition) {
         transition.cancel()
       })
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
       router.transitionTo('leaf').then(function () {
         return router.transitionTo('root')
       }).then(function () {
@@ -466,13 +466,13 @@ describe('Lifecycle hooks', () => {
 
     it('should cancel the transition if returns false', function (done) {
       let transition
-      let parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
-      let childStub = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (t) {
+      const parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
+      const childStub = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (t) {
         transition = t
         return false
       })
-      let grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
-      let leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
+      const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
+      const leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
       router.transitionTo('leaf').then(function () {
         return router.transitionTo('root')
       }).then(function () {

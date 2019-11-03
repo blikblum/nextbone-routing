@@ -49,8 +49,8 @@ describe('Route configuration', () => {
         }
       }
 
-      let spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
-      let spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
+      const spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
+      const spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
       return router.transitionTo('leaf').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy2).to.be.calledOnce
@@ -67,8 +67,8 @@ describe('Route configuration', () => {
         }
       }
 
-      let spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
-      let spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
+      const spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
+      const spy2 = sinon.spy(LeafRoute.prototype, 'initialize')
       return router.transitionTo('leaf').then(function () {
         expect(spy).to.be.calledOnce
         expect(spy2).to.be.calledOnce
@@ -100,14 +100,14 @@ describe('Route configuration', () => {
         })
       }
     }
-    let spy = sinon.spy(LeafRoute.prototype, 'initialize')
+    const spy = sinon.spy(LeafRoute.prototype, 'initialize')
     return router.transitionTo('leaf').then(function () {
       expect(spy).to.be.calledOnce
     })
   })
 
   it('can be loaded asynchronously from class', function () {
-    let spy = sinon.spy(ChildRoute.prototype, 'initialize')
+    const spy = sinon.spy(ChildRoute.prototype, 'initialize')
     return router.transitionTo('child2').then(function () {
       expect(spy).to.be.calledOnce
     })

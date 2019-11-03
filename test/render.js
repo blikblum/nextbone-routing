@@ -16,6 +16,7 @@ class ParentView extends HTMLElement {
   static get outlet () {
     return '.child-el'
   }
+
   connectedCallback () {
     this.innerHTML = '<div class="child-el"></div>'
   }
@@ -214,7 +215,7 @@ describe('Render', () => {
 
     describe('of a target route', function () {
       it('should be rendered even if already activated', function () {
-        let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
+        const spy = sinon.spy(ParentRoute.prototype, 'renderEl')
         return router.transitionTo('grandchild').then(function () {
           return router.transitionTo('parent')
         }).then(function () {
@@ -227,16 +228,16 @@ describe('Render', () => {
 
   describe('renderEl', function () {
     it('should be called with region and transition objects', function () {
-      let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
-      let transition = router.transitionTo('parent')
+      const spy = sinon.spy(ParentRoute.prototype, 'renderEl')
+      const transition = router.transitionTo('parent')
       return transition.then(function () {
         expect(spy).to.be.calledOnceWithExactly(router.rootOutlet, transition)
       })
     })
 
     it('should be called after activate is resolved', function () {
-      let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
-      let activateSpy = sinon.spy()
+      const spy = sinon.spy(ParentRoute.prototype, 'renderEl')
+      const activateSpy = sinon.spy()
       ParentRoute.prototype.activate = function () {
         return new Promise(function (resolve) {
           setTimeout(resolve, 100)
@@ -250,7 +251,7 @@ describe('Render', () => {
     })
 
     it('should be not be called when transition is cancelled', function (done) {
-      let spy = sinon.spy(ParentRoute.prototype, 'renderEl')
+      const spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       ParentRoute.prototype.activate = function (transition) {
         transition.cancel()
       }
@@ -266,7 +267,7 @@ describe('Render', () => {
 
   describe('updateEl', function () {
     it('should be called when the route is re rendered', function () {
-      let spy = sinon.spy(RootRoute.prototype, 'updateEl')
+      const spy = sinon.spy(RootRoute.prototype, 'updateEl')
       let transition
       return router.transitionTo('root').then(function () {
         expect(spy).not.to.be.called
@@ -279,7 +280,7 @@ describe('Render', () => {
     })
 
     it('should be called when the route is re activated', function () {
-      let spy = sinon.spy(RootRoute.prototype, 'updateEl')
+      const spy = sinon.spy(RootRoute.prototype, 'updateEl')
       let transition
       return router.transitionTo('rootWithParam', { id: 0 }).then(function () {
         expect(spy).not.to.be.called
@@ -488,7 +489,7 @@ describe('Render', () => {
         done('should throw')
       }).catch(function (err) {
         expect(err).to.be.instanceOf(Error)
-        expect(err.message).to.be.equal(`Unable to create instance of "NonRegistered" for "root" route\nTypeError: Illegal constructor`)
+        expect(err.message).to.be.equal('Unable to create instance of "NonRegistered" for "root" route\nTypeError: Illegal constructor')
         done()
       })
     })

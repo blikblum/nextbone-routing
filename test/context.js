@@ -82,8 +82,8 @@ describe('Route context', () => {
       leafRoute = this
     })
     router.transitionTo('leaf').then(function () {
-      let contextValue = leafRoute.context.parentValue
-      let contextProperty = leafRoute.context.parentProperty
+      const contextValue = leafRoute.context.parentValue
+      const contextProperty = leafRoute.context.parentProperty
       expect(router.state.activeTransition).to.be.equal(null)
       expect(contextValue).to.be.equal('The Context Reloaded')
       expect(contextProperty).to.be.equal('Internal Stuff')
@@ -103,8 +103,8 @@ describe('Route context', () => {
     router.transitionTo('leaf').then(function () {
       return router.transitionTo('root')
     }).then(function () {
-      let contextValue = leafRoute.context.parentValue
-      let contextProperty = leafRoute.context.parentProperty
+      const contextValue = leafRoute.context.parentValue
+      const contextProperty = leafRoute.context.parentProperty
       expect(router.state.activeTransition).to.be.equal(null)
       expect(contextValue).to.be.equal('The Context Reloaded')
       expect(contextProperty).to.be.equal('Internal Stuff')
