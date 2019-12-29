@@ -8,7 +8,7 @@
  */
 
 import { isEqual, isFunction, extend } from 'underscore'
-import SlickRouter from 'slick-router'
+import { Router as SlickRouter } from 'slick-router'
 import { Events } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import { Route, getComponent } from './route'
@@ -38,16 +38,6 @@ export class Router extends SlickRouter {
       }
     }
     router = this
-  }
-
-  use (customMiddleware, options = {}) {
-    const m = typeof customMiddleware === 'function' ? { next: customMiddleware } : customMiddleware
-    if (options.before) {
-      this.middleware.splice(this.middleware.indexOf(middleware), 0, m)
-    } else {
-      this.middleware.push(m)
-    }
-    return this
   }
 
   destroy () {
@@ -200,7 +190,7 @@ function isTargetRoute (route) {
 }
 
 const middleware = {
-  next: function routeResolver (transition) {
+  resolve: function routeResolver (transition) {
     transition.isActivating = isActivatingRoute
     transition.isTarget = isTargetRoute
 

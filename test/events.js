@@ -13,7 +13,7 @@ describe('Events', () => {
     router = new Router({ location: 'memory', outlet: null })
     router.use(function (transition) {
       currentTransition = transition
-    }, { before: true })
+    }, { at: 0 })
     RootRoute = class extends Route {}
     ParentRoute = class extends Route {}
     ChildRoute = class extends Route {}

@@ -13,7 +13,7 @@ describe('Lifecycle hooks', () => {
     router = new Router({ location: 'memory', outlet: null })
     router.use(function (transition) {
       currentTransition = transition
-    }, { before: true })
+    }, { at: 0 })
     RootRoute = class extends Route { load () {} }
     ParentRoute = class extends Route { load () {} }
     ChildRoute = class extends Route {}

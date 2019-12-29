@@ -17,8 +17,8 @@
 &nbsp; &nbsp; ✓ Implements route context for scoped messaging<br>
 &nbsp; &nbsp; ✓ Handles nested asynchronous rendering (LitElement, SkateJs)<br>
 &nbsp; &nbsp; ✓ Automatic configuration of router links<br>
-&nbsp; &nbsp; ✓ Inherits [Cherrytree](https://github.com/QubitProducts/cherrytree) features<br>
-&nbsp; &nbsp; ✓ Minimal dependencies: an optimized Cherrytree fork and Events/delegate from [nextbone](https://github.com/blikblum/nextbone)<br>
+&nbsp; &nbsp; ✓ Inherits from [Slick Router](https://github.com/blikblum/slick-router)<br>
+&nbsp; &nbsp; ✓ Minimal dependencies: slick-router and Events class from [nextbone](https://github.com/blikblum/nextbone)<br>
 
 
 ### Installation
@@ -43,7 +43,7 @@ function TasksRoute() {
 // callback function that defines the route tree
 // can be defined also as an array
 const routes = function (route) {
-  route('application', { path: '/', abstract: true }, function () {
+  route('application', { path: '/' }, function () {
     route('home', { path: '', component: 'home-component' }) // define component with a tag name...
     route('login', { component: LoginComponent }) // ... or with a constructor
     route('contacts', { class: ContactsRoute }) // define a route class that can control lifecycle and component
@@ -110,14 +110,12 @@ export default class extends Route {
 
 ### Examples
 
- * [Contact Manager](https://github.com/blikblum/marionette-contact-manager) Fully functional example. Read the [tutorial](http://jsroad.blogspot.com.br/2016/11/tutorial-contact-manager-application.html)
- * [Marionette Wires Revisited](https://github.com/blikblum/marionette-wires-revisited)
+ * [Contact Manager](https://github.com/blikblum/nextbone-contact-manager) Example of data down / events up pattern
+ * [Nextbone Wires](https://github.com/blikblum/nextbone-wires) Shows code lazy loading and route animation 
 
 ### Related Projects
 
-* [Cherrytree](https://github.com/QubitProducts/cherrytree) — The router library used by Marionette Routing under the hood 
 * [Marionette Routing](https://github.com/blikblum/marionette.routing) — Original project
-
 
 ### License
 
