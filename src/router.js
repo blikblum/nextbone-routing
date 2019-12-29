@@ -95,7 +95,7 @@ function createRouteInstance (RouteClass, route) {
   }
 }
 
-function createMnRoute (route, index, routes) {
+function resolveRoute (route, index, routes) {
   let RouteClass = findRouteClass(route.options, route.name, index, routes)
   if (isFunction(RouteClass) && !(RouteClass.prototype instanceof Route)) {
     // possible async route definition
@@ -224,7 +224,7 @@ const middleware = {
             res.push(instance)
             return res
           } else {
-            instance = createMnRoute(route, i, routes)
+            instance = resolveRoute(route, i, routes)
             return Promise.resolve(instance).then(function (resolvedInstance) {
               if (!resolvedInstance) {
                 throw new Error(`Unable to create route ${route.name}: class or component must be defined`)
