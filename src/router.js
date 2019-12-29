@@ -16,7 +16,7 @@ import { Route, getComponent } from './route'
 
 let instanceMap = Object.create(null)
 
-export let router
+let router
 
 export class Router extends SlickRouter {
   constructor (options = {}) {
