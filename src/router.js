@@ -9,6 +9,7 @@
 
 import { isEqual, isFunction, extend } from 'underscore'
 import { Router as SlickRouter } from 'slick-router'
+import { routerLinks } from 'slick-router/middlewares/router-links'
 import { Events } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import { Route, getComponent } from './route'
@@ -24,6 +25,7 @@ export class Router extends SlickRouter {
     }
     super(options)
     this.middleware.push(middleware)
+    this.use(routerLinks)
     let { outlet = 'app-root' } = options
     if (outlet) {
       if (typeof outlet === 'string') {

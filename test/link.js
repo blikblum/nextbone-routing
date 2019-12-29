@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it,sinon,expect */
 
-import { Route, Router, routerLinks } from '../src/index'
+import { Route, Router, withRouterLinks, bindRouterLinks } from '../src/index'
 import { view } from 'nextbone'
 import { defineCE } from '@open-wc/testing-helpers'
 import { LitElement, html } from 'lit-element'
@@ -10,7 +10,7 @@ import $ from 'jquery'
 let router, routes
 let RootRoute, ParentRoute, ChildRoute
 
-@routerLinks({
+@withRouterLinks({
   params: function (route) {
     if (route === 'root') return { id: this.rootId }
   },
@@ -55,7 +55,7 @@ class ParentView extends LitElement {
 const parentTag = defineCE(ParentView)
 
 @view
-@routerLinks({
+@withRouterLinks({
   query: {
     other: 'xx'
   }
@@ -75,7 +75,7 @@ class GrandChildView extends LitElement {
 }
 const grandChildTag = defineCE(GrandChildView)
 
-describe('routerLinks', () => {
+describe('withRouterLinks', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="main"></div>'
 
@@ -321,7 +321,7 @@ describe('routerLinks', () => {
           <div id="div-preparentlink" route="parent"><div id="preinnerparent"></div></div>
         </div>
       </div>`).appendTo(document.body)
-      unbind = routerLinks.bind(document.getElementById('prerendered'))
+      unbind = bindRouterLinks(document.getElementById('prerendered'))
     })
 
     it('should generate href attributes in anchor tags with route attribute', function () {
@@ -389,7 +389,7 @@ describe('routerLinks', () => {
 
   describe('setting selector option', () => {
     const customSelectorOptions = {}
-    @routerLinks(customSelectorOptions)
+    @withRouterLinks(customSelectorOptions)
     class ParentCustomSelectorView extends LitElement {
       rootId = 5
 
