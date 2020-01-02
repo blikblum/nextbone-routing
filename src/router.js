@@ -99,7 +99,7 @@ function resolveRoute (route, index, routes) {
 function resolveRootOutlet () {
   const outletOption = router.options.outlet || 'app-root'
   const outlet = typeof outletOption === 'string' ? document.querySelector(outletOption) : outletOption
-  
+
   if (outlet instanceof HTMLElement) {
     router.rootOutlet = new Region(outlet)
   } else if (outlet instanceof Region) {

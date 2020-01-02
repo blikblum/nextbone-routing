@@ -42,7 +42,7 @@ const leafTag = defineCE(LeafView)
 
 describe('root outlet', () => {
   beforeEach(() => {
-    routes = (route) => {route('parent', {component: ParentView})}
+    routes = (route) => { route('parent', { component: ParentView }) }
     document.body.innerHTML = '<div id="main"></div><app-root></app-root>'
   })
 
@@ -53,7 +53,7 @@ describe('root outlet', () => {
   it('defaults to app-root', async () => {
     router = new Router({ routes })
     await router.listen()
-    await router.transitionTo('parent', {component: ParentView})
+    await router.transitionTo('parent', { component: ParentView })
     expect(router.rootOutlet).to.be.instanceOf(Region)
     expect(router.rootOutlet.targetEl).to.be.equal(document.querySelector('app-root'))
   })
@@ -62,7 +62,7 @@ describe('root outlet', () => {
     const region = new Region(document.getElementById('main'))
     router = new Router({ outlet: region, routes })
     await router.listen()
-    await router.transitionTo('parent', {component: ParentView})
+    await router.transitionTo('parent', { component: ParentView })
     expect(router.rootOutlet).to.be.equal(region)
   })
 
@@ -70,7 +70,7 @@ describe('root outlet', () => {
     const el = document.getElementById('main')
     router = new Router({ outlet: el, routes })
     await router.listen()
-    await router.transitionTo('parent', {component: ParentView})
+    await router.transitionTo('parent', { component: ParentView })
     expect(router.rootOutlet).to.be.instanceOf(Region)
     expect(router.rootOutlet.targetEl).to.be.equal(el)
   })
