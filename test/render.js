@@ -42,6 +42,7 @@ const leafTag = defineCE(LeafView)
 
 describe('root outlet', () => {
   beforeEach(() => {
+    routes = (route) => {route('parent', {component: ParentView})}
     document.body.innerHTML = '<div id="main"></div><app-root></app-root>'
   })
 
@@ -49,27 +50,35 @@ describe('root outlet', () => {
     router.destroy()
   })
 
-  it('defaults to app-root', () => {
-    router = new Router({})
+  it('defaults to app-root', async () => {
+    router = new Router({ routes })
+    await router.listen()
+    await router.transitionTo('parent', {component: ParentView})
     expect(router.rootOutlet).to.be.instanceOf(Region)
     expect(router.rootOutlet.targetEl).to.be.equal(document.querySelector('app-root'))
   })
 
-  it('can be defined as a Region instance', () => {
+  it('can be defined as a Region instance', async () => {
     const region = new Region(document.getElementById('main'))
-    router = new Router({ outlet: region })
+    router = new Router({ outlet: region, routes })
+    await router.listen()
+    await router.transitionTo('parent', {component: ParentView})
     expect(router.rootOutlet).to.be.equal(region)
   })
 
-  it('can be defined as a HTML element', () => {
+  it('can be defined as a HTML element', async () => {
     const el = document.getElementById('main')
-    router = new Router({ outlet: el })
+    router = new Router({ outlet: el, routes })
+    await router.listen()
+    await router.transitionTo('parent', {component: ParentView})
     expect(router.rootOutlet).to.be.instanceOf(Region)
     expect(router.rootOutlet.targetEl).to.be.equal(el)
   })
 
-  it('can be defined as a CSS selector', () => {
-    router = new Router({ outlet: '#main' })
+  it('can be defined as a CSS selector', async () => {
+    router = new Router({ outlet: '#main', routes })
+    await router.listen()
+    await router.transitionTo('parent')
     expect(router.rootOutlet).to.be.instanceOf(Region)
     expect(router.rootOutlet.targetEl).to.be.equal(document.getElementById('main'))
   })
@@ -155,7 +164,7 @@ describe('Render', () => {
       })
 
       it('should abort transition when no rootOutlet is defined', function (done) {
-        router.rootOutlet = null
+        router.options.outlet = undefined
         router.transitionTo('parent').then(function () {
           done('transition resolved')
         }).catch(function (error) {
@@ -166,7 +175,7 @@ describe('Render', () => {
       })
 
       it('should not abort transition when no rootOutlet is defined and el is prerendered', function () {
-        router.rootOutlet = null
+        router.options.outlet = undefined
         RootRoute.prototype.component = document.querySelector('#main')
         return router.transitionTo('root3').then(function () {
           expect(router.isActive('root3'))

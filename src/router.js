@@ -26,19 +26,6 @@ export class Router extends SlickRouter {
     super(options)
     this.middleware.push(middleware)
     this.use(routerLinks)
-    let { outlet = 'app-root' } = options
-    if (outlet) {
-      if (typeof outlet === 'string') {
-        outlet = document.querySelector(outlet)
-      }
-      if (outlet instanceof HTMLElement) {
-        this.rootOutlet = new Region(outlet)
-      } else if (outlet instanceof Region) {
-        this.rootOutlet = outlet
-      } else {
-        throw new Error(`Router: invalid outlet argument: ${outlet}`)
-      }
-    }
     router = this
   }
 
@@ -109,6 +96,19 @@ function resolveRoute (route, index, routes) {
   return createRouteInstance(RouteClass, route)
 }
 
+function resolveRootOutlet () {
+  const outletOption = router.options.outlet || 'app-root'
+  const outlet = typeof outletOption === 'string' ? document.querySelector(outletOption) : outletOption
+  
+  if (outlet instanceof HTMLElement) {
+    router.rootOutlet = new Region(outlet)
+  } else if (outlet instanceof Region) {
+    router.rootOutlet = outlet
+  }
+
+  return router.rootOutlet
+}
+
 function getParentRegion (routes, route) {
   let region, parent
   let routeIndex = routes.indexOf(route) - 1
@@ -127,7 +127,7 @@ function getParentRegion (routes, route) {
     }
     routeIndex--
   }
-  return router.rootOutlet
+  return router.rootOutlet || resolveRootOutlet()
 }
 
 const resolved = Promise.resolve()
