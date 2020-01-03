@@ -5,7 +5,7 @@ import { Route, Router, elEvent, elProperty } from '../src/index'
 import { view } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import _ from 'underscore'
-import $ from 'jquery'
+import 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
 
 let router, routes

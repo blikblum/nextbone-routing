@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "/base/node_modules/underscore/underscore.js": "/base/node_modules/lodash-es/lodash.js"
+  }
+}
