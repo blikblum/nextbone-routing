@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it,sinon,expect */
+/* global describe,beforeEach,afterEach,it,expect */
 
 import { Router } from '../src/index'
 import { Region } from 'nextbone/dom-utils'
