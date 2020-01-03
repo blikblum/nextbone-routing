@@ -172,22 +172,22 @@ function renderElements (instances, activated, transition) {
   }, undefined)
 }
 
-function runAsyncMethod (transition, routes, method) {
-  return routes.reduce(function (prevPromise, instance) {
-    router.trigger(`before:${method}`, transition, instance)
-    return prevPromise.then(function () {
-      if (!transition.isCancelled) {
-        return Promise.resolve(instance[method](transition)).then(function (result) {
-          if (result === false) {
-            transition.cancel()
-          }
-          if (!transition.isCancelled) {
-            router.trigger(method, transition, instance)
-          }
-        })
+async function runAsyncMethod (transition, routes, method) {
+  for (const route of routes) {
+    router.trigger(`before:${method}`, transition, route)
+  }
+
+  for (const route of routes) {
+    if (!transition.isCancelled) {
+      const result = await route[method](transition)
+      if (result === false) {
+        transition.cancel()
       }
-    })
-  }, resolved)
+      if (!transition.isCancelled) {
+        router.trigger(method, transition, route)
+      }
+    }
+  }
 }
 
 function isActivatingRoute (route) {
