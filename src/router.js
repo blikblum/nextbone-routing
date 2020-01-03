@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { isEqual, isFunction, extend } from 'underscore'
+import { isEqual, isFunction, extend, pick } from 'underscore'
 import { Router as SlickRouter } from 'slick-router'
 import { routerLinks } from 'slick-router/middlewares/router-links'
 import { Events } from 'nextbone'
@@ -134,6 +134,15 @@ function renderElements (instances, activated, transition) {
   // ensure at least the target (last) route is rendered
   const renderCandidates = activated.length ? activated : instances.slice(-1)
 
+  const routeState = pick(transition, 'path', 'pathname', 'routes', 'params', 'query')
+  const notRenderingCount = instances.length - renderCandidates.length
+  for (let i = 0; i < notRenderingCount; i++) {
+    const instance = instances[i]
+    if (instance.el) {
+      instance.el.$route = routeState
+    }
+  }
+
   const renderQueue = renderCandidates.reduce(function (memo, instance) {
     if (getComponent(instance)) {
       if (memo.length && memo[memo.length - 1].$options.outlet === false) {
@@ -149,16 +158,16 @@ function renderElements (instances, activated, transition) {
     if (prevPromise) {
       return prevPromise.then(function () {
         parentRegion = getParentRegion(instances, instance)
-        instance.renderEl(parentRegion, transition)
+        instance.renderEl(parentRegion, transition, routeState)
         return instance.el.updateComplete
       }).catch(function () {
         parentRegion = getParentRegion(instances, instance)
-        instance.renderEl(parentRegion, transition)
+        instance.renderEl(parentRegion, transition, routeState)
         return instance.el.updateComplete
       })
     }
     parentRegion = getParentRegion(instances, instance)
-    instance.renderEl(parentRegion, transition)
+    instance.renderEl(parentRegion, transition, routeState)
     return instance.el.updateComplete
   }, undefined)
 }
@@ -287,11 +296,6 @@ const middleware = {
 
   done: function (transition) {
     router.state.instances = transition.instances
-    transition.instances.forEach((route) => {
-      if (route.el) {
-        route.el.$route = router.state
-      }
-    })
     router.trigger('transition', transition)
   },
 

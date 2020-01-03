@@ -39,6 +39,10 @@ class LeafView extends HTMLElement {
 
 const leafTag = defineCE(LeafView)
 
+function normalizeState (state) {
+  return _.pick(state, ['path', 'pathname', 'routes', 'params', 'query'])
+}
+
 describe('Render', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="main"></div>'
@@ -62,6 +66,7 @@ describe('Render', () => {
             route('leaf', { class: LeafRoute, component: LeafView })
           })
         })
+        route('sibling', { component: LeafView })
       })
       route('root', { class: RootRoute })
       route('root2', { component: ParentView, outlet: false }, function () {
@@ -195,7 +200,7 @@ describe('Render', () => {
       const spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       const transition = router.transitionTo('parent')
       return transition.then(function () {
-        expect(spy).to.be.calledOnceWithExactly(router.rootOutlet, transition)
+        expect(spy).to.be.calledOnceWithExactly(router.rootOutlet, transition, sinon.match(normalizeState(transition)))
       })
     })
 
@@ -349,12 +354,38 @@ describe('Render', () => {
         routeInstance = this
       })
       router.transitionTo('parent').then(function () {
-        expect(routeInstance.el.$route).to.be.equal(router.state)
+        expect(routeInstance.el.$route).to.be.deep.equal(normalizeState(router.state))
         return router.transitionTo('child')
       }).then(() => {
-        expect(routeInstance.el.$route).to.be.equal(router.state)
+        expect(routeInstance.el.$route).to.be.deep.equal(normalizeState(router.state))
         done()
       }).catch(done)
+    })
+
+    it('should have $route property at the time is connected', async function () {
+      let $route
+      class MyElement extends HTMLElement {
+        connectedCallback () {
+          $route = this.$route
+        }
+      }
+      defineCE(MyElement)
+      ParentRoute.prototype.component = MyElement
+      await router.transitionTo('parent')
+      expect($route).to.be.deep.equal(normalizeState(router.state))
+    })
+
+    it('should update $route on not rendered but active elements', async () => {
+      let routeInstance
+      sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
+        routeInstance = this
+      })
+      await router.transitionTo('child')
+      const parentEl = routeInstance.el
+      const oldState = parentEl.$route
+      await router.transitionTo('sibling')
+      expect(parentEl.$route).to.deep.equal(normalizeState(router.state))
+      expect(parentEl.$route).to.not.deep.equal(normalizeState(oldState))
     })
   })
 

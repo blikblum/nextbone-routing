@@ -147,7 +147,7 @@ export class Route extends Events {
     })
   }
 
-  renderEl (region, transition) {
+  renderEl (region, transition, $route) {
     if (this.el && this.updateEl(transition)) return
 
     const el = createElement(this, getComponent(this))
@@ -156,6 +156,7 @@ export class Route extends Events {
     }
     if (this.constructor._elEvents) bindElEvents(this, el, this.constructor._elEvents)
     this.prepareEl(el, transition)
+    el.$route = $route
     el.$router = this.$router
     if (region) {
       region.show(el)
