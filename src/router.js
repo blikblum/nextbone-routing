@@ -199,7 +199,7 @@ function isTargetRoute (route) {
 }
 
 const middleware = {
-  resolve: function routeResolver (transition) {
+  resolve: async function routeResolver (transition) {
     transition.isActivating = isActivatingRoute
     transition.isTarget = isTargetRoute
 
@@ -220,78 +220,47 @@ const middleware = {
       }
     }
 
-    let promise = runAsyncMethod(transition, deactivated, 'deactivate')
+    await runAsyncMethod(transition, deactivated, 'deactivate')
 
     // build route tree and creating instances if necessary
     const instances = transition.instances = []
 
-    promise = promise.then(() => {
-      return transition.routes.reduce(function (acc, route, i, routes) {
-        return acc.then(function (res) {
-          let instance = instanceMap[route.name]
-          if (instance) {
-            res.push(instance)
-            return res
-          } else {
-            instance = resolveRoute(route, i, routes)
-            return Promise.resolve(instance).then(function (resolvedInstance) {
-              instanceMap[route.name] = resolvedInstance
-              resolvedInstance.$parent = res[i - 1]
-              res.push(resolvedInstance)
-              return res
-            })
-          }
-        })
-      }, Promise.resolve(instances))
-    })
-
-    // activate routes in order
-    let activated
-
-    promise = promise.then(function () {
-      activated = transition.activating = instances.slice(changingIndex)
-      return runAsyncMethod(transition, activated, 'activate')
-    })
-
-    // render components
-    return promise.then(function () {
-      if (transition.isCancelled) return
-
-      const loadPromise = instances.reduce(function (prevPromise, instance) {
-        if (isFunction(instance.load)) {
-          if (prevPromise) {
-            return prevPromise.then(function () {
-              return Promise.resolve(instance.load(transition))
-            }).catch(function () {
-              return Promise.resolve(instance.load(transition))
-            })
-          } else {
-            return Promise.resolve(instance.load(transition))
-          }
-        }
-        return prevPromise
-      }, undefined)
-
-      deactivated.forEach(route => {
-        if (activated.indexOf(route) === -1) {
-          route.el = undefined
-        }
-      })
-
-      if (loadPromise) {
-        return new Promise(function (resolve) {
-          loadPromise.then(function () {
-            renderElements(instances, activated, transition)
-            resolve()
-          }).catch(function () {
-            renderElements(instances, activated, transition)
-            resolve()
-          })
-        })
+    for (let i = 0; i < transition.routes.length; i++) {
+      const route = transition.routes[i]
+      let instance = instanceMap[route.name]
+      if (instance) {
+        instances.push(instance)
       } else {
-        renderElements(instances, activated, transition)
+        instance = resolveRoute(route, i, transition.routes)
+        const resolvedInstance = await instance
+        instanceMap[route.name] = resolvedInstance
+        resolvedInstance.$parent = instances[i - 1]
+        instances.push(resolvedInstance)
+      }
+    }
+    // activate routes in order
+    const activated = transition.activating = instances.slice(changingIndex)
+
+    await runAsyncMethod(transition, activated, 'activate')
+
+    if (transition.isCancelled) return
+
+    for (const instance of instances) {
+      if (isFunction(instance.load)) {
+        try {
+          await instance.load(transition)
+        } catch (error) {
+        }
+      }
+    }
+
+    deactivated.forEach(route => {
+      if (activated.indexOf(route) === -1) {
+        route.el = undefined
       }
     })
+
+    renderElements(instances, activated, transition)
   },
 
   done: function (transition) {
