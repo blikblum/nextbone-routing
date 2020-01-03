@@ -100,6 +100,8 @@ function resolveRootOutlet () {
     router.rootOutlet = new Region(outlet)
   } else if (outlet instanceof Region) {
     router.rootOutlet = outlet
+  } else if (typeof outlet === 'function') {
+    router.rootOutlet = outlet()
   }
 
   return router.rootOutlet

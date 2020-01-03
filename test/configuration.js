@@ -45,6 +45,14 @@ describe('root outlet', () => {
     expect(router.rootOutlet).to.be.equal(region)
   })
 
+  it('can be defined as function returning a Region instance', async () => {
+    class MyRegion extends Region {}
+    router = new Router({ outlet: () => new MyRegion(document.getElementById('main')), routes })
+    await router.listen()
+    await router.transitionTo('parent')
+    expect(router.rootOutlet).to.be.instanceOf(MyRegion)
+  })
+
   it('can be defined as a HTML element', async () => {
     const el = document.getElementById('main')
     router = new Router({ outlet: el, routes })
