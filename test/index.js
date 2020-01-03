@@ -1,3 +1,4 @@
+import './configuration'
 import './context'
 import './events'
 import './lazyload'

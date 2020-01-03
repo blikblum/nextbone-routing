@@ -3,7 +3,6 @@
 
 import { Route, Router, elEvent, elProperty } from '../src/index'
 import { view } from 'nextbone'
-import { Region } from 'nextbone/dom-utils'
 import _ from 'underscore'
 import $ from 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
@@ -39,50 +38,6 @@ class LeafView extends HTMLElement {
 }
 
 const leafTag = defineCE(LeafView)
-
-describe('root outlet', () => {
-  beforeEach(() => {
-    routes = (route) => { route('parent', { component: ParentView }) }
-    document.body.innerHTML = '<div id="main"></div><app-root></app-root>'
-  })
-
-  afterEach(() => {
-    router.destroy()
-  })
-
-  it('defaults to app-root', async () => {
-    router = new Router({ routes })
-    await router.listen()
-    await router.transitionTo('parent', { component: ParentView })
-    expect(router.rootOutlet).to.be.instanceOf(Region)
-    expect(router.rootOutlet.targetEl).to.be.equal(document.querySelector('app-root'))
-  })
-
-  it('can be defined as a Region instance', async () => {
-    const region = new Region(document.getElementById('main'))
-    router = new Router({ outlet: region, routes })
-    await router.listen()
-    await router.transitionTo('parent', { component: ParentView })
-    expect(router.rootOutlet).to.be.equal(region)
-  })
-
-  it('can be defined as a HTML element', async () => {
-    const el = document.getElementById('main')
-    router = new Router({ outlet: el, routes })
-    await router.listen()
-    await router.transitionTo('parent', { component: ParentView })
-    expect(router.rootOutlet).to.be.instanceOf(Region)
-    expect(router.rootOutlet.targetEl).to.be.equal(el)
-  })
-
-  it('can be defined as a CSS selector', async () => {
-    router = new Router({ outlet: '#main', routes })
-    await router.listen()
-    await router.transitionTo('parent')
-    expect(router.rootOutlet).to.be.instanceOf(Region)
-    expect(router.rootOutlet.targetEl).to.be.equal(document.getElementById('main'))
-  })
-})
 
 describe('Render', () => {
   beforeEach(() => {

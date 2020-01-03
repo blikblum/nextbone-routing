@@ -68,20 +68,16 @@ function findRouteClass (options, routeName, index, routes) {
   return result
 }
 
-function createRouteInstance (RouteClass, route) {
+function createRouteInstance (RouteClass = Route, route) {
   const options = route.options
   const classOptions = extend({}, options.classOptions)
-  if (!RouteClass && options.component) {
-    RouteClass = Route
+
+  if (RouteClass.__esModule) RouteClass = RouteClass.default
+  const result = new RouteClass(classOptions, router, route)
+  if (options.component) {
+    result.component = options.component
   }
-  if (RouteClass) {
-    if (RouteClass.__esModule) RouteClass = RouteClass.default
-    const result = new RouteClass(classOptions, router, route)
-    if (options.component) {
-      result.component = options.component
-    }
-    return result
-  }
+  return result
 }
 
 function resolveRoute (route, index, routes) {
@@ -228,9 +224,6 @@ const middleware = {
           } else {
             instance = resolveRoute(route, i, routes)
             return Promise.resolve(instance).then(function (resolvedInstance) {
-              if (!resolvedInstance) {
-                throw new Error(`Unable to create route ${route.name}: class or component must be defined`)
-              }
               instanceMap[route.name] = resolvedInstance
               resolvedInstance.$parent = res[i - 1]
               res.push(resolvedInstance)

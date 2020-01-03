@@ -76,19 +76,6 @@ describe('Route configuration', () => {
     })
   })
 
-  it('gives a meaningful error when not defined in a parent route class', function (done) {
-    ChildRoute.childRoutes = {
-      grandchild: GrandChildRoute
-    }
-
-    router.transitionTo('leaf').then(function () {
-      done('transition should fail')
-    }).catch(function (err) {
-      expect(err.message).to.be.equal('Unable to create route leaf: class or component must be defined')
-      done()
-    })
-  })
-
   it('can be loaded asynchronously from childRoutes', function () {
     ChildRoute.childRoutes = {
       grandchild: GrandChildRoute,
