@@ -187,7 +187,7 @@ export class Route extends Events {
           }
           this[name] = result
         }
-        if (to) {
+        if (to && !this.el) {
           el[to] = this[name]
         }
       })
