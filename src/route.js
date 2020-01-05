@@ -2,6 +2,13 @@ import { Events, isView } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import { findContext } from './routecontext'
 
+const getPath = (object, path, value) => {
+  // Check if path is string or array. Regex : ensure that we do not have '.' and brackets
+  const pathArray = Array.isArray(path) ? path : path.split(/[,[\].]/g).filter(Boolean)
+  // Find value if exist return otherwise return undefined value;
+  return pathArray.reduce((prevObj, key) => prevObj && prevObj[key], object) || value
+}
+
 const createElement = (route, Definition) => {
   if (typeof Definition === 'function') {
     if (Definition.prototype instanceof HTMLElement) {
@@ -116,6 +123,56 @@ export const elProperty = (propertyOrProtoOrDescriptor, fieldName, property) => 
   registerElProperty(propertyOrProtoOrDescriptor.constructor, fieldName, property || fieldName)
 }
 
+const registerProperty = (ctor, name, key, options = {}) => {
+  const properties = ctor.__properties || (ctor.__properties = [])
+  properties.push({ name, ...options })
+  const desc = {
+    get () {
+      return this[key]
+    },
+    set (value) {
+      const oldValue = this[key]
+      if (value === oldValue) return
+      if (options.to && this.el) {
+        this.el[options.to] = value
+      }
+      this[key] = value
+      this.trigger(`change:${name}`, value, oldValue)
+    },
+    configurable: true,
+    enumerable: true
+  }
+  Object.defineProperty(ctor.prototype, name, desc)
+}
+
+export const property = (optionsOrProtoOrDescriptor, fieldName, options) => {
+  const isLegacy = typeof fieldName === 'string'
+  if (!isLegacy && typeof optionsOrProtoOrDescriptor.kind !== 'string') {
+    // passed options
+    return function (protoOrDescriptor) {
+      return property(protoOrDescriptor, fieldName, optionsOrProtoOrDescriptor)
+    }
+  }
+
+  const name = isLegacy ? fieldName : optionsOrProtoOrDescriptor.key
+  const key = typeof name === 'symbol' ? Symbol(name) : `__${name}`
+
+  if (!isLegacy) {
+    const { kind, placement, descriptor, initializer } = optionsOrProtoOrDescriptor
+    return {
+      kind,
+      placement,
+      descriptor,
+      initializer,
+      key,
+      finisher (ctor) {
+        registerProperty(ctor, name, key, options)
+      }
+    }
+  }
+  registerProperty(optionsOrProtoOrDescriptor.constructor, name, key, options)
+}
+
 export class Route extends Events {
   constructor (classOptions, router, { name, path, options }) {
     super()
@@ -145,6 +202,17 @@ export class Route extends Events {
     elProperties.forEach(({ routeProperty, elProperty }) => {
       el[elProperty] = this[routeProperty]
     })
+    const classProperties = this.constructor.__properties
+    if (classProperties) {
+      classProperties.forEach(({ name, from, to }) => {
+        if (from) {
+          this[name] = getPath(transition, from)
+        }
+        if (to) {
+          el[to] = this[name]
+        }
+      })
+    }
   }
 
   renderEl (region, transition, $route) {

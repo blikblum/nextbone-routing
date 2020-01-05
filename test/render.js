@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it,sinon,expect */
 
-import { Route, Router, elEvent, elProperty } from '../src/index'
+import { Route, Router, elEvent, elProperty, property } from '../src/index'
 import { view } from 'nextbone'
 import _ from 'underscore'
 import $ from 'jquery'
@@ -516,13 +516,85 @@ describe('Render', () => {
     it('will set defined properties to el when rendered', function (done) {
       router.transitionTo('root').then(function () {
         const routeInstance = router.state.instances[0]
-        routeInstance.el.trigger('my:event', 1, 'a')
-        routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
         expect(routeInstance.el.prop1).to.be.equal('xx')
         expect(routeInstance.el.prop2).to.be.undefined
         expect(routeInstance.el.xProp).to.be.equal('yy')
         done()
       }).catch(done)
+    })
+  })
+
+  describe('property', function () {
+    const changeSpy = sinon.spy()
+    beforeEach(() => {
+      RootRoute = class extends Route {
+        component () {
+          return ParentView
+        }
+
+        activate () {
+          this.on('change:prop1', changeSpy)
+          this.prop1 = 'xx'
+          this.prop2 = 'yy'
+        }
+
+        @property
+        prop1
+
+        @property({ to: 'xProp' })
+        prop2
+
+        @property({ from: 'params.id' })
+        prop3
+
+        @property({ from: 'pathname', to: 'path' })
+        prop4
+      }
+
+      let rootRoute = router.routes.find(route => route.name === 'root')
+      rootRoute.options.class = RootRoute
+      rootRoute = router.routes.find(route => route.name === 'rootWithParam')
+      rootRoute.options.class = RootRoute
+    })
+
+    it('should trigger an "change" event when value is changed', async function () {
+      await router.transitionTo('root')
+      const routeInstance = router.state.instances[0]
+      expect(changeSpy).to.be.calledOnce.and.calledOnceWithExactly('xx', undefined)
+      routeInstance.prop1 = 'xx'
+      expect(changeSpy).to.be.calledOnce
+      changeSpy.resetHistory()
+      routeInstance.prop1 = 'yy'
+      expect(changeSpy).to.be.calledOnce.and.calledOnceWithExactly('yy', 'xx')
+    })
+
+    it('should set el property when "to" option is defined', async function () {
+      await router.transitionTo('root')
+      const routeInstance = router.state.instances[0]
+      expect(routeInstance.el.prop1).to.be.undefined
+      expect(routeInstance.el.prop2).to.be.undefined
+      expect(routeInstance.el.xProp).to.be.equal('yy')
+      routeInstance.prop2 = 'a'
+      expect(routeInstance.el.xProp).to.be.equal('a')
+    })
+
+    it('should read value from transition when "from" option is defined', async function () {
+      await router.transitionTo('rootWithParam', { id: 4 })
+      const routeInstance = router.state.instances[0]
+      expect(routeInstance.prop3).to.be.equal('4')
+      await router.transitionTo('rootWithParam', { id: 8 })
+      expect(routeInstance.prop3).to.be.equal('8')
+    })
+
+    it('should read value from transition and set el property when "from" and "to" options are defined', async function () {
+      await router.transitionTo('root')
+      let routeInstance = router.state.instances[0]
+      expect(routeInstance.prop4).to.be.equal('/root')
+      expect(routeInstance.el.path).to.be.equal('/root')
+      await router.transitionTo('rootWithParam', { id: 6 })
+      routeInstance = router.state.instances[0]
+      expect(routeInstance.prop4).to.be.equal('/root/6')
+      expect(routeInstance.el.path).to.be.equal('/root/6')
     })
   })
 })
