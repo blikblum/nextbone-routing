@@ -165,7 +165,8 @@ export class Route extends Events {
 
   }
 
-  prepareEl (el, transition) {
+  _applyProperties (el, transition, $route) {
+    el.$route = $route
     const properties = this.$options.properties
     if (properties) Object.assign(el, properties)
     const classProperties = this.constructor.__properties
@@ -181,6 +182,11 @@ export class Route extends Events {
     }
   }
 
+  _prepareEl (el, transition, $route) {
+    this._applyProperties(el, transition, $route)
+    if (this.prepareEl) this.prepareEl(el, transition)
+  }
+
   renderEl (region, transition, $route) {
     if (this.el && this.updateEl(transition)) return
 
@@ -189,8 +195,7 @@ export class Route extends Events {
       throw new Error(`${this.constructor.name}: component has invalid value ${getComponent(this)}. Expected a string or HTMLElement`)
     }
     if (this.constructor._elEvents) bindElEvents(this, el, this.constructor._elEvents)
-    this.prepareEl(el, transition)
-    el.$route = $route
+    this._prepareEl(el, transition, $route)
     el.$router = this.$router
     if (region) {
       region.show(el)

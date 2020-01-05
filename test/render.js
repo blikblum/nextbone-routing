@@ -68,7 +68,9 @@ describe('Render', () => {
         })
         route('sibling', { component: LeafView })
       })
-      route('root', { class: RootRoute })
+      route('root', { class: RootRoute }, function () {
+        route('root.child')
+      })
       route('root2', { component: ParentView, outlet: false }, function () {
         route('leaf2', { class: LeafRoute, component: leafTag })
       })
@@ -283,7 +285,7 @@ describe('Render', () => {
 
   describe('prepareEl', function () {
     it('should be called with a HTML and transition', function () {
-      const spy = sinon.spy(ParentRoute.prototype, 'prepareEl')
+      const spy = ParentRoute.prototype.prepareEl = sinon.spy()
       const transition = router.transitionTo('parent')
       return transition.then(function () {
         expect(spy).to.be.calledOnceWithExactly(sinon.match.instanceOf(HTMLElement), transition)
@@ -561,6 +563,16 @@ describe('Render', () => {
       routeInstance = router.state.instances[0]
       expect(routeInstance.prop4).to.be.equal('/root/6')
       expect(routeInstance.el.path).to.be.equal('/root/6')
+    })
+
+    it('should update value in a transition when is active even if not being activated', async function () {
+      await router.transitionTo('root')
+      const routeInstance = router.state.instances[0]
+      expect(routeInstance.prop4).to.be.equal('/root')
+      expect(routeInstance.el.path).to.be.equal('/root')
+      await router.transitionTo('root.child')
+      expect(routeInstance.prop4).to.be.equal('/root/child')
+      expect(routeInstance.el.path).to.be.equal('/root/child')
     })
   })
 })

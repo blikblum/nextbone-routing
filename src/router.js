@@ -137,7 +137,7 @@ async function renderElements (instances, activated, transition) {
   for (let i = 0; i < notRenderingCount; i++) {
     const instance = instances[i]
     if (instance.el) {
-      instance.el.$route = routeState
+      instance._applyProperties(instance.el, transition, routeState)
     }
   }
 
