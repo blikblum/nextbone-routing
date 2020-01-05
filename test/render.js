@@ -512,10 +512,10 @@ describe('Render', () => {
         @property({ to: 'xProp' })
         prop2
 
-        @property({ from: 'params.id' })
+        @property({ from: 'params.id', format: 'number' })
         prop3
 
-        @property({ from: 'pathname', to: 'path' })
+        @property({ from: 'pathname', to: 'path', format: value => `[${value}]` })
         prop4
       }
 
@@ -549,30 +549,30 @@ describe('Render', () => {
     it('should read value from transition when "from" option is defined', async function () {
       await router.transitionTo('rootWithParam', { id: 4 })
       const routeInstance = router.state.instances[0]
-      expect(routeInstance.prop3).to.be.equal('4')
+      expect(routeInstance.prop3).to.be.equal(4)
       await router.transitionTo('rootWithParam', { id: 8 })
-      expect(routeInstance.prop3).to.be.equal('8')
+      expect(routeInstance.prop3).to.be.equal(8)
     })
 
     it('should read value from transition and set el property when "from" and "to" options are defined', async function () {
       await router.transitionTo('root')
       let routeInstance = router.state.instances[0]
-      expect(routeInstance.prop4).to.be.equal('/root')
-      expect(routeInstance.el.path).to.be.equal('/root')
+      expect(routeInstance.prop4).to.be.equal('[/root]')
+      expect(routeInstance.el.path).to.be.equal('[/root]')
       await router.transitionTo('rootWithParam', { id: 6 })
       routeInstance = router.state.instances[0]
-      expect(routeInstance.prop4).to.be.equal('/root/6')
-      expect(routeInstance.el.path).to.be.equal('/root/6')
+      expect(routeInstance.prop4).to.be.equal('[/root/6]')
+      expect(routeInstance.el.path).to.be.equal('[/root/6]')
     })
 
     it('should update value in a transition when is active even if not being activated', async function () {
       await router.transitionTo('root')
       const routeInstance = router.state.instances[0]
-      expect(routeInstance.prop4).to.be.equal('/root')
-      expect(routeInstance.el.path).to.be.equal('/root')
+      expect(routeInstance.prop4).to.be.equal('[/root]')
+      expect(routeInstance.el.path).to.be.equal('[/root]')
       await router.transitionTo('root.child')
-      expect(routeInstance.prop4).to.be.equal('/root/child')
-      expect(routeInstance.el.path).to.be.equal('/root/child')
+      expect(routeInstance.prop4).to.be.equal('[/root/child]')
+      expect(routeInstance.el.path).to.be.equal('[/root/child]')
     })
   })
 })

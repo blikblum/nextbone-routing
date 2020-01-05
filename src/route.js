@@ -9,6 +9,12 @@ const getPath = (object, path, value) => {
   return pathArray.reduce((prevObj, key) => prevObj && prevObj[key], object) || value
 }
 
+const parseNumber = (value) => {
+  const n = parseFloat(value)
+  const isNumeric = value == n // eslint-disable-line eqeqeq
+  return isNumeric ? n : value
+}
+
 const createElement = (route, Definition) => {
   if (typeof Definition === 'function') {
     if (Definition.prototype instanceof HTMLElement) {
@@ -171,9 +177,15 @@ export class Route extends Events {
     if (properties) Object.assign(el, properties)
     const classProperties = this.constructor.__properties
     if (classProperties) {
-      classProperties.forEach(({ name, from, to }) => {
+      classProperties.forEach(({ name, from, to, format }) => {
         if (from) {
-          this[name] = getPath(transition, from)
+          let result = getPath(transition, from)
+          if (format === 'number') {
+            result = parseNumber(result)
+          } else if (typeof format === 'function') {
+            result = format(result)
+          }
+          this[name] = result
         }
         if (to) {
           el[to] = this[name]
