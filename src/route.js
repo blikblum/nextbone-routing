@@ -125,8 +125,8 @@ export const property = (optionsOrProtoOrDescriptor, fieldName, options) => {
   const isLegacy = typeof fieldName === 'string'
   if (!isLegacy && typeof optionsOrProtoOrDescriptor.kind !== 'string') {
     // passed options
-    return function (protoOrDescriptor) {
-      return property(protoOrDescriptor, fieldName, optionsOrProtoOrDescriptor)
+    return function (protoOrDescriptor, realFieldName) {
+      return property(protoOrDescriptor, realFieldName, optionsOrProtoOrDescriptor)
     }
   }
 
