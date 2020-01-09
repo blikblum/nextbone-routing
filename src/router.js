@@ -74,6 +74,7 @@ function createRouteInstance (RouteClass = Route, route) {
 
   if (RouteClass.__esModule) RouteClass = RouteClass.default
   const result = new RouteClass(classOptions, router, route)
+  result._deleteInstanceProperties()
   if (options.component) {
     result.component = options.component
   }

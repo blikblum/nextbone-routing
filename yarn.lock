@@ -2713,10 +2713,10 @@ negotiator@0.6.1:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
   integrity sha1-KzJxhOiZIQEXeyhWP7XnECrNDKk=
 
-nextbone@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/nextbone/-/nextbone-0.13.0.tgz#944959229e15108658af6679aa989014721f58c2"
-  integrity sha512-8Jbnu84aKUmfS9hTPJXcv2XL6dJgysUb9QUkTPdK+bp9cu0Co9YyNiwKoJEzgnVnRUT5TfP4Tgf6B43vY2+9tg==
+nextbone@^0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/nextbone/-/nextbone-0.14.0.tgz#1602ec32e1256ef1135d3f99b1a20da917ff6100"
+  integrity sha512-H9XqwXM7gb8fZzoVI81yRUaBDL7OOnab4PnWl+dapE/3aI5N1P+sZ5qINeF22I4hM+AxHoBPs0QLUk9zm318Fg==
   dependencies:
     underscore ">=1.8.3"
 

@@ -2,7 +2,7 @@
 /* global describe,beforeEach,afterEach,it,sinon,expect */
 
 import { Route, Router, elEvent, property } from '../src/index'
-import { view } from 'nextbone'
+import { view, on } from 'nextbone'
 import _ from 'underscore'
 import $ from 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
@@ -493,7 +493,8 @@ describe('Render', () => {
   })
 
   describe('property', function () {
-    const changeSpy = sinon.spy()
+    const prop1Change = sinon.spy()
+    const prop5Change = sinon.spy()
     beforeEach(() => {
       RootRoute = class extends Route {
         component () {
@@ -501,7 +502,7 @@ describe('Render', () => {
         }
 
         activate () {
-          this.on('change:prop1', changeSpy)
+          this.on('change:prop1', prop1Change)
           this.prop1 = 'xx'
           this.prop2 = 'yy'
         }
@@ -517,6 +518,14 @@ describe('Render', () => {
 
         @property({ from: 'pathname', to: 'path', format: value => `[${value}]` })
         prop4
+
+        @property
+        prop5 = 'zzz'
+
+        @on('change:prop5')
+        prop5ChangeEvent () {
+          prop5Change()
+        }
       }
 
       let rootRoute = router.routes.find(route => route.name === 'root')
@@ -528,12 +537,19 @@ describe('Render', () => {
     it('should trigger an "change" event when value is changed', async function () {
       await router.transitionTo('root')
       const routeInstance = router.state.instances[0]
-      expect(changeSpy).to.be.calledOnce.and.calledOnceWithExactly('xx', undefined)
+      expect(prop1Change).to.be.calledOnce.and.calledOnceWithExactly('xx', undefined)
       routeInstance.prop1 = 'xx'
-      expect(changeSpy).to.be.calledOnce
-      changeSpy.resetHistory()
+      expect(prop1Change).to.be.calledOnce
+      prop1Change.resetHistory()
       routeInstance.prop1 = 'yy'
-      expect(changeSpy).to.be.calledOnce.and.calledOnceWithExactly('yy', 'xx')
+      expect(prop1Change).to.be.calledOnce.and.calledOnceWithExactly('yy', 'xx')
+    })
+
+    it('should not trigger an "change" event when field is initialized', async function () {
+      await router.transitionTo('root')
+      const routeInstance = router.state.instances[0]
+      expect(routeInstance.prop5).to.be.equal('zzz')
+      expect(prop5Change).to.not.be.called
     })
 
     it('should set el property when "to" option is defined', async function () {

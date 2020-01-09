@@ -131,7 +131,7 @@ export const property = (optionsOrProtoOrDescriptor, fieldName, options) => {
   }
 
   const name = isLegacy ? fieldName : optionsOrProtoOrDescriptor.key
-  const key = typeof name === 'symbol' ? Symbol(name) : `__${name}`
+  const key = `__${name}`
 
   if (!isLegacy) {
     const { kind, placement, descriptor, initializer } = optionsOrProtoOrDescriptor
@@ -169,6 +169,20 @@ export class Route extends Events {
 
   deactivate () {
 
+  }
+
+  _deleteInstanceProperties () {
+    // workaround to buggy legacy decorator babel implementation
+    const properties = this.constructor.__properties
+    if (properties) {
+      properties.forEach(({ name }) => {
+        if (this.hasOwnProperty(name)) { // eslint-disable-line
+          const value = this[name]
+          delete this[name]
+          this[`__${name}`] = value
+        }
+      })
+    }
   }
 
   _applyProperties (el, transition, $route) {
