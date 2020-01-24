@@ -1,6 +1,6 @@
 # Route Class
 
-  The base class for defining routes. Extends from Marionette.Object
+  The base class for defining routes. Extends from nextbone Events
 
 ## Methods
 
@@ -36,126 +36,79 @@
  transitioned to and methods to manipulate the transition like
  cancel and redirectTo
 
-### <code>getContext</code>
-
- Returns a route context object.
-
- The context object provides two methods: `trigger` and `requests` both with
- the same semantics as the used in Radio. The events and requests will be handled
- by one of the parent routes through
- [`contextEvents`](#contextEvents) and [`contextRequests`](#contextRequests).
-
-```js
-const NoteEditRoute = Route.extend({
-  component: NoteEditView,
-
-  viewOptions() {
-    return {
-      model: this.getContext().request('noteModel')
-    };
-  }
-})
-```
-
 ### <code>updateEl(transition)</code>
 
- Called when the view associated with the route is about to be re-rendered.
+ Called when the element associated with the route is about to be re-rendered.
 
 Allows to configure how a view already rendered will be updated. Returning
 a truthy value will prevent the default behavior (render a new view)
 
-## Properties
+### <code>prepareEl(el, transition)</code>
+
+ Called when the element associated with the route is rendered.
+
+Allows to configure the element being rendered. 
+
+## Static Properties
 
 ### <code>component</code>
 
- Defines the Marionette.View that will be rendered when the route is activated
+ Defines the HTMLElement or tag name that will be rendered when the route is activated
 
 ```js
-const NoteRoute = Route.extend({
-  component: NoteLayoutView
-});
+class NoteRoute exends Route {
+  static component = NoteLayoutView
+};
 ```
-
-### <code>viewOptions</code>
-
- Defines the options to be passed in the Marionette.View constructor
-
-```js
-const NoteListRoute = Route.extend({
-  component: NoteListView,
-
-  activate() {  // See activate below
-    this.collection = new NoteCollection();
-    this.collection.fetch();
-  },
-
-  viewOptions() {
-    return {
-      collection: this.collection
-    };
-  }
-});
-```
-
-### <code>viewEvents</code>
-
- A hash defining listeners for the events triggered by the view
-
-```js
-const NoteCreateRoute = Route.extend({
-  component: NoteCreateView,
-
-  viewEvents: {
-    'note:created': 'addNoteToCollection'
-  },
-
-  addNoteToCollection(model) {
-    this.collection.add(model);
-    Radio.channel('router').request('transitionTo', 'note.list');
-  }
-})
-```
-
-### <code>contextRequests</code>
-
- A hash defining reply functions to requests done by [child routes](#childRoutes)
- through [getContext](#getContext)
-
-```js
-const NoteDetailRoute = Route.extend({
-  // ...
-  childRoutes: {
-    'note.edit': NoteEditRoute  // See childRoutes below
-  },
-
-  activate(transition) {  // See activate above
-    this.noteModel = new NoteModel({ id: parseInt(transition.params.noteId) });
-    this.noteModel.fetch();
-  },
-
-  contextRequests: {
-    noteModel() {
-      return this.noteModel;
-    }
-  }
-})
-```
-
-### <code>contextEvents</code>
-
- A hash defining listeners to events triggered by [child routes](#childRoutes)
- through [getContext](#getContext)
 
 ### <code>childRoutes</code>
 
  A hash defining route definitions for children routes
 
 ```js
-const NoteRoute = Route.extend({
-  childRoutes: {
+class NoteRoute extends Route {
+ static childRoutes = {
     'note.list': NoteListRoute,
     'note.detail': NoteDetailRoute,
     'note.create': NoteCreateRoute
   }
-});
+};
+```
+
+### <code>providedContexts</code>
+
+ A hash defining the contexts provided by the route.
+
+ Each context can be defined as a static value by passing the value option or as a property of the route instance by passing the property option
+
+```js
+class NoteDetailRoute extends Route {
+  static providedContexts = {
+    noteModel: { property: 'noteModel' },
+    theme: { value: 'black' }
+  }
+ 
+  activate(transition) {  // See activate above
+    this.noteModel = new NoteModel({ id: parseInt(transition.params.noteId) });
+    this.noteModel.fetch();
+  }  
+}
+```
+
+## Properties
+
+### <code>context</code>
+
+The route context object.
+
+Accessing a property of it will retrieve the value from the provided context in parent routes
+
+```js
+class NoteEditRoute extends Route {
+  static component = NoteEditView
+
+  activate() {
+    this.model = this.context.noteModel
+  }
+}
 ```

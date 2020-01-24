@@ -1,7 +1,6 @@
 # Events
 
-In the lifecycle of a route transition, events are triggered in the
-'router' Radio channel. The behavior of the transition can be altered 
+In the lifecycle of a route transition, events are triggered in router instance. The behavior of the transition can be altered 
 by the event handlers
     
 ###<code>'before:transition' </code>

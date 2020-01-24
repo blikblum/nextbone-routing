@@ -5,7 +5,7 @@ The route definitions can be loaded dynamically allowing the bundler to do "code
 It can be accomplished with a function that returns a ES promise which resolves to a Route class.
 This function must be assigned to class option or to a childRoutes key in a parent route
 
-Example extracted from [Marionette Wires Revisited](https://github.com/blikblum/marionette-wires-revisited):
+Example extracted from [Nextbone Wires](https://github.com/blikblum/nextbone-wires):
 
 Route map (the complete route map configuration must be defined upfront)
 ```javascript
@@ -30,35 +30,35 @@ router.map(function (route) {
 
 ColorsRoute
 ```javascript
-import {Route} from 'marionette.routing';
+import {Route} from 'nextbone-routing';
 import ColorsIndexRoute from './index/route';
 import ColorsShowRoute from './show/route';
 import ColorsEditRoute from './edit/route';
 import ColorsCreateRoute from './create/route';
 
-export default Route.extend({
-  childRoutes: {
+export default class extends Route {
+  static childRoutes = {
     'colors.index': ColorsIndexRoute,
     'colors.show': ColorsShowRoute,
     'colors.edit': ColorsEditRoute,
     'colors.create': ColorsCreateRoute
   }
-});
+};
 ```
 
 Alternatively the async route could be defined in a parent route trough childRoutes property
 
 ApplicationRoute (in childRoutes, a promise is returned for colors route)
 ```javascript
-import {Route} from 'marionette.routing';
+import {Route} from 'nextbone-routing';
 
-export default Route.extend({
-  childRoutes: {
+export default class extends Route {
+  static childRoutes = {
     colors: function () {
       return import('../colors/route');
     }
   }
-});
+};
 ```
   
 With the above setup, all code referenced by ColorsRoute, including its children routes, will be 

@@ -1,6 +1,6 @@
 # Managing authorization
 
-With Marionete.Routing is possible to implement authorization in a simple, flexible and effective manner
+With Nextbone Routing is possible to implement authorization in a simple, flexible and effective manner
 
 ### Using `Route.activate` method
 
@@ -8,10 +8,10 @@ Inside `activate` method of a Route class, check for the user authorization info
 Is possible to cancel the transition or redirect to another route.
 
 ```javascript
-import {Route} from 'marionette.routing';
+import {Route} from 'nextbone-routing';
 import {checkAuth} from './my-auth-service'
 
-export const IndexRoute = Route.extend({
+export class IndexRoute extends Route {
   activate (transition) {
     if (!checkAuth()) {
       transition.redirectTo('login')
@@ -19,7 +19,7 @@ export const IndexRoute = Route.extend({
       //transition.cancel()
     }
   }
-});
+};
 ```
 
 Since the children routes are always activated after the parent ones, we only
@@ -51,7 +51,7 @@ By using `before:activate` event, is possible to overcome those problems keeping
 the simplicity. The same behavior as above can be implemented with:
 
 ```js
-import Radio from 'backbone.radio';
+import {Radio} from 'nextbone-radio';
 import {checkAuth} from './my-auth-service'
 
 //after configuring the route mapping
@@ -67,11 +67,11 @@ Radio.channel('router').on('before:activate', function(transition, route) {
 In a route that requires to check authorization
 
 ```javascript
-import {Route} from 'marionette.routing';
+import {Route} from 'nextbone-routing';
 
-export default Route.extend({
-  requiresAuth: true
-});
+export default class Route {
+  requiresAuth = true
+};
 ```
 
 This [live example](http://codepen.io/blikblum/pen/mWmbQX?editors=1010)

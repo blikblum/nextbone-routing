@@ -2,17 +2,16 @@
 
 ## `Router` class
   
- Descends from Cherrytree class. Accepts an options hash as argument:
+ Descends from slick-router Router class. Accepts an options hash as argument:
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `log`  | `noop` | Called with logging info - takes `true`, `false` or a custom logging function |
-| `logError` | `true` | Called when transitions error (except `TransitionRedirected` and `TransitionCancelled`). Takes `true`, `false`, or a custom function |
-| `pushState` | `false` | Use browser History API or the default hash change |
-| `root` | `/` | Used in combination with `pushState: true` - if your app isn't served from `/`, pass the new root |
+| Option           | Default               | Description                                                                                                                                                                              |
+| ---------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `log`            | `noop`                | Called with logging info - takes `true`, `false` or a custom logging function                                                                                                            |
+| `logError`       | `true`                | Called when transitions error (except `TransitionRedirected` and `TransitionCancelled`). Takes `true`, `false`, or a custom function                                                     |
+| `pushState`      | `false`               | Use browser History API or the default hash change                                                                                                                                       |
+| `root`           | `/`                   | Used in combination with `pushState: true` - if your app isn't served from `/`, pass the new root                                                                                        |
 | `interceptLinks` | (same as `pushState`) | When `pushState: true` this intercepts all link clicks, preventing the default behavior. This can take a function to set custom behavior - see [intercepting links](#intercepting-links) |
-| `qs` | `object` | The parser function for query strings with a simple parser. Pass in an object with `parse` and `stringify` functions to customize the handling of query strings. |
-| `promise` | `window.Promise` | The Promises implementation to use for transitions |
+| `qs`             | `object`              | The parser function for query strings with a simple parser. Pass in an object with `parse` and `stringify` functions to customize the handling of query strings.                         |
 
 
 ```js
@@ -38,23 +37,20 @@ Each route can be configure with the following options:
 
  * `class`: a [`Route`](./route.md) class
  * `classOptions`: options passed to the Route constructor
- * `component`: a `Marionette.View` class. Can be used alone or with `class`
- * `viewOptions`: options passed to the Marionette.View constructor
+ * `component`: a `HTMLElement` class or a tag name of a web component. Can be used alone or with `class`
+ * `properties`: options assigned to the rendered component
  * `path`: the route path
  * `abstract`: pass true to define an abstract route
- * `outlet`: pass true to allow a component without an `outlet` region
+ * `outlet`: pass false to allow a component without an `outlet` region
 
-**All routes must have at least component or class defined.**
+**Is possible to define a route without component and class.**
 
-For more information about route mapping refer to cherrytree documentation
+For more information about route mapping refer to slick-router documentation
 
 ## `router.listen`
 
  Starts listening for URL changes
 
-## `router.rootRegion`
-
- Property that defines the region where the top level views will be rendered
 
 ## `router.destroy`
 
