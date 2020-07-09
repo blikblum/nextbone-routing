@@ -2528,6 +2528,11 @@ locate-path@^3.0.0:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
 
+lodash-es@^4.17.15:
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.15.tgz#21bd96839354412f23d7a10340e5eac6ee455d78"
+  integrity sha512-rlrc3yU3+JNOpZ9zj5pQtxnx2THmvRykwL4Xlxoa8I9lHBlVbbyPhgyPMioxVZ4NqyxaVVtaJnzsyOidQIhyyQ==
+
 lodash.get@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
@@ -2713,12 +2718,12 @@ negotiator@0.6.1:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
   integrity sha1-KzJxhOiZIQEXeyhWP7XnECrNDKk=
 
-nextbone@^0.14.0:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/nextbone/-/nextbone-0.14.0.tgz#1602ec32e1256ef1135d3f99b1a20da917ff6100"
-  integrity sha512-H9XqwXM7gb8fZzoVI81yRUaBDL7OOnab4PnWl+dapE/3aI5N1P+sZ5qINeF22I4hM+AxHoBPs0QLUk9zm318Fg==
+nextbone@^0.20.0:
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/nextbone/-/nextbone-0.20.0.tgz#832d322d40a340b146b7c28db1011eb048d42da8"
+  integrity sha512-+cW8z8wUg85rE24XzjoThA+aZWRBeniMklPaMO4Hovy1tZOJueJHznBW/r1MlXcH1GMyMP10dG7xzPkekHuMkA==
   dependencies:
-    underscore ">=1.8.3"
+    lodash-es "^4.17.15"
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -3772,11 +3777,6 @@ ultron@~1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.1.1.tgz#9fe1536a10a664a65266a1e3ccf85fd36302bc9c"
   integrity sha512-UIEXBNeYmKptWH6z8ZnqTeS8fV74zG0/eRU9VGkpzz+LIJNs8W/zM/L+7ctCkRrgbNnnR0xxw4bKOr0cW0N0Og==
-
-underscore@>=1.8.3, underscore@^1.8.3:
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.9.1.tgz#06dce34a0e68a7babc29b365b8e74b8925203961"
-  integrity sha512-5/4etnCkd9c8gwgowi5/om/mYO5ajCaOgdzj/oW+0eQV9WxKBDZw5+ycmKmeaTXjInS/W0BzpGLo2xR2aBwZdg==
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"

@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { isEqual, isFunction, extend, pick } from 'underscore'
+import { isEqual, isFunction, extend, pick } from 'lodash-es'
 import { Router as SlickRouter } from 'slick-router'
 import { routerLinks } from 'slick-router/middlewares/router-links'
 import { Events } from 'nextbone'

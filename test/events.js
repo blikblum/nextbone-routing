@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it,sinon,expect,assert */
 
-import { defer } from 'underscore'
+import { defer } from 'lodash-es'
 import { Route, Router } from '../src/index'
 
 let router, routes

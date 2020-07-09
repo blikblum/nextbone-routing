@@ -17,8 +17,8 @@
     "slick-router": "^2.3.1"
   },
   "peerDependencies": {
-    "nextbone": "^0.14.0",
-    "underscore": "^1.8.3"
+    "lodash-es": "^4.17.15",
+    "nextbone": "^0.14.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",
@@ -36,16 +36,16 @@
     "karma-rollup-preprocessor": "^7.0.2",
     "karma-sinon-chai": "^2.0.2",
     "lit-element": "^2.2.1",
+    "lodash-es": "^4.17.15",
     "mocha": "^6.2.2",
-    "nextbone": "^0.14.0",
+    "nextbone": "^0.20.0",
     "rollup": "1.6.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "9.2.1",
     "rollup-plugin-node-resolve": "4.0.1",
     "sinon": "^8.0.2",
     "sinon-chai": "^3.4.0",
-    "standard": "^14.3.1",
-    "underscore": "^1.8.3"
+    "standard": "^14.3.1"
   },
   "scripts": {
     "lint": "standard \"test/**/*.js\" \"src/**/*.js\"",

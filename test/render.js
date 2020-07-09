@@ -3,7 +3,7 @@
 
 import { Route, Router, elEvent, property } from '../src/index'
 import { view, on } from 'nextbone'
-import _ from 'underscore'
+import { pick, defer } from 'lodash-es'
 import $ from 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
 
@@ -40,7 +40,7 @@ class LeafView extends HTMLElement {
 const leafTag = defineCE(LeafView)
 
 function normalizeState (state) {
-  return _.pick(state, ['path', 'pathname', 'routes', 'params', 'query'])
+  return pick(state, ['path', 'pathname', 'routes', 'params', 'query'])
 }
 
 describe('Render', () => {
@@ -228,7 +228,7 @@ describe('Render', () => {
       }
 
       router.transitionTo('parent').catch(function () {
-        _.defer(function () {
+        defer(function () {
           expect(spy).to.not.be.called
           done()
         })
