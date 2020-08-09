@@ -2,6 +2,7 @@
 /* global describe,beforeEach,afterEach,it,sinon,expect */
 
 import { Route, Router } from '../src/index'
+import { Region } from 'nextbone/dom-utils'
 
 let router, routes
 let ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
@@ -10,6 +11,14 @@ function AsyncChildRoute () {
   return new Promise(function (resolve) {
     setTimeout(function () {
       resolve(ChildRoute)
+    }, 200)
+  })
+}
+
+function AsyncChildComponent () {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      resolve('my-component')
     }, 200)
   })
 }
@@ -30,6 +39,7 @@ describe('Route configuration', () => {
           })
         })
         route('child2', { class: AsyncChildRoute })
+        route('child3', { component: AsyncChildComponent })
       })
     }
     router.map(routes)
@@ -98,5 +108,15 @@ describe('Route configuration', () => {
     return router.transitionTo('child2').then(function () {
       expect(spy).to.be.calledOnce
     })
+  })
+
+  it('can be loaded asynchronously from component', async function () {
+    const rootEl = document.createElement('div')
+    router.rootOutlet = new Region(rootEl)
+    const transition = router.transitionTo('child3')
+    await transition
+    const route = transition.instances.find(route => route.$name === 'child3')
+    expect(route.component).to.be.equal('my-component')
+    expect(rootEl.innerHTML).to.be.equal('<my-component></my-component>')
   })
 })

@@ -103,13 +103,6 @@ describe('Render', () => {
       }).catch(done)
     })
 
-    it('can be passed through classOptions.component', function (done) {
-      router.transitionTo('root').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
-        done()
-      }).catch(done)
-    })
-
     it('can be passed through component, without a class', function (done) {
       router.transitionTo('root2').then(function () {
         expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)

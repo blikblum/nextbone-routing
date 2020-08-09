@@ -68,29 +68,29 @@ function findRouteClass (options, routeName, index, routes) {
   return result
 }
 
-function createRouteInstance (RouteClass = Route, route) {
-  const options = route.options
-  const classOptions = extend({}, options.classOptions)
+function createRouteInstance (RouteClass = Route, component, route) {
+  const classOptions = extend({}, route.options.classOptions)
 
   if (RouteClass.__esModule) RouteClass = RouteClass.default
   const result = new RouteClass(classOptions, router, route)
   result._deleteInstanceProperties()
-  if (options.component) {
-    result.component = options.component
+  if (component) {
+    result.component = component
   }
   return result
 }
 
-function resolveRoute (route, index, routes) {
+async function resolveRoute (route, index, routes) {
+  let component = route.options.component
+  if (isFunction(component) && !(component.prototype instanceof HTMLElement)) {
+    component = await component.call(route)
+  }
   let RouteClass = findRouteClass(route.options, route.name, index, routes)
   if (isFunction(RouteClass) && !(RouteClass.prototype instanceof Route)) {
     // possible async route definition
-    RouteClass = RouteClass.call(route)
-    return Promise.resolve(RouteClass).then(function (result) {
-      return result && createRouteInstance(result, route)
-    })
+    RouteClass = await RouteClass.call(route)
   }
-  return createRouteInstance(RouteClass, route)
+  return createRouteInstance(RouteClass, component, route)
 }
 
 function ensureRegion (elOrRegion) {
