@@ -3466,10 +3466,10 @@ slice-ansi@^2.1.0:
     astral-regex "^1.0.0"
     is-fullwidth-code-point "^2.0.0"
 
-slick-router@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/slick-router/-/slick-router-2.3.1.tgz#ca3b5a77d3ad703163b6786120ae718415c4c467"
-  integrity sha512-g/Kq8+UYt1fFGFoSGzb5vjwdmyM58rbwjZ9tV4Cg9AHQ9li2UEl/mnJD5O8Nd7+AV7ud/ZbI697zaqTx6aufPw==
+slick-router@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/slick-router/-/slick-router-2.5.1.tgz#9c74542c900b93eb88851799b08e56cd5a456085"
+  integrity sha512-dZru3JAo8PXktM1c2XO/agVSBdfo9qWIkzcOKb7VwEkZHhgGtquzNbzy626relu43NHecnwlkpqIkbxUKjvSoA==
   dependencies:
     path-to-regexp "^5.0.0"
 

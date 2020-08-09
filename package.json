@@ -14,7 +14,7 @@
   "module": "dist/nextbone-routing.js",
   "sideEffects": false,
   "dependencies": {
-    "slick-router": "^2.3.1"
+    "slick-router": "^2.5.1"
   },
   "peerDependencies": {
     "lodash-es": "^4.17.15",
