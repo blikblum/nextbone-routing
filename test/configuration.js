@@ -62,6 +62,15 @@ describe('root outlet', () => {
     expect(router.rootOutlet.targetEl).to.be.equal(el)
   })
 
+  it('can be defined as function returning a HTML element', async () => {
+    const el = document.getElementById('main')
+    router = new Router({ outlet: () => el, routes })
+    await router.listen()
+    await router.transitionTo('parent')
+    expect(router.rootOutlet).to.be.instanceOf(Region)
+    expect(router.rootOutlet.targetEl).to.be.equal(el)
+  })
+
   it('can be defined as a CSS selector', async () => {
     router = new Router({ outlet: '#main', routes })
     await router.listen()

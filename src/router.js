@@ -93,16 +93,22 @@ function resolveRoute (route, index, routes) {
   return createRouteInstance(RouteClass, route)
 }
 
+function ensureRegion (elOrRegion) {
+  if (elOrRegion instanceof HTMLElement) {
+    return new Region(elOrRegion)
+  } else if (elOrRegion instanceof Region) {
+    return elOrRegion
+  }
+}
+
 function resolveRootOutlet () {
   const outletOption = router.options.outlet || 'app-root'
   const outlet = typeof outletOption === 'string' ? document.querySelector(outletOption) : outletOption
 
-  if (outlet instanceof HTMLElement) {
-    router.rootOutlet = new Region(outlet)
-  } else if (outlet instanceof Region) {
-    router.rootOutlet = outlet
-  } else if (typeof outlet === 'function') {
-    router.rootOutlet = outlet()
+  if (typeof outlet === 'function') {
+    router.rootOutlet = ensureRegion(outlet())
+  } else {
+    router.rootOutlet = ensureRegion(outlet)
   }
 
   return router.rootOutlet
