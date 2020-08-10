@@ -88,7 +88,7 @@ class NoteDetailRoute extends Route {
     theme: { value: 'black' }
   }
  
-  activate(transition) {  // See activate above
+  activate(transition) {
     this.noteModel = new NoteModel({ id: parseInt(transition.params.noteId) });
     this.noteModel.fetch();
   }  
@@ -98,7 +98,6 @@ class NoteDetailRoute extends Route {
 ## Properties
 
 ### <code>context</code>
-
 The route context object.
 
 Accessing a property of it will retrieve the value from the provided context in parent routes
@@ -107,8 +106,20 @@ Accessing a property of it will retrieve the value from the provided context in 
 class NoteEditRoute extends Route {
   static component = NoteEditView
 
-  activate() {
+  activate() { // see how noteModel context could be declared in providedContext documentation
     this.model = this.context.noteModel
   }
 }
 ```
+
+### <code>$router</code>
+The router instance
+
+### <code>$name</code>
+The route name
+
+### <code>$path</code>
+The route path
+
+### <code>$options</code>
+The route options (the same declared in the route definition)

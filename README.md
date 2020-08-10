@@ -3,7 +3,6 @@
 [![NPM version](http://img.shields.io/npm/v/nextbone-routing.svg?style=flat-square)](https://www.npmjs.com/package/nextbone-routing)
 [![NPM downloads](http://img.shields.io/npm/dm/nextbone-routing.svg?style=flat-square)](https://www.npmjs.com/package/nextbone-routing)
 [![Build Status](http://img.shields.io/travis/blikblum/nextbone-routing.svg?style=flat-square)](https://travis-ci.org/blikblum/nextbone-routing)
-[![Coverage Status](https://img.shields.io/coveralls/blikblum/nextbone-routing.svg?style=flat-square)](https://coveralls.io/github/blikblum/nextbone-routing)
 [![Dependency Status](http://img.shields.io/david/dev/blikblum/nextbone-routing.svg?style=flat-square)](https://david-dm.org/blikblum/nextbone-routing#info=devDependencies)
 
 > An advanced router for Web Components
@@ -23,7 +22,7 @@
 
 ### Installation
 
-    $ npm install --save nextbone-routing nextbone
+    $ npm install --save nextbone-routing nextbone lodash-es
 
 Requires a ES6 Promise implementation attached in window (native or polyfill)
 
@@ -36,8 +35,13 @@ import { Router } from 'nextbone-routing'
 import LoginComponent from './login/component'
 import ContactsRoute from './contacts/route'
 
-function TasksRoute() {
-  return import('./tasks/route')
+function AsyncTasksRoute() {
+  return import('./tasks/route.js')
+}
+
+async function AsyncRegisterComponent() {
+  await import('./register-component.js')
+  return 'register-component'
 }
 
 // callback function that defines the route tree
@@ -46,14 +50,15 @@ const routes = function (route) {
   route('application', { path: '/' }, function () {
     route('home', { path: '', component: 'home-component' }) // define component with a tag name...
     route('login', { component: LoginComponent }) // ... or with a constructor
+    route('register', { component: AsyncRegisterComponent }) // lazy load component definition
     route('contacts', { class: ContactsRoute }) // define a route class that can control lifecycle and component
-    route('tasks', { class: TasksRoute }) // lazy load a route class. Webpack and Rollup does code splitting 
+    route('tasks', { class: AsyncTasksRoute }) // lazy load a route class. Webpack and Rollup does code splitting 
   })
 }
 
 const router = new Router({
   routes,
-  outlet: '#app-container', // element where the root routes will be rendered
+  outlet: '#app-container', // element where the root routes will be rendered. Can be an HTML element instance, a selector or a function returning a HTML element
   log: true, 
   logError: true
 });
@@ -63,7 +68,7 @@ router.listen();
 
 //listen an react to events
 router.on('before:activate', function(transition, route) {
-  let isAuthenticate = checkAuth();
+  const isAuthenticate = checkAuth();
   if (!isAuthenticate && route.requiresAuth) {
     transition.redirectTo('login');
   }
@@ -88,8 +93,8 @@ export default class extends Route {
   }
 
   prepareEl(el) {
-    // called just after creating the element
-    super.prepareEl(el)
+    // called just after creating the element and before rendering the element
+    // @property decorator can also be used to bind route properties to el
     el.contacts = this.contacts
   }
 })
@@ -119,7 +124,7 @@ export default class extends Route {
 
 ### License
 
-Copyright © 2019 Luiz Américo Pereira Câmara. This source code is licensed under the MIT license found in
+Copyright © 2020 Luiz Américo Pereira Câmara. This source code is licensed under the MIT license found in
 the [LICENSE.txt](https://github.com/blikblum/nextbone-routing/blob/master/LICENSE.txt) file.
 The documentation to the project is licensed under the [CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)
 license.

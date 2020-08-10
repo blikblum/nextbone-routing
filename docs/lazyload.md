@@ -1,8 +1,10 @@
 # Route lazy loading
 
-The route definitions can be loaded dynamically allowing the bundler to do "code splitting"
+## Lazy load Route class
 
-It can be accomplished with a function that returns a ES promise which resolves to a Route class.
+The route class can be loaded dynamically allowing the bundler to do "code splitting"
+
+It's accomplished with a function that returns a ES promise which resolves to a Route class.
 This function must be assigned to class option or to a childRoutes key in a parent route
 
 Example extracted from [Nextbone Wires](https://github.com/blikblum/nextbone-wires):
@@ -64,3 +66,24 @@ export default class extends Route {
 With the above setup, all code referenced by ColorsRoute, including its children routes, will be 
 saved in a separated bundle and will be loaded only after 'colors' or one of its children routes are
 visited for the first time
+
+## Lazy load component
+
+The component can also be lazy loaded. An async function that resolves to a HTMLElement class or an web component tag name must be set to the `component` option.
+
+```js
+async function AsyncTasksComponent() {
+  const { TasksComponent } = await import('./tasks-component.js')
+  return TasksComponent
+}
+
+async function AsyncRegisterComponent() {
+  await import('./register-component.js')
+  return 'register-component'
+}
+
+const routes = function (route) {
+  route('register', { component: AsyncRegisterComponent })
+  route('tasks', { component: AsyncTasksComponent })
+}
+```
