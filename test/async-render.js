@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it */
 
 import { Route, Router } from '../src/index'
@@ -14,15 +13,15 @@ let router, routes
 let ParentRoute, ChildRoute, GrandchildRoute
 
 class ParentView extends withEvents(LitElement) {
-  static get outlet () {
+  static get outlet() {
     return '.child-el'
   }
 
-  createRenderRoot () {
+  createRenderRoot() {
     return this
   }
 
-  render () {
+  render() {
     return html`<div class="child-el"></div>`
   }
 }
@@ -30,11 +29,11 @@ class ParentView extends withEvents(LitElement) {
 const parentTag = defineCE(ParentView)
 
 class ChildView extends LitElement {
-  createRenderRoot () {
+  createRenderRoot() {
     return this
   }
 
-  render () {
+  render() {
     return html`<h2>Child</h2>
       <router-outlet></router-outlet>`
   }
@@ -43,11 +42,11 @@ class ChildView extends LitElement {
 const childTag = defineCE(ChildView)
 
 class GrandChildView extends LitElement {
-  createRenderRoot () {
+  createRenderRoot() {
     return this
   }
 
-  render () {
+  render() {
     return html`Grandchild`
   }
 }
@@ -59,10 +58,10 @@ describe('Async Render', () => {
     document.body.innerHTML = '<div id="main"></div>'
     router = new Router({
       location: 'memory',
-      outlet: document.getElementById('main')
+      outlet: document.getElementById('main'),
     })
     ParentRoute = class extends Route {
-      component () {
+      component() {
         return ParentView
       }
     }
@@ -73,7 +72,7 @@ describe('Async Render', () => {
         route('child', { class: ChildRoute, component: childTag }, function () {
           route('grandchild', {
             class: GrandchildRoute,
-            component: GrandChildView
+            component: GrandChildView,
           })
         })
       })
@@ -117,7 +116,7 @@ describe('Async Render', () => {
       await routeEl.updateComplete
       const el = document.getElementById('main')
       expect(el).lightDom.to.equal(
-        `<${parentTag}><div class="child-el"><${childTag}><h2>Child</h2><router-outlet><${grandChildTag}>Grandchild</${grandChildTag}></router-outlet></${childTag}></div></${parentTag}>`
+        `<${parentTag}><div class="child-el"><${childTag}><h2>Child</h2><router-outlet><${grandChildTag}>Grandchild</${grandChildTag}></router-outlet></${childTag}></div></${parentTag}>`,
       )
     })
   })

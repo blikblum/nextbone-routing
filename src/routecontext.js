@@ -1,4 +1,4 @@
-export function findContext (route, property) {
+export function findContext(route, property) {
   let parentRoute = route.$parent
   while (parentRoute) {
     const providedContexts = parentRoute.constructor.providedContexts

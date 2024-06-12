@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it */
 
 import { Route, Router } from '../src/index'
@@ -27,17 +26,17 @@ describe('Lifecycle hooks', () => {
       function (transition) {
         currentTransition = transition
       },
-      { at: 0 }
+      { at: 0 },
     )
     RootRoute = class extends Route {
-      load () {}
+      load() {}
     }
     ParentRoute = class extends Route {
-      load () {}
+      load() {}
     }
     ChildRoute = class extends Route {}
     GrandChildRoute = class extends Route {
-      load () {}
+      load() {}
     }
     LeafRoute = class extends Route {}
     Child2Route = class extends Route {}
@@ -46,18 +45,14 @@ describe('Lifecycle hooks', () => {
     DynGrandChildRoute = class extends Route {}
 
     routes = function (route) {
-      route(
-        'parent',
-        { class: ParentRoute, classOptions: { x: 1 }, arbitrary: 3 },
-        function () {
-          route('child', { class: ChildRoute }, function () {
-            route('grandchild', { class: GrandChildRoute }, function () {
-              route('leaf', { class: LeafRoute })
-            })
+      route('parent', { class: ParentRoute, classOptions: { x: 1 }, arbitrary: 3 }, function () {
+        route('child', { class: ChildRoute }, function () {
+          route('grandchild', { class: GrandChildRoute }, function () {
+            route('leaf', { class: LeafRoute })
           })
-          route('child2', { class: Child2Route })
-        }
-      )
+        })
+        route('child2', { class: Child2Route })
+      })
       route('root', { class: RootRoute })
       route('dynparent', { class: DynParentRoute }, function () {
         route('dynchild', { path: ':id', class: DynChildRoute }, function () {
@@ -215,25 +210,19 @@ describe('Lifecycle hooks', () => {
       const parentSpy = sinon
         .stub(ParentRoute.prototype, 'activate')
         .callsFake(function (transition) {
-          return new Promise((resolve) => setTimeout(resolve, 100)).then(
-            parentPromiseSpy
-          )
+          return new Promise((resolve) => setTimeout(resolve, 100)).then(parentPromiseSpy)
         })
       const childPromiseSpy = sinon.spy()
       const childSpy = sinon
         .stub(ChildRoute.prototype, 'activate')
         .callsFake(function (transition) {
-          return new Promise((resolve) => setTimeout(resolve, 50)).then(
-            childPromiseSpy
-          )
+          return new Promise((resolve) => setTimeout(resolve, 50)).then(childPromiseSpy)
         })
       const grandChildPromiseSpy = sinon.spy()
       const grandChildSpy = sinon
         .stub(GrandChildRoute.prototype, 'activate')
         .callsFake(function () {
-          return new Promise((resolve) => setTimeout(resolve, 100)).then(
-            grandChildPromiseSpy
-          )
+          return new Promise((resolve) => setTimeout(resolve, 100)).then(grandChildPromiseSpy)
         })
       const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router
@@ -282,12 +271,10 @@ describe('Lifecycle hooks', () => {
     it('should cancel transition if returns false', function (done) {
       let transition
       const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      const childStub = sinon
-        .stub(ChildRoute.prototype, 'activate')
-        .callsFake(function (t) {
-          transition = t
-          return false
-        })
+      const childStub = sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (t) {
+        transition = t
+        return false
+      })
       const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'activate')
       const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
       router
@@ -446,24 +433,18 @@ describe('Lifecycle hooks', () => {
     })
 
     it('should not cancel the transition when returned promise is rejected', function () {
-      const parentStub = sinon
-        .stub(ParentRoute.prototype, 'load')
-        .callsFake(function () {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          return Promise.reject()
-        })
+      const parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
+        return Promise.reject()
+      })
       return router.transitionTo('child').then(function () {
         expect(parentStub).to.be.calledOnce
       })
     })
 
     it('should be called even if a parent load is rejected', function (done) {
-      const parentStub = sinon
-        .stub(ParentRoute.prototype, 'load')
-        .callsFake(function () {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          return Promise.reject()
-        })
+      const parentStub = sinon.stub(ParentRoute.prototype, 'load').callsFake(function () {
+        return Promise.reject()
+      })
       const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'load')
       router
         .transitionTo('leaf')
@@ -547,25 +528,19 @@ describe('Lifecycle hooks', () => {
       const childSpy = sinon
         .stub(ChildRoute.prototype, 'deactivate')
         .callsFake(function (transition) {
-          return new Promise((resolve) => setTimeout(resolve, 50)).then(
-            childPromiseSpy
-          )
+          return new Promise((resolve) => setTimeout(resolve, 50)).then(childPromiseSpy)
         })
       const grandChildPromiseSpy = sinon.spy()
       const grandChildSpy = sinon
         .stub(GrandChildRoute.prototype, 'deactivate')
         .callsFake(function (transition) {
-          return new Promise((resolve) => setTimeout(resolve, 50)).then(
-            grandChildPromiseSpy
-          )
+          return new Promise((resolve) => setTimeout(resolve, 50)).then(grandChildPromiseSpy)
         })
       const leafPromiseSpy = sinon.spy()
       const leafSpy = sinon
         .stub(LeafRoute.prototype, 'deactivate')
         .callsFake(function (transition) {
-          return new Promise((resolve) => setTimeout(resolve, 100)).then(
-            leafPromiseSpy
-          )
+          return new Promise((resolve) => setTimeout(resolve, 100)).then(leafPromiseSpy)
         })
       router
         .transitionTo('leaf')
@@ -619,12 +594,10 @@ describe('Lifecycle hooks', () => {
     it('should cancel the transition if returns false', function (done) {
       let transition
       const parentSpy = sinon.spy(ParentRoute.prototype, 'deactivate')
-      const childStub = sinon
-        .stub(ChildRoute.prototype, 'deactivate')
-        .callsFake(function (t) {
-          transition = t
-          return false
-        })
+      const childStub = sinon.stub(ChildRoute.prototype, 'deactivate').callsFake(function (t) {
+        transition = t
+        return false
+      })
       const grandChildSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
       const leafSpy = sinon.spy(LeafRoute.prototype, 'deactivate')
       router

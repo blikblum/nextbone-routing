@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it */
 
 import { Route, Router } from '../src/index'
@@ -13,25 +12,21 @@ describe('Route context', () => {
     router = new Router({ location: 'memory', outlet: null })
     RootRoute = class extends Route {}
     ParentRoute = class extends Route {
-      internalProp = 'Parent Internal Stuff';
+      internalProp = 'Parent Internal Stuff'
     }
     ChildRoute = class extends Route {}
     GrandChildRoute = class extends Route {
-      internalProp = 'Internal Stuff';
+      internalProp = 'Internal Stuff'
     }
     LeafRoute = class extends Route {}
     routes = function (route) {
-      route(
-        'parent',
-        { class: ParentRoute, classOptions: { x: 1 } },
-        function () {
-          route('child', { class: ChildRoute }, function () {
-            route('grandchild', { class: GrandChildRoute }, function () {
-              route('leaf', { class: LeafRoute })
-            })
+      route('parent', { class: ParentRoute, classOptions: { x: 1 } }, function () {
+        route('child', { class: ChildRoute }, function () {
+          route('grandchild', { class: GrandChildRoute }, function () {
+            route('leaf', { class: LeafRoute })
           })
-        }
-      )
+        })
+      })
       route('root', { class: RootRoute })
     }
     router.map(routes)
@@ -46,14 +41,12 @@ describe('Route context', () => {
     let contextValue, contextProperty
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'The Context Reloaded' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
-    sinon
-      .stub(LeafRoute.prototype, 'activate')
-      .callsFake(function (transition) {
-        contextValue = this.context.parentValue
-        contextProperty = this.context.parentProperty
-      })
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
+    })
     router
       .transitionTo('leaf')
       .then(function () {
@@ -68,14 +61,12 @@ describe('Route context', () => {
     let contextValue, contextProperty
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'The Context Reloaded' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
-    sinon
-      .stub(LeafRoute.prototype, 'deactivate')
-      .callsFake(function (transition) {
-        contextValue = this.context.parentValue
-        contextProperty = this.context.parentProperty
-      })
+    sinon.stub(LeafRoute.prototype, 'deactivate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
+    })
     router
       .transitionTo('leaf')
       .then(function () {
@@ -93,7 +84,7 @@ describe('Route context', () => {
     let leafRoute
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'The Context Reloaded' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
     sinon.stub(LeafRoute.prototype, 'activate').callsFake(function () {
       leafRoute = this
@@ -115,7 +106,7 @@ describe('Route context', () => {
     let leafRoute
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'The Context Reloaded' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
     sinon.stub(LeafRoute.prototype, 'activate').callsFake(function () {
       leafRoute = this
@@ -141,14 +132,12 @@ describe('Route context', () => {
     let contextProperty = 'Original Property'
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'The Context Reloaded' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
-    sinon
-      .stub(ChildRoute.prototype, 'activate')
-      .callsFake(function (transition) {
-        contextValue = this.context.parentValue
-        contextProperty = this.context.parentProperty
-      })
+    sinon.stub(ChildRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
+    })
     router
       .transitionTo('leaf')
       .then(function () {
@@ -164,20 +153,18 @@ describe('Route context', () => {
 
     ParentRoute.providedContexts = {
       parentValue: { value: 'Parent Context' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
 
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'Grand Child Context' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
 
-    sinon
-      .stub(LeafRoute.prototype, 'activate')
-      .callsFake(function (transition) {
-        contextValue = this.context.parentValue
-        contextProperty = this.context.parentProperty
-      })
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.parentValue
+      contextProperty = this.context.parentProperty
+    })
     router
       .transitionTo('leaf')
       .then(function () {
@@ -193,15 +180,13 @@ describe('Route context', () => {
     let contextProperty = 'Original Property'
     GrandChildRoute.providedContexts = {
       parentValue: { value: 'Grand Child Context' },
-      parentProperty: { property: 'internalProp' }
+      parentProperty: { property: 'internalProp' },
     }
 
-    sinon
-      .stub(LeafRoute.prototype, 'activate')
-      .callsFake(function (transition) {
-        contextValue = this.context.otherParentValue
-        contextProperty = this.context.otherParentProperty
-      })
+    sinon.stub(LeafRoute.prototype, 'activate').callsFake(function (transition) {
+      contextValue = this.context.otherParentValue
+      contextProperty = this.context.otherParentProperty
+    })
     router
       .transitionTo('leaf')
       .then(function () {

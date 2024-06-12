@@ -11,7 +11,7 @@ const getPath = (object, path, value) => {
 
 const parseNumber = (value) => {
   const n = parseFloat(value)
-  const isNumeric = value == n // eslint-disable-line eqeqeq
+  const isNumeric = value == n
   return isNumeric ? n : value
 }
 
@@ -21,7 +21,9 @@ const createElement = (route, Definition) => {
       try {
         return new Definition()
       } catch (error) {
-        throw new Error(`Unable to create instance of "${Definition.name}" for "${route.$name}" route\n${error}`)
+        throw new Error(
+          `Unable to create instance of "${Definition.name}" for "${route.$name}" route\n${error}`,
+        )
       }
     }
     return createElement(route, Definition.call(route))
@@ -35,18 +37,18 @@ const createElement = (route, Definition) => {
 // stores the outletRegion for each element
 const outletRegionMap = new WeakMap()
 
-export const getComponent = route => {
+export const getComponent = (route) => {
   return route.component || route.constructor.component
 }
 
 const contextProxyHandler = {
   get: function (target, property, receiver) {
     return findContext(target, property)
-  }
+  },
 }
 
 const createDomCallback = (route, listener) => {
-  return function domCallback (event) {
+  return function domCallback(event) {
     if (event.currentTarget === route.el) {
       listener.call(route, event)
     }
@@ -54,7 +56,7 @@ const createDomCallback = (route, listener) => {
 }
 
 const createNextboneCallback = (route, listener) => {
-  return function nextboneCallback (...args) {
+  return function nextboneCallback(...args) {
     if (this === route.el) {
       listener.apply(route, args)
     }
@@ -79,34 +81,36 @@ const registerElEvent = (ctor, eventName, listener, dom) => {
   elEvents.push({ eventName, listener, dom })
 }
 
-export const elEvent = (eventName, options = {}) => (targetOrDescriptor, methodName, fieldDescriptor) => {
-  const { dom: defaultDom = true } = elEvent
-  const { dom = defaultDom } = options
-  if (typeof methodName !== 'string') {
-    // spec
-    const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
-    return {
-      kind,
-      placement,
-      descriptor,
-      initializer,
-      key,
-      finisher (ctor) {
-        registerElEvent(ctor, eventName, descriptor.value, dom)
+export const elEvent =
+  (eventName, options = {}) =>
+  (targetOrDescriptor, methodName, fieldDescriptor) => {
+    const { dom: defaultDom = true } = elEvent
+    const { dom = defaultDom } = options
+    if (typeof methodName !== 'string') {
+      // spec
+      const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
+      return {
+        kind,
+        placement,
+        descriptor,
+        initializer,
+        key,
+        finisher(ctor) {
+          registerElEvent(ctor, eventName, descriptor.value, dom)
+        },
       }
     }
+    registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, dom)
   }
-  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, dom)
-}
 
 const registerProperty = (ctor, name, key, options = {}) => {
   const properties = ctor.__properties || (ctor.__properties = [])
   properties.push({ name, ...options })
   const desc = {
-    get () {
+    get() {
       return this[key]
     },
-    set (value) {
+    set(value) {
       const oldValue = this[key]
       if (value === oldValue) return
       if (options.to && this.el) {
@@ -116,7 +120,7 @@ const registerProperty = (ctor, name, key, options = {}) => {
       this.trigger(`change:${name}`, value, oldValue)
     },
     configurable: true,
-    enumerable: true
+    enumerable: true,
   }
   Object.defineProperty(ctor.prototype, name, desc)
 }
@@ -141,16 +145,16 @@ export const property = (optionsOrProtoOrDescriptor, fieldName, options) => {
       descriptor,
       initializer,
       key,
-      finisher (ctor) {
+      finisher(ctor) {
         registerProperty(ctor, name, key, options)
-      }
+      },
     }
   }
   registerProperty(optionsOrProtoOrDescriptor.constructor, name, key, options)
 }
 
 export class Route extends Events {
-  constructor (classOptions, router, { name, path, options }) {
+  constructor(classOptions, router, { name, path, options }) {
     super()
     this.$router = router
     this.$name = name
@@ -159,24 +163,18 @@ export class Route extends Events {
     this.initialize(classOptions)
   }
 
-  initialize () {
+  initialize() {}
 
-  }
+  activate() {}
 
-  activate () {
+  deactivate() {}
 
-  }
-
-  deactivate () {
-
-  }
-
-  _deleteInstanceProperties () {
+  _deleteInstanceProperties() {
     // workaround to buggy legacy decorator babel implementation
     const properties = this.constructor.__properties
     if (properties) {
       properties.forEach(({ name }) => {
-        if (this.hasOwnProperty(name)) { // eslint-disable-line
+        if (this.hasOwnProperty(name)) {
           const value = this[name]
           delete this[name]
           this[`__${name}`] = value
@@ -185,7 +183,7 @@ export class Route extends Events {
     }
   }
 
-  _applyProperties (el, transition, $route) {
+  _applyProperties(el, transition, $route) {
     el.$route = $route
     const properties = this.$options.properties
     if (properties) Object.assign(el, properties)
@@ -208,17 +206,19 @@ export class Route extends Events {
     }
   }
 
-  _prepareEl (el, transition, $route) {
+  _prepareEl(el, transition, $route) {
     this._applyProperties(el, transition, $route)
     if (this.prepareEl) this.prepareEl(el, transition)
   }
 
-  renderEl (region, transition, $route) {
+  renderEl(region, transition, $route) {
     if (this.el && this.updateEl(transition)) return
 
     const el = createElement(this, getComponent(this))
     if (!el) {
-      throw new Error(`${this.constructor.name}: component has invalid value ${getComponent(this)}. Expected a string or HTMLElement`)
+      throw new Error(
+        `${this.constructor.name}: component has invalid value ${getComponent(this)}. Expected a string or HTMLElement`,
+      )
     }
     if (this.constructor._elEvents) bindElEvents(this, el, this.constructor._elEvents)
     this._prepareEl(el, transition, $route)
@@ -233,19 +233,17 @@ export class Route extends Events {
     this.$router.trigger('render', this)
   }
 
-  updateEl () {
+  updateEl() {}
 
-  }
-
-  get context () {
+  get context() {
     return new Proxy(this, contextProxyHandler)
   }
 
-  createOutlet (el) {
+  createOutlet(el) {
     return new Region(el)
   }
 
-  getOutlet () {
+  getOutlet() {
     let outletRegion = outletRegionMap.get(this.el)
     if (!outletRegion) {
       const root = this.el.shadowRoot ? this.el.shadowRoot : this.el
@@ -259,7 +257,7 @@ export class Route extends Events {
     return outletRegion
   }
 
-  destroy () {
+  destroy() {
     this.stopListening()
   }
 }

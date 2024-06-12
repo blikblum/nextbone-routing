@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it */
 
 import { Route, Router } from '../src/index'
@@ -12,7 +11,7 @@ use(sinonChai)
 let router, routes
 let ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
 
-function AsyncChildRoute () {
+function AsyncChildRoute() {
   return new Promise(function (resolve) {
     setTimeout(function () {
       resolve(ChildRoute)
@@ -20,7 +19,7 @@ function AsyncChildRoute () {
   })
 }
 
-function AsyncChildComponent () {
+function AsyncChildComponent() {
   return new Promise(function (resolve) {
     setTimeout(function () {
       resolve('my-component')
@@ -37,19 +36,15 @@ describe('Route configuration', () => {
     LeafRoute = class extends Route {}
 
     routes = function (route) {
-      route(
-        'parent',
-        { class: ParentRoute, classOptions: { x: 1 } },
-        function () {
-          route('child', { class: ChildRoute }, function () {
-            route('grandchild', {}, function () {
-              route('leaf', {})
-            })
+      route('parent', { class: ParentRoute, classOptions: { x: 1 } }, function () {
+        route('child', { class: ChildRoute }, function () {
+          route('grandchild', {}, function () {
+            route('leaf', {})
           })
-          route('child2', { class: AsyncChildRoute })
-          route('child3', { component: AsyncChildComponent })
-        }
-      )
+        })
+        route('child2', { class: AsyncChildRoute })
+        route('child3', { component: AsyncChildComponent })
+      })
     }
     router.map(routes)
     router.listen()
@@ -65,7 +60,7 @@ describe('Route configuration', () => {
         grandchild: GrandChildRoute,
         leaf: function () {
           return LeafRoute
-        }
+        },
       }
 
       const spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
@@ -83,7 +78,7 @@ describe('Route configuration', () => {
         grandchild: GrandChildModule,
         leaf: function () {
           return LeafModule
-        }
+        },
       }
 
       const spy = sinon.spy(GrandChildRoute.prototype, 'initialize')
@@ -104,7 +99,7 @@ describe('Route configuration', () => {
             resolve(LeafRoute)
           }, 200)
         })
-      }
+      },
     }
     const spy = sinon.spy(LeafRoute.prototype, 'initialize')
     return router.transitionTo('leaf').then(function () {
@@ -124,9 +119,7 @@ describe('Route configuration', () => {
     router.rootOutlet = new Region(rootEl)
     const transition = router.transitionTo('child3')
     await transition
-    const route = transition.instances.find(
-      (route) => route.$name === 'child3'
-    )
+    const route = transition.instances.find((route) => route.$name === 'child3')
     expect(route.component).to.be.equal('my-component')
     expect(rootEl.innerHTML).to.be.equal('<my-component></my-component>')
   })

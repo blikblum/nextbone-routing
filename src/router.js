@@ -19,7 +19,7 @@ let instanceMap = Object.create(null)
 let router
 
 export class Router extends SlickRouter {
-  constructor (options = {}) {
+  constructor(options = {}) {
     if (router) {
       throw new Error('Instance of router already created')
     }
@@ -29,7 +29,7 @@ export class Router extends SlickRouter {
     router = this
   }
 
-  destroy () {
+  destroy() {
     this.off()
     router = null
     instanceMap = Object.create(null)
@@ -39,26 +39,29 @@ export class Router extends SlickRouter {
 
 Events.extend(Router.prototype)
 
-function getChangingIndex (prevRoutes, currentRoutes) {
+function getChangingIndex(prevRoutes, currentRoutes) {
   let index, prev, current
   const count = Math.max(prevRoutes.length, currentRoutes.length)
   for (index = 0; index < count; index++) {
     prev = prevRoutes[index]
     current = currentRoutes[index]
-    if (!(prev && current) || (prev.name !== current.name) || !isEqual(prev.params, current.params)) {
+    if (!(prev && current) || prev.name !== current.name || !isEqual(prev.params, current.params)) {
       break
     }
   }
   return index
 }
 
-function findRouteClass (options, routeName, index, routes) {
+function findRouteClass(options, routeName, index, routes) {
   let result = options.class
   // look in parent routes
   if (!result) {
-    const parentRoutes = routes.slice(0, index).reverse().map(function (route) {
-      return instanceMap[route.name]
-    })
+    const parentRoutes = routes
+      .slice(0, index)
+      .reverse()
+      .map(function (route) {
+        return instanceMap[route.name]
+      })
     parentRoutes.some(function (route) {
       const childRoutes = route.constructor.childRoutes
       result = childRoutes && childRoutes[routeName]
@@ -68,7 +71,7 @@ function findRouteClass (options, routeName, index, routes) {
   return result
 }
 
-function createRouteInstance (RouteClass = Route, component, route) {
+function createRouteInstance(RouteClass = Route, component, route) {
   const classOptions = extend({}, route.options.classOptions)
 
   if (RouteClass.__esModule) RouteClass = RouteClass.default
@@ -80,7 +83,7 @@ function createRouteInstance (RouteClass = Route, component, route) {
   return result
 }
 
-async function resolveRoute (route, index, routes) {
+async function resolveRoute(route, index, routes) {
   let component = route.options.component
   if (isFunction(component) && !(component.prototype instanceof HTMLElement)) {
     component = await component.call(route)
@@ -93,7 +96,7 @@ async function resolveRoute (route, index, routes) {
   return createRouteInstance(RouteClass, component, route)
 }
 
-function ensureRegion (elOrRegion) {
+function ensureRegion(elOrRegion) {
   if (elOrRegion instanceof HTMLElement) {
     return new Region(elOrRegion)
   } else if (elOrRegion instanceof Region) {
@@ -101,9 +104,10 @@ function ensureRegion (elOrRegion) {
   }
 }
 
-function resolveRootOutlet () {
+function resolveRootOutlet() {
   const outletOption = router.options.outlet || 'app-root'
-  const outlet = typeof outletOption === 'string' ? document.querySelector(outletOption) : outletOption
+  const outlet =
+    typeof outletOption === 'string' ? document.querySelector(outletOption) : outletOption
 
   if (typeof outlet === 'function') {
     router.rootOutlet = ensureRegion(outlet())
@@ -114,7 +118,7 @@ function resolveRootOutlet () {
   return router.rootOutlet
 }
 
-function getParentRegion (routes, route) {
+function getParentRegion(routes, route) {
   let region, parent
   let routeIndex = routes.indexOf(route) - 1
   while (routeIndex >= 0) {
@@ -135,7 +139,7 @@ function getParentRegion (routes, route) {
   return router.rootOutlet || resolveRootOutlet()
 }
 
-async function renderElements (instances, activated, transition) {
+async function renderElements(instances, activated, transition) {
   // ensure at least the target (last) route is rendered
   const renderCandidates = activated.length ? activated : instances.slice(-1)
 
@@ -165,7 +169,7 @@ async function renderElements (instances, activated, transition) {
   }
 }
 
-async function runAsyncMethod (transition, routes, method) {
+async function runAsyncMethod(transition, routes, method) {
   for (const route of routes) {
     router.trigger(`before:${method}`, transition, route)
   }
@@ -183,16 +187,16 @@ async function runAsyncMethod (transition, routes, method) {
   }
 }
 
-function isActivatingRoute (route) {
+function isActivatingRoute(route) {
   return this.activating && this.activating.indexOf(route) !== -1
 }
 
-function isTargetRoute (route) {
+function isTargetRoute(route) {
   return this.instances && this.instances.indexOf(route) === this.instances.length - 1
 }
 
 const middleware = {
-  resolve: async function routeResolver (transition) {
+  resolve: async function routeResolver(transition) {
     transition.isActivating = isActivatingRoute
     transition.isTarget = isTargetRoute
 
@@ -216,7 +220,7 @@ const middleware = {
     await runAsyncMethod(transition, deactivated, 'deactivate')
 
     // build route tree and creating instances if necessary
-    const instances = transition.instances = []
+    const instances = (transition.instances = [])
 
     for (let i = 0; i < transition.routes.length; i++) {
       const route = transition.routes[i]
@@ -232,7 +236,7 @@ const middleware = {
       }
     }
     // activate routes in order
-    const activated = transition.activating = instances.slice(changingIndex)
+    const activated = (transition.activating = instances.slice(changingIndex))
 
     await runAsyncMethod(transition, activated, 'activate')
 
@@ -242,12 +246,11 @@ const middleware = {
       if (isFunction(instance.load)) {
         try {
           await instance.load(transition)
-        } catch (error) {
-        }
+        } catch (error) {}
       }
     }
 
-    deactivated.forEach(route => {
+    deactivated.forEach((route) => {
       if (activated.indexOf(route) === -1) {
         route.el = undefined
       }
@@ -270,5 +273,5 @@ const middleware = {
   error: function (transition, err) {
     router.trigger('transition:abort', transition, err)
     router.trigger('transition:error', transition, err)
-  }
+  },
 }

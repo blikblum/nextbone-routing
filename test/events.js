@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it,assert */
 
 import { defer } from 'lodash-es'
@@ -20,7 +19,7 @@ describe('Events', () => {
       function (transition) {
         currentTransition = transition
       },
-      { at: 0 }
+      { at: 0 },
     )
     RootRoute = class extends Route {}
     ParentRoute = class extends Route {}
@@ -28,17 +27,13 @@ describe('Events', () => {
     GrandChildRoute = class extends Route {}
     LeafRoute = class extends Route {}
     routes = function (route) {
-      route(
-        'parent',
-        { class: ParentRoute, classOptions: { x: 1 } },
-        function () {
-          route('child', { class: ChildRoute }, function () {
-            route('grandchild', { class: GrandChildRoute }, function () {
-              route('leaf', { class: LeafRoute })
-            })
+      route('parent', { class: ParentRoute, classOptions: { x: 1 } }, function () {
+        route('child', { class: ChildRoute }, function () {
+          route('grandchild', { class: GrandChildRoute }, function () {
+            route('leaf', { class: LeafRoute })
           })
-        }
-      )
+        })
+      })
       route('root', { class: RootRoute })
     }
     router.map(routes)
@@ -345,13 +340,9 @@ describe('Events', () => {
       const spy = sinon.spy()
       const promiseSpy = sinon.spy()
       router.on('activate', spy)
-      const rootSpy = sinon
-        .stub(RootRoute.prototype, 'activate')
-        .callsFake(function () {
-          return new Promise((resolve) => setTimeout(resolve, 100)).then(
-            promiseSpy
-          )
-        })
+      const rootSpy = sinon.stub(RootRoute.prototype, 'activate').callsFake(function () {
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
+      })
       router
         .transitionTo('root')
         .then(function () {
@@ -367,11 +358,9 @@ describe('Events', () => {
     it('should not be triggered when transition is cancelled in activate method', function (done) {
       const spy = sinon.spy()
       router.on('activate', spy)
-      sinon
-        .stub(RootRoute.prototype, 'activate')
-        .callsFake(function (transition) {
-          transition.cancel()
-        })
+      sinon.stub(RootRoute.prototype, 'activate').callsFake(function (transition) {
+        transition.cancel()
+      })
       router.transitionTo('root').catch(function () {
         defer(function () {
           expect(spy).to.not.be.called
@@ -507,13 +496,9 @@ describe('Events', () => {
       const spy = sinon.spy()
       const promiseSpy = sinon.spy()
       router.on('deactivate', spy)
-      const rootSpy = sinon
-        .stub(RootRoute.prototype, 'deactivate')
-        .callsFake(function () {
-          return new Promise((resolve) => setTimeout(resolve, 100)).then(
-            promiseSpy
-          )
-        })
+      const rootSpy = sinon.stub(RootRoute.prototype, 'deactivate').callsFake(function () {
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
+      })
       router
         .transitionTo('root')
         .then(function () {

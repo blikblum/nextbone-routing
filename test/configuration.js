@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 /* global describe,beforeEach,afterEach,it */
 
 import { Router } from '../src/index'
@@ -9,11 +8,11 @@ import { expect } from 'chai'
 let router, routes
 
 class ParentView extends HTMLElement {
-  static get outlet () {
+  static get outlet() {
     return '.child-el'
   }
 
-  connectedCallback () {
+  connectedCallback() {
     this.innerHTML = '<div class="child-el"></div>'
   }
 }
@@ -37,9 +36,7 @@ describe('root outlet', () => {
     await router.listen()
     await router.transitionTo('parent')
     expect(router.rootOutlet).to.be.instanceOf(Region)
-    expect(router.rootOutlet.targetEl).to.be.equal(
-      document.querySelector('app-root')
-    )
+    expect(router.rootOutlet.targetEl).to.be.equal(document.querySelector('app-root'))
   })
 
   it('can be defined as a Region instance', async () => {
@@ -54,7 +51,7 @@ describe('root outlet', () => {
     class MyRegion extends Region {}
     router = new Router({
       outlet: () => new MyRegion(document.getElementById('main')),
-      routes
+      routes,
     })
     await router.listen()
     await router.transitionTo('parent')
@@ -84,9 +81,7 @@ describe('root outlet', () => {
     await router.listen()
     await router.transitionTo('parent')
     expect(router.rootOutlet).to.be.instanceOf(Region)
-    expect(router.rootOutlet.targetEl).to.be.equal(
-      document.getElementById('main')
-    )
+    expect(router.rootOutlet.targetEl).to.be.equal(document.getElementById('main'))
   })
 })
 
