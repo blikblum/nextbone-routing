@@ -1,14 +1,21 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it,sinon,expect */
+/* global describe,beforeEach,afterEach,it */
 
+import 'jquery'
 import { Route, Router, elEvent, property } from '../src/index'
 import { view, on } from 'nextbone'
 import { pick, defer } from 'lodash-es'
-import $ from 'jquery'
 import { defineCE } from '@open-wc/testing-helpers'
+import sinon from 'sinon'
+import { expect, use } from 'chai'
+import sinonChai from 'sinon-chai-es'
+
+use(sinonChai)
 
 let router, routes
 let RootRoute, ParentRoute, ChildRoute, LeafRoute
+
+const { $ } = window
 
 @view
 class ParentView extends HTMLElement {
@@ -46,7 +53,10 @@ function normalizeState (state) {
 describe('Render', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="main"></div>'
-    router = new Router({ location: 'memory', outlet: document.getElementById('main') })
+    router = new Router({
+      location: 'memory',
+      outlet: document.getElementById('main')
+    })
     ParentRoute = class extends Route {
       static get component () {
         return ParentView
@@ -87,46 +97,71 @@ describe('Render', () => {
 
   describe('component', function () {
     it('can be defined in the Route class as a static property', function (done) {
-      router.transitionTo('parent').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
-        done()
-      }).catch(done)
+      router
+        .transitionTo('parent')
+        .then(function () {
+          expect($('#main').html()).to.be.equal(
+            `<${parentTag}><div class="child-el"></div></${parentTag}>`
+          )
+          done()
+        })
+        .catch(done)
     })
 
     it('can be defined in the Route class as a function', function (done) {
-      const componentSpy = sinon.stub(RootRoute.prototype, 'component').callThrough()
-      router.transitionTo('root').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
-        expect(componentSpy).to.be.calledOnce
-        expect(componentSpy).to.be.calledOn(router.state.instances[0])
-        done()
-      }).catch(done)
+      const componentSpy = sinon
+        .stub(RootRoute.prototype, 'component')
+        .callThrough()
+      router
+        .transitionTo('root')
+        .then(function () {
+          expect($('#main').html()).to.be.equal(
+            `<${parentTag}><div class="child-el"></div></${parentTag}>`
+          )
+          expect(componentSpy).to.be.calledOnce
+          expect(componentSpy).to.be.calledOn(router.state.instances[0])
+          done()
+        })
+        .catch(done)
     })
 
     it('can be passed through component, without a class', function (done) {
-      router.transitionTo('root2').then(function () {
-        expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root2')
+        .then(function () {
+          expect($('#main').html()).to.be.equal(
+            `<${parentTag}><div class="child-el"></div></${parentTag}>`
+          )
+          done()
+        })
+        .catch(done)
     })
 
     describe('of a root route', function () {
       it('should be rendered in rootOutlet', function (done) {
-        router.transitionTo('parent').then(function () {
-          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
-          done()
-        }).catch(done)
+        router
+          .transitionTo('parent')
+          .then(function () {
+            expect($('#main').html()).to.be.equal(
+              `<${parentTag}><div class="child-el"></div></${parentTag}>`
+            )
+            done()
+          })
+          .catch(done)
       })
 
       it('should abort transition when no rootOutlet is defined', function (done) {
         router.options.outlet = undefined
-        router.transitionTo('parent').then(function () {
-          done('transition resolved')
-        }).catch(function (error) {
-          expect(error).to.be.an('error')
-          expect(error.message).to.be.equal('No root outlet region defined')
-          done()
-        })
+        router
+          .transitionTo('parent')
+          .then(function () {
+            done('transition resolved')
+          })
+          .catch(function (error) {
+            expect(error).to.be.an('error')
+            expect(error.message).to.be.equal('No root outlet region defined')
+            done()
+          })
       })
 
       it('should not abort transition when no rootOutlet is defined and el is prerendered', function () {
@@ -140,52 +175,79 @@ describe('Render', () => {
 
     describe('of a child route', function () {
       it('should be rendered in the outlet region of the nearest route with an el', function (done) {
-        router.transitionTo('grandchild').then(function () {
-          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`)
-          done()
-        }).catch(done)
+        router
+          .transitionTo('grandchild')
+          .then(function () {
+            expect($('#main').html()).to.be.equal(
+              `<${parentTag}><div class="child-el"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`
+            )
+            done()
+          })
+          .catch(done)
       })
 
       it('when re-activated should be rendered in the outlet region of the updated parent el', function (done) {
-        router.transitionTo('grandchild').then(function () {
-          return router.transitionTo('root')
-        }).then(function () {
-          return router.transitionTo('grandchild')
-        }).then(function () {
-          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`)
-          done()
-        }).catch(done)
+        router
+          .transitionTo('grandchild')
+          .then(function () {
+            return router.transitionTo('root')
+          })
+          .then(function () {
+            return router.transitionTo('grandchild')
+          })
+          .then(function () {
+            expect($('#main').html()).to.be.equal(
+              `<${parentTag}><div class="child-el"><${grandChildTag}>Grandchild</${grandChildTag}></div></${parentTag}>`
+            )
+            done()
+          })
+          .catch(done)
       })
 
       it('should abort transition if no outlet region is defined in the nearest route with a el', function (done) {
-        router.transitionTo('leaf').then(function () {
-          done('transition resolved')
-        }).catch(function (error) {
-          expect(error).to.be.an('error')
-          expect(error.message).to.be.equal('No outlet region defined in grandchild route')
-          done()
-        })
+        router
+          .transitionTo('leaf')
+          .then(function () {
+            done('transition resolved')
+          })
+          .catch(function (error) {
+            expect(error).to.be.an('error')
+            expect(error.message).to.be.equal(
+              'No outlet region defined in grandchild route'
+            )
+            done()
+          })
       })
 
       it('should look for outlet region in the parent routes when route with a el has option outlet = false', function () {
-        return router.transitionTo('root2').then(function () {
-          // force root2 render el before going to leaf2
-          return router.transitionTo('leaf2')
-        }).then(function () {
-          expect($('#main').html()).to.be.equal(`<${leafTag}>Leaf</${leafTag}>`)
-        })
+        return router
+          .transitionTo('root2')
+          .then(function () {
+            // force root2 render el before going to leaf2
+            return router.transitionTo('leaf2')
+          })
+          .then(function () {
+            expect($('#main').html()).to.be.equal(
+              `<${leafTag}>Leaf</${leafTag}>`
+            )
+          })
       })
     })
 
     describe('of a target route', function () {
       it('should be rendered even if already activated', function () {
         const spy = sinon.spy(ParentRoute.prototype, 'renderEl')
-        return router.transitionTo('grandchild').then(function () {
-          return router.transitionTo('parent')
-        }).then(function () {
-          expect(spy).to.be.calledTwice
-          expect($('#main').html()).to.be.equal(`<${parentTag}><div class="child-el"></div></${parentTag}>`)
-        })
+        return router
+          .transitionTo('grandchild')
+          .then(function () {
+            return router.transitionTo('parent')
+          })
+          .then(function () {
+            expect(spy).to.be.calledTwice
+            expect($('#main').html()).to.be.equal(
+              `<${parentTag}><div class="child-el"></div></${parentTag}>`
+            )
+          })
       })
     })
   })
@@ -195,7 +257,11 @@ describe('Render', () => {
       const spy = sinon.spy(ParentRoute.prototype, 'renderEl')
       const transition = router.transitionTo('parent')
       return transition.then(function () {
-        expect(spy).to.be.calledOnceWithExactly(router.rootOutlet, transition, sinon.match(normalizeState(transition)))
+        expect(spy).to.be.calledOnceWithExactly(
+          router.rootOutlet,
+          transition,
+          sinon.match(normalizeState(transition))
+        )
       })
     })
 
@@ -233,27 +299,33 @@ describe('Render', () => {
     it('should be called when the route is re rendered', function () {
       const spy = sinon.spy(RootRoute.prototype, 'updateEl')
       let transition
-      return router.transitionTo('root').then(function () {
-        expect(spy).not.to.be.called
-        // force a new render
-        transition = router.transitionTo('root', {}, { id: 1 })
-        return transition
-      }).then(function () {
-        expect(spy).to.be.calledOnceWithExactly(transition)
-      })
+      return router
+        .transitionTo('root')
+        .then(function () {
+          expect(spy).not.to.be.called
+          // force a new render
+          transition = router.transitionTo('root', {}, { id: 1 })
+          return transition
+        })
+        .then(function () {
+          expect(spy).to.be.calledOnceWithExactly(transition)
+        })
     })
 
     it('should be called when the route is re activated', function () {
       const spy = sinon.spy(RootRoute.prototype, 'updateEl')
       let transition
-      return router.transitionTo('rootWithParam', { id: 0 }).then(function () {
-        expect(spy).not.to.be.called
-        // force a new render
-        transition = router.transitionTo('rootWithParam', { id: 1 })
-        return transition
-      }).then(function () {
-        expect(spy).to.be.calledOnceWithExactly(transition)
-      })
+      return router
+        .transitionTo('rootWithParam', { id: 0 })
+        .then(function () {
+          expect(spy).not.to.be.called
+          // force a new render
+          transition = router.transitionTo('rootWithParam', { id: 1 })
+          return transition
+        })
+        .then(function () {
+          expect(spy).to.be.calledOnceWithExactly(transition)
+        })
     })
 
     it('should prevent el re render if returns truthy', function () {
@@ -266,22 +338,28 @@ describe('Render', () => {
         return true
       }
 
-      return router.transitionTo('parent').then(function () {
-        savedEl = routeInstance.el
-        // force a new render
-        return router.transitionTo('parent', {}, { id: 1 })
-      }).then(function () {
-        expect(savedEl).to.be.equal(routeInstance.el)
-      })
+      return router
+        .transitionTo('parent')
+        .then(function () {
+          savedEl = routeInstance.el
+          // force a new render
+          return router.transitionTo('parent', {}, { id: 1 })
+        })
+        .then(function () {
+          expect(savedEl).to.be.equal(routeInstance.el)
+        })
     })
   })
 
   describe('prepareEl', function () {
     it('should be called with a HTML and transition', function () {
-      const spy = ParentRoute.prototype.prepareEl = sinon.spy()
+      const spy = (ParentRoute.prototype.prepareEl = sinon.spy())
       const transition = router.transitionTo('parent')
       return transition.then(function () {
-        expect(spy).to.be.calledOnceWithExactly(sinon.match.instanceOf(HTMLElement), transition)
+        expect(spy).to.be.calledOnceWithExactly(
+          sinon.match.instanceOf(HTMLElement),
+          transition
+        )
       })
     })
 
@@ -300,23 +378,29 @@ describe('Render', () => {
         routeInstance = this
       })
 
-      return router.transitionTo('parent').then(function () {
-        return router.transitionTo('root')
-      }).then(function () {
-        expect(routeInstance.el).to.not.exist
-      })
+      return router
+        .transitionTo('parent')
+        .then(function () {
+          return router.transitionTo('root')
+        })
+        .then(function () {
+          expect(routeInstance.el).to.not.exist
+        })
     })
 
     it('should be set to undefined when a child of a route with option outlet = false is rendered', function () {
       let routeInstance
-      return router.transitionTo('root2').then(function () {
-        routeInstance = router.state.instances[0]
-        expect(routeInstance.el).to.exist
-        // force root2 render el before going to leaf2
-        return router.transitionTo('leaf2')
-      }).then(function () {
-        expect(routeInstance.el).to.not.exist
-      })
+      return router
+        .transitionTo('root2')
+        .then(function () {
+          routeInstance = router.state.instances[0]
+          expect(routeInstance.el).to.exist
+          // force root2 render el before going to leaf2
+          return router.transitionTo('leaf2')
+        })
+        .then(function () {
+          expect(routeInstance.el).to.not.exist
+        })
     })
 
     it('should not be set to undefined after rendering the same route', function () {
@@ -325,11 +409,14 @@ describe('Render', () => {
         routeInstance = this
       })
 
-      return router.transitionTo('parent').then(function () {
-        return router.transitionTo('parent', {}, { page: 1 })
-      }).then(function () {
-        expect(routeInstance.el).to.exist
-      })
+      return router
+        .transitionTo('parent')
+        .then(function () {
+          return router.transitionTo('parent', {}, { page: 1 })
+        })
+        .then(function () {
+          expect(routeInstance.el).to.exist
+        })
     })
 
     it('should have a $router property pointing to router', function (done) {
@@ -337,10 +424,13 @@ describe('Render', () => {
       sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
       })
-      router.transitionTo('parent').then(function () {
-        expect(routeInstance.el.$router).to.be.equal(router)
-        done()
-      }).catch(done)
+      router
+        .transitionTo('parent')
+        .then(function () {
+          expect(routeInstance.el.$router).to.be.equal(router)
+          done()
+        })
+        .catch(done)
     })
 
     it('should have a $route property pointing to router state', function (done) {
@@ -348,13 +438,21 @@ describe('Render', () => {
       sinon.stub(ParentRoute.prototype, 'initialize').callsFake(function () {
         routeInstance = this
       })
-      router.transitionTo('parent').then(function () {
-        expect(routeInstance.el.$route).to.be.deep.equal(normalizeState(router.state))
-        return router.transitionTo('child')
-      }).then(() => {
-        expect(routeInstance.el.$route).to.be.deep.equal(normalizeState(router.state))
-        done()
-      }).catch(done)
+      router
+        .transitionTo('parent')
+        .then(function () {
+          expect(routeInstance.el.$route).to.be.deep.equal(
+            normalizeState(router.state)
+          )
+          return router.transitionTo('child')
+        })
+        .then(() => {
+          expect(routeInstance.el.$route).to.be.deep.equal(
+            normalizeState(router.state)
+          )
+          done()
+        })
+        .catch(done)
     })
 
     it('should have $route property at the time is connected', async function () {
@@ -418,41 +516,50 @@ describe('Render', () => {
         }
       }
 
-      const rootRoute = router.routes.find(route => route.name === 'root')
+      const rootRoute = router.routes.find((route) => route.name === 'root')
       rootRoute.options.class = RootRoute
     })
 
     it('will listen to view events and call registered handlers', function (done) {
-      router.transitionTo('root').then(function () {
-        const routeInstance = router.state.instances[0]
-        routeInstance.el.trigger('my:event', 1, 'a')
-        routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
-        expect(mySpy).to.be.calledOn(routeInstance)
-        expect(mySpy).to.be.calledOnceWithExactly(1, 'a')
-        expect(otherSpy).to.not.be.called
+      router
+        .transitionTo('root')
+        .then(function () {
+          const routeInstance = router.state.instances[0]
+          routeInstance.el.trigger('my:event', 1, 'a')
+          routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
+          expect(mySpy).to.be.calledOn(routeInstance)
+          expect(mySpy).to.be.calledOnceWithExactly(1, 'a')
+          expect(otherSpy).to.not.be.called
 
-        expect(myNativeSpy).to.be.calledOn(routeInstance)
-        expect(myNativeSpy).to.be.calledOnceWith(sinon.match({ type: 'my:native:event' }))
-        expect(otherNativeSpy).to.not.be.called
-        done()
-      }).catch(done)
+          expect(myNativeSpy).to.be.calledOn(routeInstance)
+          expect(myNativeSpy).to.be.calledOnceWith(
+            sinon.match({ type: 'my:native:event' })
+          )
+          expect(otherNativeSpy).to.not.be.called
+          done()
+        })
+        .catch(done)
     })
 
     it('will stop listening to view events when deactivated', function (done) {
       let rootEl
-      router.transitionTo('root').then(function () {
-        const routeInstance = router.state.instances[0]
-        rootEl = routeInstance.el
-        return router.transitionTo('parent')
-      }).then(function () {
-        rootEl.trigger('my:event')
-        rootEl.dispatchEvent(new CustomEvent('my:native:event'))
-        expect(mySpy).to.not.be.called
-        expect(otherSpy).to.not.be.called
-        expect(myNativeSpy).to.not.be.called
-        expect(otherNativeSpy).to.not.be.called
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root')
+        .then(function () {
+          const routeInstance = router.state.instances[0]
+          rootEl = routeInstance.el
+          return router.transitionTo('parent')
+        })
+        .then(function () {
+          rootEl.trigger('my:event')
+          rootEl.dispatchEvent(new CustomEvent('my:native:event'))
+          expect(mySpy).to.not.be.called
+          expect(otherSpy).to.not.be.called
+          expect(myNativeSpy).to.not.be.called
+          expect(otherNativeSpy).to.not.be.called
+          done()
+        })
+        .catch(done)
     })
 
     it('will throw if element is not decorated with nextbone#view', function (done) {
@@ -461,13 +568,18 @@ describe('Render', () => {
         defineCE(Vanilla)
         return Vanilla
       }
-      router.transitionTo('root').then(function () {
-        done('should throw')
-      }).catch(function (err) {
-        expect(err).to.be.instanceOf(Error)
-        expect(err.message).to.be.equal('elEvent: component "Vanilla" is not a view')
-        done()
-      })
+      router
+        .transitionTo('root')
+        .then(function () {
+          done('should throw')
+        })
+        .catch(function (err) {
+          expect(err).to.be.instanceOf(Error)
+          expect(err.message).to.be.equal(
+            'elEvent: component "Vanilla" is not a view'
+          )
+          done()
+        })
     })
 
     it('will throw if element is not registered', function (done) {
@@ -475,13 +587,18 @@ describe('Render', () => {
         class NonRegistered extends view(HTMLElement) {}
         return NonRegistered
       }
-      router.transitionTo('root').then(function () {
-        done('should throw')
-      }).catch(function (err) {
-        expect(err).to.be.instanceOf(Error)
-        expect(err.message).to.be.equal('Unable to create instance of "NonRegistered" for "root" route\nTypeError: Illegal constructor')
-        done()
-      })
+      router
+        .transitionTo('root')
+        .then(function () {
+          done('should throw')
+        })
+        .catch(function (err) {
+          expect(err).to.be.instanceOf(Error)
+          expect(err.message).to.be.equal(
+            'Unable to create instance of "NonRegistered" for "root" route\nTypeError: Illegal constructor'
+          )
+          done()
+        })
     })
   })
 
@@ -501,19 +618,23 @@ describe('Render', () => {
         }
 
         @property
-        prop1
+        prop1;
 
         @property({ to: 'xProp' })
-        prop2
+        prop2;
 
         @property({ from: 'params.id', format: 'number' })
-        prop3
+        prop3;
 
-        @property({ from: 'pathname', to: 'path', format: value => `[${value}]` })
-        prop4
+        @property({
+          from: 'pathname',
+          to: 'path',
+          format: (value) => `[${value}]`
+        })
+        prop4;
 
         @property
-        prop5 = 'zzz'
+        prop5 = 'zzz';
 
         @on('change:prop5')
         prop5ChangeEvent () {
@@ -521,21 +642,27 @@ describe('Render', () => {
         }
       }
 
-      let rootRoute = router.routes.find(route => route.name === 'root')
+      let rootRoute = router.routes.find((route) => route.name === 'root')
       rootRoute.options.class = RootRoute
-      rootRoute = router.routes.find(route => route.name === 'rootWithParam')
+      rootRoute = router.routes.find((route) => route.name === 'rootWithParam')
       rootRoute.options.class = RootRoute
     })
 
     it('should trigger an "change" event when value is changed', async function () {
       await router.transitionTo('root')
       const routeInstance = router.state.instances[0]
-      expect(prop1Change).to.be.calledOnce.and.calledOnceWithExactly('xx', undefined)
+      expect(prop1Change).to.be.calledOnce.and.calledOnceWithExactly(
+        'xx',
+        undefined
+      )
       routeInstance.prop1 = 'xx'
       expect(prop1Change).to.be.calledOnce
       prop1Change.resetHistory()
       routeInstance.prop1 = 'yy'
-      expect(prop1Change).to.be.calledOnce.and.calledOnceWithExactly('yy', 'xx')
+      expect(prop1Change).to.be.calledOnce.and.calledOnceWithExactly(
+        'yy',
+        'xx'
+      )
     })
 
     it('should not trigger an "change" event when field is initialized', async function () {

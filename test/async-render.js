@@ -1,10 +1,14 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it,expect */
+/* global describe,beforeEach,afterEach,it */
 
 import { Route, Router } from '../src/index'
 import { withEvents } from 'nextbone'
 import { defineCE } from '@open-wc/testing-helpers'
 import { LitElement, html } from 'lit-element'
+import { expect, use } from 'chai'
+import { chaiDomDiff } from '@open-wc/semantic-dom-diff'
+
+use(chaiDomDiff)
 
 let router, routes
 let ParentRoute, ChildRoute, GrandchildRoute
@@ -31,7 +35,8 @@ class ChildView extends LitElement {
   }
 
   render () {
-    return html`<h2>Child</h2><router-outlet></router-outlet>`
+    return html`<h2>Child</h2>
+      <router-outlet></router-outlet>`
   }
 }
 
@@ -52,16 +57,24 @@ const grandChildTag = defineCE(GrandChildView)
 describe('Async Render', () => {
   beforeEach(() => {
     document.body.innerHTML = '<div id="main"></div>'
-    router = new Router({ location: 'memory', outlet: document.getElementById('main') })
+    router = new Router({
+      location: 'memory',
+      outlet: document.getElementById('main')
+    })
     ParentRoute = class extends Route {
-      component () { return ParentView }
+      component () {
+        return ParentView
+      }
     }
     ChildRoute = class extends Route {}
     GrandchildRoute = class extends Route {}
     routes = function (route) {
       route('parent', { class: ParentRoute }, function () {
         route('child', { class: ChildRoute, component: childTag }, function () {
-          route('grandchild', { class: GrandchildRoute, component: GrandChildView })
+          route('grandchild', {
+            class: GrandchildRoute,
+            component: GrandChildView
+          })
         })
       })
     }
@@ -77,7 +90,7 @@ describe('Async Render', () => {
     let grandChildRenderCb
 
     beforeEach(() => {
-      router.on('render', route => {
+      router.on('render', (route) => {
         if (route.$name === 'grandchild' && grandChildRenderCb) {
           grandChildRenderCb(route)
         }
@@ -88,14 +101,24 @@ describe('Async Render', () => {
       router.off()
     })
 
-    it('should render each route element in parent outlet', function (done) {
-      grandChildRenderCb = async function (route) {
-        await route.el.updateComplete
-        const el = document.getElementById('main')
-        expect(el.innerHTML).to.equal(`<${parentTag}><!----><div class="child-el"><${childTag}><!----><h2>Child</h2><router-outlet><${grandChildTag}><!---->Grandchild<!----></${grandChildTag}></router-outlet><!----></${childTag}></div><!----></${parentTag}>`)
-        done()
+    it('should render each route element in parent outlet', async function () {
+      let res, routeEl
+      const promise = new Promise((resolve) => {
+        res = resolve
+      })
+
+      grandChildRenderCb = function (route) {
+        routeEl = route.el
+        res()
       }
-      router.transitionTo('grandchild')
+      await router.transitionTo('grandchild')
+      await promise
+
+      await routeEl.updateComplete
+      const el = document.getElementById('main')
+      expect(el).lightDom.to.equal(
+        `<${parentTag}><div class="child-el"><${childTag}><h2>Child</h2><router-outlet><${grandChildTag}>Grandchild</${grandChildTag}></router-outlet></${childTag}></div></${parentTag}>`
+      )
     })
   })
 })

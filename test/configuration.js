@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it,expect */
+/* global describe,beforeEach,afterEach,it */
 
 import { Router } from '../src/index'
 import { Region } from 'nextbone/dom-utils'
 import { defineCE } from '@open-wc/testing-helpers'
+import { expect } from 'chai'
 
 let router, routes
 
@@ -21,7 +22,9 @@ defineCE(ParentView)
 
 describe('root outlet', () => {
   beforeEach(() => {
-    routes = (route) => { route('parent', { component: ParentView }) }
+    routes = (route) => {
+      route('parent', { component: ParentView })
+    }
     document.body.innerHTML = '<div id="main"></div><app-root></app-root>'
   })
 
@@ -34,7 +37,9 @@ describe('root outlet', () => {
     await router.listen()
     await router.transitionTo('parent')
     expect(router.rootOutlet).to.be.instanceOf(Region)
-    expect(router.rootOutlet.targetEl).to.be.equal(document.querySelector('app-root'))
+    expect(router.rootOutlet.targetEl).to.be.equal(
+      document.querySelector('app-root')
+    )
   })
 
   it('can be defined as a Region instance', async () => {
@@ -47,7 +52,10 @@ describe('root outlet', () => {
 
   it('can be defined as function returning a Region instance', async () => {
     class MyRegion extends Region {}
-    router = new Router({ outlet: () => new MyRegion(document.getElementById('main')), routes })
+    router = new Router({
+      outlet: () => new MyRegion(document.getElementById('main')),
+      routes
+    })
     await router.listen()
     await router.transitionTo('parent')
     expect(router.rootOutlet).to.be.instanceOf(MyRegion)
@@ -76,7 +84,9 @@ describe('root outlet', () => {
     await router.listen()
     await router.transitionTo('parent')
     expect(router.rootOutlet).to.be.instanceOf(Region)
-    expect(router.rootOutlet.targetEl).to.be.equal(document.getElementById('main'))
+    expect(router.rootOutlet.targetEl).to.be.equal(
+      document.getElementById('main')
+    )
   })
 })
 
@@ -90,7 +100,9 @@ describe('route configuration', () => {
   })
 
   it('should accept a route without class or component', async () => {
-    routes = (route) => { route('parent') }
+    routes = (route) => {
+      route('parent')
+    }
     router = new Router({ outlet: '#main', routes })
     await router.listen()
     await router.transitionTo('parent')

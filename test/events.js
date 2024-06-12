@@ -1,8 +1,13 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it,sinon,expect,assert */
+/* global describe,beforeEach,afterEach,it,assert */
 
 import { defer } from 'lodash-es'
 import { Route, Router } from '../src/index'
+import sinon from 'sinon'
+import { expect, use } from 'chai'
+import sinonChai from 'sinon-chai-es'
+
+use(sinonChai)
 
 let router, routes
 let RootRoute, ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
@@ -11,22 +16,29 @@ let currentTransition
 describe('Events', () => {
   beforeEach(() => {
     router = new Router({ location: 'memory', outlet: null })
-    router.use(function (transition) {
-      currentTransition = transition
-    }, { at: 0 })
+    router.use(
+      function (transition) {
+        currentTransition = transition
+      },
+      { at: 0 }
+    )
     RootRoute = class extends Route {}
     ParentRoute = class extends Route {}
     ChildRoute = class extends Route {}
     GrandChildRoute = class extends Route {}
     LeafRoute = class extends Route {}
     routes = function (route) {
-      route('parent', { class: ParentRoute, classOptions: { x: 1 } }, function () {
-        route('child', { class: ChildRoute }, function () {
-          route('grandchild', { class: GrandChildRoute }, function () {
-            route('leaf', { class: LeafRoute })
+      route(
+        'parent',
+        { class: ParentRoute, classOptions: { x: 1 } },
+        function () {
+          route('child', { class: ChildRoute }, function () {
+            route('grandchild', { class: GrandChildRoute }, function () {
+              route('leaf', { class: LeafRoute })
+            })
           })
-        })
-      })
+        }
+      )
       route('root', { class: RootRoute })
     }
     router.map(routes)
@@ -44,21 +56,27 @@ describe('Events', () => {
         spy()
         expect(transition).to.be.equal(currentTransition)
       })
-      router.transitionTo('root').then(function () {
-        expect(spy).to.be.calledOnce
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root')
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          done()
+        })
+        .catch(done)
     })
 
     it('should be triggered before a transition', function (done) {
       const spy = sinon.spy()
       router.on('before:transition', spy)
       const rootSpy = sinon.spy(RootRoute.prototype, 'initialize')
-      router.transitionTo('root').then(function () {
-        expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledBefore(rootSpy)
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root')
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          expect(spy).to.be.calledBefore(rootSpy)
+          done()
+        })
+        .catch(done)
     })
 
     it('should allow to cancel the transition', function (done) {
@@ -68,14 +86,17 @@ describe('Events', () => {
         transition.cancel()
       })
       const rootSpy = sinon.spy(RootRoute.prototype, 'initialize')
-      router.transitionTo('root').then(function () {
-        assert.fail('resolve transition should not be called')
-        done()
-      }).catch(function () {
-        expect(spy).to.be.calledOnce
-        expect(rootSpy).to.not.be.called
-        done()
-      })
+      router
+        .transitionTo('root')
+        .then(function () {
+          assert.fail('resolve transition should not be called')
+          done()
+        })
+        .catch(function () {
+          expect(spy).to.be.calledOnce
+          expect(rootSpy).to.not.be.called
+          done()
+        })
     })
   })
 
@@ -86,12 +107,15 @@ describe('Events', () => {
         spy()
         expect(transition).to.be.equal(currentTransition)
       })
-      router.transitionTo('root').then(function () {
-        Promise.resolve().then(function () {
-          expect(spy).to.be.calledOnce
-          done()
+      router
+        .transitionTo('root')
+        .then(function () {
+          Promise.resolve().then(function () {
+            expect(spy).to.be.calledOnce
+            done()
+          })
         })
-      }).catch(done)
+        .catch(done)
     })
 
     it('should be triggered after a transition is resolved', function (done) {
@@ -101,13 +125,16 @@ describe('Events', () => {
         spy()
       })
       const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
-      router.transitionTo('leaf').then(function () {
-        Promise.resolve().then(function () {
-          expect(spy).to.be.calledOnce
-          expect(spy).to.be.calledAfter(leafSpy)
-          done()
+      router
+        .transitionTo('leaf')
+        .then(function () {
+          Promise.resolve().then(function () {
+            expect(spy).to.be.calledOnce
+            expect(spy).to.be.calledAfter(leafSpy)
+            done()
+          })
         })
-      }).catch(done)
+        .catch(done)
     })
   })
 
@@ -283,14 +310,17 @@ describe('Events', () => {
         transition.cancel()
       })
       const rootSpy = sinon.spy(RootRoute.prototype, 'activate')
-      router.transitionTo('root').then(function () {
-        assert.fail('resolve transition should not be called')
-        done()
-      }).catch(function () {
-        expect(spy).to.be.calledOnce
-        expect(rootSpy).to.not.be.called
-        done()
-      })
+      router
+        .transitionTo('root')
+        .then(function () {
+          assert.fail('resolve transition should not be called')
+          done()
+        })
+        .catch(function () {
+          expect(spy).to.be.calledOnce
+          expect(rootSpy).to.not.be.called
+          done()
+        })
     })
   })
 
@@ -302,34 +332,46 @@ describe('Events', () => {
         expect(transition).to.be.equal(currentTransition)
         expect(route).to.be.instanceof(RootRoute)
       })
-      router.transitionTo('root').then(function () {
-        expect(spy).to.be.calledOnce
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root')
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          done()
+        })
+        .catch(done)
     })
 
     it('should be triggered after activate method is resolved', function (done) {
       const spy = sinon.spy()
       const promiseSpy = sinon.spy()
       router.on('activate', spy)
-      const rootSpy = sinon.stub(RootRoute.prototype, 'activate').callsFake(function () {
-        return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
-      })
-      router.transitionTo('root').then(function () {
-        expect(spy).to.be.calledOnce
-        expect(promiseSpy).to.be.calledOnce
-        expect(spy).to.be.calledAfter(rootSpy)
-        expect(spy).to.be.calledAfter(promiseSpy)
-        done()
-      }).catch(done)
+      const rootSpy = sinon
+        .stub(RootRoute.prototype, 'activate')
+        .callsFake(function () {
+          return new Promise((resolve) => setTimeout(resolve, 100)).then(
+            promiseSpy
+          )
+        })
+      router
+        .transitionTo('root')
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          expect(promiseSpy).to.be.calledOnce
+          expect(spy).to.be.calledAfter(rootSpy)
+          expect(spy).to.be.calledAfter(promiseSpy)
+          done()
+        })
+        .catch(done)
     })
 
     it('should not be triggered when transition is cancelled in activate method', function (done) {
       const spy = sinon.spy()
       router.on('activate', spy)
-      sinon.stub(RootRoute.prototype, 'activate').callsFake(function (transition) {
-        transition.cancel()
-      })
+      sinon
+        .stub(RootRoute.prototype, 'activate')
+        .callsFake(function (transition) {
+          transition.cancel()
+        })
       router.transitionTo('root').catch(function () {
         defer(function () {
           expect(spy).to.not.be.called
@@ -347,14 +389,17 @@ describe('Events', () => {
         }
       })
       const leafSpy = sinon.spy(LeafRoute.prototype, 'activate')
-      router.transitionTo('leaf').then(function () {
-        assert.fail('resolve transition should not be called')
-        done()
-      }).catch(function () {
-        expect(spy).to.be.calledThrice
-        expect(leafSpy).to.not.be.called
-        done()
-      })
+      router
+        .transitionTo('leaf')
+        .then(function () {
+          assert.fail('resolve transition should not be called')
+          done()
+        })
+        .catch(function () {
+          expect(spy).to.be.calledThrice
+          expect(leafSpy).to.not.be.called
+          done()
+        })
     })
   })
 
@@ -366,25 +411,33 @@ describe('Events', () => {
         expect(transition).to.be.equal(currentTransition)
         expect(route).to.be.instanceof(RootRoute)
       })
-      router.transitionTo('root').then(function () {
-        return router.transitionTo('parent')
-      }).then(function () {
-        expect(spy).to.be.calledOnce
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root')
+        .then(function () {
+          return router.transitionTo('parent')
+        })
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          done()
+        })
+        .catch(done)
     })
 
     it('should be triggered before deactivate of same route', function (done) {
       const spy = sinon.spy()
       router.on('before:deactivate', spy)
       const rootSpy = sinon.spy(RootRoute.prototype, 'deactivate')
-      router.transitionTo('root').then(function () {
-        return router.transitionTo('parent')
-      }).then(function () {
-        expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledBefore(rootSpy)
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root')
+        .then(function () {
+          return router.transitionTo('parent')
+        })
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          expect(spy).to.be.calledBefore(rootSpy)
+          done()
+        })
+        .catch(done)
     })
 
     it('should be triggered before deactivate of child route', function () {
@@ -395,12 +448,15 @@ describe('Events', () => {
         }
       })
       const childSpy = sinon.spy(GrandChildRoute.prototype, 'deactivate')
-      return router.transitionTo('grandchild').then(function () {
-        return router.transitionTo('root')
-      }).then(function () {
-        expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledBefore(childSpy)
-      })
+      return router
+        .transitionTo('grandchild')
+        .then(function () {
+          return router.transitionTo('root')
+        })
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          expect(spy).to.be.calledBefore(childSpy)
+        })
     })
 
     it('should allow to cancel the transition', function (done) {
@@ -410,16 +466,20 @@ describe('Events', () => {
         transition.cancel()
       })
       const rootSpy = sinon.spy(RootRoute.prototype, 'deactivate')
-      router.transitionTo('root').then(function () {
-        return router.transitionTo('parent')
-      }).then(function () {
-        assert.fail('resolve transition should not be called')
-        done()
-      }).catch(function () {
-        expect(spy).to.be.calledOnce
-        expect(rootSpy).to.not.be.called
-        done()
-      })
+      router
+        .transitionTo('root')
+        .then(function () {
+          return router.transitionTo('parent')
+        })
+        .then(function () {
+          assert.fail('resolve transition should not be called')
+          done()
+        })
+        .catch(function () {
+          expect(spy).to.be.calledOnce
+          expect(rootSpy).to.not.be.called
+          done()
+        })
     })
   })
 
@@ -431,29 +491,41 @@ describe('Events', () => {
         expect(transition).to.be.equal(currentTransition)
         expect(route).to.be.instanceof(RootRoute)
       })
-      router.transitionTo('root').then(function () {
-        return router.transitionTo('parent')
-      }).then(function () {
-        expect(spy).to.be.calledOnce
-        done()
-      }).catch(done)
+      router
+        .transitionTo('root')
+        .then(function () {
+          return router.transitionTo('parent')
+        })
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          done()
+        })
+        .catch(done)
     })
 
     it('should be triggered after deactivate method is resolved', function (done) {
       const spy = sinon.spy()
       const promiseSpy = sinon.spy()
       router.on('deactivate', spy)
-      const rootSpy = sinon.stub(RootRoute.prototype, 'deactivate').callsFake(function () {
-        return new Promise((resolve) => setTimeout(resolve, 100)).then(promiseSpy)
-      })
-      router.transitionTo('root').then(function () {
-        return router.transitionTo('parent')
-      }).then(function () {
-        expect(spy).to.be.calledOnce
-        expect(spy).to.be.calledAfter(rootSpy)
-        expect(spy).to.be.calledAfter(promiseSpy)
-        done()
-      }).catch(done)
+      const rootSpy = sinon
+        .stub(RootRoute.prototype, 'deactivate')
+        .callsFake(function () {
+          return new Promise((resolve) => setTimeout(resolve, 100)).then(
+            promiseSpy
+          )
+        })
+      router
+        .transitionTo('root')
+        .then(function () {
+          return router.transitionTo('parent')
+        })
+        .then(function () {
+          expect(spy).to.be.calledOnce
+          expect(spy).to.be.calledAfter(rootSpy)
+          expect(spy).to.be.calledAfter(promiseSpy)
+          done()
+        })
+        .catch(done)
     })
 
     it('should allow to cancel the transition', function (done) {
@@ -463,16 +535,20 @@ describe('Events', () => {
         transition.cancel()
       })
       const parentSpy = sinon.spy(ParentRoute.prototype, 'activate')
-      router.transitionTo('root').then(function () {
-        return router.transitionTo('parent')
-      }).then(function () {
-        assert.fail('resolve transition should not be called')
-        done()
-      }).catch(function () {
-        expect(spy).to.be.calledOnce
-        expect(parentSpy).to.not.be.called
-        done()
-      })
+      router
+        .transitionTo('root')
+        .then(function () {
+          return router.transitionTo('parent')
+        })
+        .then(function () {
+          assert.fail('resolve transition should not be called')
+          done()
+        })
+        .catch(function () {
+          expect(spy).to.be.calledOnce
+          expect(parentSpy).to.not.be.called
+          done()
+        })
     })
   })
 })

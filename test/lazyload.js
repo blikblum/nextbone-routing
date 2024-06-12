@@ -1,8 +1,13 @@
 /* eslint-disable no-unused-expressions */
-/* global describe,beforeEach,afterEach,it,sinon,expect */
+/* global describe,beforeEach,afterEach,it */
 
 import { Route, Router } from '../src/index'
 import { Region } from 'nextbone/dom-utils'
+import sinon from 'sinon'
+import { expect, use } from 'chai'
+import sinonChai from 'sinon-chai-es'
+
+use(sinonChai)
 
 let router, routes
 let ParentRoute, ChildRoute, GrandChildRoute, LeafRoute
@@ -32,15 +37,19 @@ describe('Route configuration', () => {
     LeafRoute = class extends Route {}
 
     routes = function (route) {
-      route('parent', { class: ParentRoute, classOptions: { x: 1 } }, function () {
-        route('child', { class: ChildRoute }, function () {
-          route('grandchild', {}, function () {
-            route('leaf', {})
+      route(
+        'parent',
+        { class: ParentRoute, classOptions: { x: 1 } },
+        function () {
+          route('child', { class: ChildRoute }, function () {
+            route('grandchild', {}, function () {
+              route('leaf', {})
+            })
           })
-        })
-        route('child2', { class: AsyncChildRoute })
-        route('child3', { component: AsyncChildComponent })
-      })
+          route('child2', { class: AsyncChildRoute })
+          route('child3', { component: AsyncChildComponent })
+        }
+      )
     }
     router.map(routes)
     router.listen()
@@ -115,7 +124,9 @@ describe('Route configuration', () => {
     router.rootOutlet = new Region(rootEl)
     const transition = router.transitionTo('child3')
     await transition
-    const route = transition.instances.find(route => route.$name === 'child3')
+    const route = transition.instances.find(
+      (route) => route.$name === 'child3'
+    )
     expect(route.component).to.be.equal('my-component')
     expect(rootEl.innerHTML).to.be.equal('<my-component></my-component>')
   })
