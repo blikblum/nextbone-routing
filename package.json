@@ -1,6 +1,6 @@
 {
   "name": "nextbone-routing",
-  "version": "0.14.0",
+  "version": "1.0.0",
   "description": "A state based router for Nextbone applications",
   "homepage": "https://github.com/blikblum/nextbone-routing",
   "repository": "blikblum/nextbone-routing",
@@ -9,10 +9,19 @@
     "Luiz Américo Pereira Câmara"
   ],
   "license": "MIT",
-  "keywords": [],
+  "keywords": [
+    "nextbone",
+    "router",
+    "routing",
+    "web-components",
+    "lit"
+  ],
   "main": "src/index.js",
   "module": "src/index.js",
   "sideEffects": false,
+  "files": [
+    "src"
+  ],
   "dependencies": {
     "slick-router": "^3.0.0"
   },
