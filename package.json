@@ -10,8 +10,8 @@
   ],
   "license": "MIT",
   "keywords": [],
-  "main": "dist/nextbone-routing.js",
-  "module": "dist/nextbone-routing.js",
+  "main": "src/index.js",
+  "module": "src/index.js",
   "sideEffects": false,
   "dependencies": {
     "slick-router": "^3.0.0"
@@ -33,17 +33,14 @@
     "@web/test-runner": "^0.18.2",
     "@web/test-runner-puppeteer": "^0.16.0",
     "chai": "^5.1.1",
-    "del": "^5.1.0",
     "eslint": "^9.4.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.4.0",
     "jquery": "^3.4.1",
     "lit-element": "^2.2.1",
     "lodash-es": "^4.17.21",
-    "mocha": "^6.2.2",
     "nextbone": "^0.28.3",
     "prettier": "^3.3.2",
-    "rollup": "1.6.0",
     "sinon": "^8.0.2",
     "sinon-chai-es": "^3.7.0"
   },
@@ -52,15 +49,7 @@
     "format": "prettier --write ./src ./test",
     "test": "web-test-runner \"test/**/*.js\" --node-resolve --puppeteer",
     "test:coverage": "web-test-runner \"test/**/*.js\" --node-resolve --coverage",
-    "test:ts-decorator": "web-test-runner \"test/render.js\" --config=web-test-runner.esbuild.config.mjs --node-resolve --puppeteer",
-    "build": "npm run lint && node tools/build",
-    "prepublishOnly": "npm run build"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "env": {
-      "browser": true
-    }
+    "test:ts-decorator": "web-test-runner \"test/render.js\" --config=web-test-runner.esbuild.config.mjs --node-resolve --puppeteer"
   },
   "packageManager": "yarn@4.3.0"
 }
