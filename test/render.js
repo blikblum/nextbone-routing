@@ -476,7 +476,7 @@ describe('Render', () => {
       myNativeSpy = sinon.spy()
       otherNativeSpy = sinon.spy()
 
-      RootRoute = class extends Route {
+      class ElEventTestRoute extends Route {
         component() {
           return ParentView
         }
@@ -501,6 +501,8 @@ describe('Render', () => {
           otherNativeSpy.apply(this, args)
         }
       }
+
+      RootRoute = ElEventTestRoute
 
       const rootRoute = router.routes.find((route) => route.name === 'root')
       rootRoute.options.class = RootRoute
@@ -588,7 +590,7 @@ describe('Render', () => {
     const prop1Change = sinon.spy()
     const prop5Change = sinon.spy()
     beforeEach(() => {
-      RootRoute = class extends Route {
+      class PropertyTestRoute extends Route {
         component() {
           return ParentView
         }
@@ -623,6 +625,8 @@ describe('Render', () => {
           prop5Change()
         }
       }
+
+      RootRoute = PropertyTestRoute
 
       let rootRoute = router.routes.find((route) => route.name === 'root')
       rootRoute.options.class = RootRoute

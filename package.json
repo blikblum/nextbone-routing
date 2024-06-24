@@ -28,6 +28,7 @@
     "@open-wc/semantic-dom-diff": "^0.20.1",
     "@open-wc/testing-helpers": "^1.4.0",
     "@rollup/plugin-babel": "^6.0.4",
+    "@web/dev-server-esbuild": "^1.0.2",
     "@web/dev-server-rollup": "^0.6.3",
     "@web/test-runner": "^0.18.2",
     "@web/test-runner-puppeteer": "^0.16.0",
@@ -51,6 +52,7 @@
     "format": "prettier --write ./src ./test",
     "test": "web-test-runner \"test/**/*.js\" --node-resolve --puppeteer",
     "test:coverage": "web-test-runner \"test/**/*.js\" --node-resolve --coverage",
+    "test:ts-decorator": "web-test-runner \"test/render.js\" --config=web-test-runner.esbuild.config.mjs --node-resolve --puppeteer",
     "build": "npm run lint && node tools/build",
     "prepublishOnly": "npm run build"
   },
