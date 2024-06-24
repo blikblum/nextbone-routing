@@ -552,6 +552,22 @@ describe('Render', () => {
   })
 
   describe('property', function () {
+    function fromCustomInit(id) {
+      return {
+        init(set) {
+          set('custom-' + id)
+        },
+      }
+    }
+
+    function fromCustomTransition(id) {
+      return {
+        transition(transition, set) {
+          set(transition.pathname + id)
+        },
+      }
+    }
+
     const prop1Change = sinon.spy()
     const prop5Change = sinon.spy()
     beforeEach(() => {
@@ -584,6 +600,12 @@ describe('Render', () => {
 
         @property
         prop5 = 'zzz'
+
+        @property({ from: fromCustomInit(3) })
+        prop6
+
+        @property({ from: fromCustomTransition('XXX') })
+        prop7
 
         @on('change:prop5')
         prop5ChangeEvent() {
@@ -622,12 +644,13 @@ describe('Render', () => {
       const routeInstance = router.state.instances[0]
       expect(routeInstance.el.prop1).to.be.undefined
       expect(routeInstance.el.prop2).to.be.undefined
-      expect(routeInstance.el.xProp).to.be.equal('yy')
+      expect(routeInstance.prop2, 'instance.prop2').to.be.equal('yy')
+      expect(routeInstance.el.xProp, 'el.xProp').to.be.equal('yy')
       routeInstance.prop2 = 'a'
       expect(routeInstance.el.xProp).to.be.equal('a')
     })
 
-    it('should read value from transition when "from" option is defined', async function () {
+    it('should read value from transition when "from" option is a string', async function () {
       await router.transitionTo('rootWithParam', { id: 4 })
       const routeInstance = router.state.instances[0]
       expect(routeInstance.prop3).to.be.equal(4)
@@ -654,6 +677,13 @@ describe('Render', () => {
       await router.transitionTo('root.child')
       expect(routeInstance.prop4).to.be.equal('[/root/child]')
       expect(routeInstance.el.path).to.be.equal('[/root/child]')
+    })
+
+    it('should allow to pass a custom hook to "from"', async function () {
+      await router.transitionTo('root')
+      let routeInstance = router.state.instances[0]
+      expect(routeInstance.prop6).to.be.equal('custom-3')
+      expect(routeInstance.prop7).to.be.equal('/rootXXX')
     })
   })
 })

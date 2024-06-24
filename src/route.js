@@ -9,10 +9,81 @@ const getPath = (object, path, value) => {
   return pathArray.reduce((prevObj, key) => prevObj && prevObj[key], object) || value
 }
 
-const parseNumber = (value) => {
+/**
+ * @callback PropertySetter
+ * @param {*} value
+ * @returns {void}
+ */
+
+/**
+ * @typedef PropertyHook
+ * @property {function(PropertySetter): void} [init]
+ * @property {function(Transition, PropertySetter): void} [enter]
+ * @property {function(Transition, PropertySetter): void} [transition]
+ * @property {function(Transition, PropertySetter): void} [leave]
+ * @property {function(any, HTMLElement): void} [update]
+ */
+
+/**
+ * @param {*} value
+ * @return {*}
+ */
+function parseNumber(value) {
   const n = parseFloat(value)
-  const isNumeric = value == n
+  const isNumeric = value == n // eslint-disable-line eqeqeq
   return isNumeric ? n : value
+}
+
+function getFormattedValue(value, format) {
+  let v = value
+  if (v !== undefined) {
+    if (format === 'number') {
+      v = parseNumber(value)
+    } else if (typeof format === 'function') {
+      v = format(value)
+    }
+  }
+  return v
+}
+
+/**
+ * @param {*} value
+ * @returns {PropertyHook}
+ */
+export function fromValue(value) {
+  return {
+    init(setValue) {
+      setValue(value)
+    },
+  }
+}
+
+/**
+ *
+ * @param {string} path
+ * @param {string | Function} format
+ * @returns {PropertyHook}
+ */
+export function fromTransition(path, format) {
+  return {
+    transition(transition, setValue) {
+      setValue(getPath(transition, path), format)
+    },
+  }
+}
+
+function runPropertyHookMethod(transition, route, method) {
+  const propertiesData = route._propertiesData
+  if (!propertiesData) {
+    return
+  }
+  for (const { hooks, set } of Object.values(propertiesData)) {
+    hooks.forEach((hook) => {
+      if (typeof hook[method] === 'function') {
+        hook[method](transition, set)
+      }
+    })
+  }
 }
 
 const createElement = (route, Definition) => {
@@ -86,6 +157,26 @@ export const elEvent = (eventName) => (targetOrDescriptor, methodName, fieldDesc
 
 export const eventHandler = elEvent
 
+function getPropertyHooks({ from }) {
+  const result = []
+  switch (typeof from) {
+    case 'string':
+      result.push(fromTransition(from))
+      break
+    case 'object':
+      if (from) {
+        result.push(from)
+      }
+      break
+
+    default:
+      result.push(fromValue(from))
+      break
+  }
+
+  return result
+}
+
 const registerProperty = (ctor, name, key, options = {}) => {
   const properties = ctor.__properties || (ctor.__properties = [])
   properties.push({ name, ...options })
@@ -143,6 +234,31 @@ export class Route extends Events {
     this.$name = name
     this.$path = path
     this.$options = options
+    const properties = this.constructor.__properties
+    if (properties) {
+      const propertiesData = (this._propertiesData = {})
+      for (const { name, ...options } of properties) {
+        const hooks = getPropertyHooks(options)
+
+        const set = (v, format) => {
+          let newValue = getFormattedValue(v, format)
+          newValue = getFormattedValue(newValue, options.format)
+          this[name] = newValue
+          hooks.forEach((hook) => {
+            if (typeof hook.update === 'function') {
+              hook.update(newValue, el)
+            }
+          })
+        }
+        propertiesData[name] = { hooks, set }
+        hooks.forEach((hook) => {
+          if (typeof hook.init === 'function') {
+            hook.init(set)
+          }
+        })
+      }
+    }
+
     this.initialize(classOptions)
   }
 
@@ -170,18 +286,10 @@ export class Route extends Events {
     el.$route = $route
     const properties = this.$options.properties
     if (properties) Object.assign(el, properties)
+    runPropertyHookMethod(transition, this, 'transition')
     const classProperties = this.constructor.__properties
     if (classProperties) {
-      classProperties.forEach(({ name, from, to, format }) => {
-        if (from) {
-          let result = getPath(transition, from)
-          if (format === 'number') {
-            result = parseNumber(result)
-          } else if (typeof format === 'function') {
-            result = format(result)
-          }
-          this[name] = result
-        }
+      classProperties.forEach(({ name, to }) => {
         if (to && !this.el) {
           el[to] = this[name]
         }
