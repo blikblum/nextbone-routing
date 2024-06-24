@@ -1295,9 +1295,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^11.9.5":
-  version: 11.15.3
-  resolution: "@types/node@npm:11.15.3"
-  checksum: 10c0/71a11f03d3314e7859b2d3cc47ca1583a8f322f61c257c55ab1d6b2cd34859a63e0bef85d5cf999d28ee11b68b71ae4b7cfe7bd08effc3a7c3e87964cb987bb1
+  version: 11.15.54
+  resolution: "@types/node@npm:11.15.54"
+  checksum: 10c0/4de756bae8152151c209227f1c75550f67634def4f3624e2d7275c5dac1c38083495b175ace8596f4282e084eb1ca72351b8720129e0918f9c29105ef98ed6ec
   languageName: node
   linkType: hard
 
@@ -1617,11 +1617,11 @@ __metadata:
   linkType: hard
 
 "acorn@npm:^6.1.1":
-  version: 6.4.0
-  resolution: "acorn@npm:6.4.0"
+  version: 6.4.2
+  resolution: "acorn@npm:6.4.2"
   bin:
-    acorn: ./bin/acorn
-  checksum: 10c0/7f390ba7a8c1f088394e842487377e37d1eecf3d543c2a430225b0eca30ed33ef6876757696fa78d90eff704cafaae578c7f17831ac79c34187b50f88643bfaa
+    acorn: bin/acorn
+  checksum: 10c0/52a72d5d785fa64a95880f2951021a38954f8f69a4944dfeab6fb1449b0f02293eae109a56d55b58ff31a90a00d16a804658a12db8ef834c20b3d1201fe5ba5b
   languageName: node
   linkType: hard
 
@@ -4820,7 +4820,7 @@ __metadata:
     rollup: "npm:1.6.0"
     sinon: "npm:^8.0.2"
     sinon-chai-es: "npm:^3.7.0"
-    slick-router: "npm:^2.5.1"
+    slick-router: "npm:^3.0.0"
   peerDependencies:
     lodash-es: ^4.17.15
     nextbone: ^0.20.0
@@ -5183,13 +5183,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-to-regexp@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "path-to-regexp@npm:5.0.0"
-  checksum: 10c0/e132b8b628a3430eca1a2aac295f2778215b035f9f01b87b799c8d466b8a68c7b4cfd5117f675285bfae2bbd780830e10b5f59019336400b7f022178e21a84df
-  languageName: node
-  linkType: hard
-
 "path-type@npm:^4.0.0":
   version: 4.0.0
   resolution: "path-type@npm:4.0.0"
@@ -5405,6 +5398,13 @@ __metadata:
   dependencies:
     picomatch: "npm:^2.2.1"
   checksum: 10c0/6fa848cf63d1b82ab4e985f4cf72bd55b7dcfd8e0a376905804e48c3634b7e749170940ba77b32804d5fe93b3cc521aa95a8d7e7d725f830da6d93f3669ce66b
+  languageName: node
+  linkType: hard
+
+"regexparam@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "regexparam@npm:3.0.0"
+  checksum: 10c0/a6430d7b97d5a7d5518f37a850b6b73aab479029d02f46af4fa0e8e4a1d7aad05b7a0d2d10c86ded21a14d5f0fa4c68525f873a5fca2efeefcccd93c36627459
   languageName: node
   linkType: hard
 
@@ -5762,12 +5762,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"slick-router@npm:^2.5.1":
-  version: 2.5.1
-  resolution: "slick-router@npm:2.5.1"
+"slick-router@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "slick-router@npm:3.0.0"
   dependencies:
-    path-to-regexp: "npm:^5.0.0"
-  checksum: 10c0/ef236c769e92de94187e1a336cd960eb04c99b31a3ce2cff593bf782d7261a4e12a39eb7aa68307c6c9897e5df0f93c6ce3ac0f742668f23f8aa24118ab16b01
+    regexparam: "npm:^3.0.0"
+  checksum: 10c0/63ef407e075a98ef3064a670adaf20fb3ba8cf17b343c4c96f57b176a33ad145080e23166291efcf4f521f85ee61bb02d9a03eba636e0c76b816f70211b90c32
   languageName: node
   linkType: hard
 

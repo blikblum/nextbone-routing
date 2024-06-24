@@ -8,11 +8,12 @@
  */
 
 import { isEqual, isFunction, extend, pick } from 'lodash-es'
-import { Router as SlickRouter } from 'slick-router'
-import { routerLinks } from 'slick-router/middlewares/router-links'
+import { Router as SlickRouter } from 'slick-router/core.js'
+import { routerLinks } from 'slick-router/middlewares/router-links.js'
 import { Events } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import { Route, getComponent } from './route'
+import 'slick-router/components/router-links.js'
 
 let instanceMap = Object.create(null)
 

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
+    "module": "ESNext",
     "moduleResolution": "Bundler"
   }
 }

@@ -14,11 +14,11 @@
   "module": "dist/nextbone-routing.js",
   "sideEffects": false,
   "dependencies": {
-    "slick-router": "^2.5.1"
+    "slick-router": "^3.0.0"
   },
   "peerDependencies": {
-    "lodash-es": "^4.17.15",
-    "nextbone": "^0.20.0"
+    "lodash-es": "^4.17.21",
+    "nextbone": "^0.28.3"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

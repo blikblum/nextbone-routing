@@ -11,4 +11,4 @@ export { Route, elEvent, property } from './route'
 
 export { Router } from './router'
 
-export { withRouterLinks, bindRouterLinks } from 'slick-router/middlewares/router-links'
+export { bindRouterLinks } from 'slick-router/middlewares/router-links.js'
