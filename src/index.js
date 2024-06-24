@@ -7,7 +7,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-export { Route, elEvent, property } from './route'
+export { Route, elEvent, eventHandler, property } from './route'
 
 export { Router } from './router'
 

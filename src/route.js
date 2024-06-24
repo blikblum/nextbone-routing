@@ -84,6 +84,8 @@ export const elEvent = (eventName) => (targetOrDescriptor, methodName, fieldDesc
   registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value)
 }
 
+export const eventHandler = elEvent
+
 const registerProperty = (ctor, name, key, options = {}) => {
   const properties = ctor.__properties || (ctor.__properties = [])
   properties.push({ name, ...options })
