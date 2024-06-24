@@ -47,18 +47,6 @@ function getFormattedValue(value, format) {
 }
 
 /**
- * @param {*} value
- * @returns {PropertyHook}
- */
-export function fromValue(value) {
-  return {
-    init(setValue) {
-      setValue(value)
-    },
-  }
-}
-
-/**
  *
  * @param {string} path
  * @param {string | Function} format
