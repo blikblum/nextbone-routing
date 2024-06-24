@@ -1,4 +1,4 @@
-import { Events, isView } from 'nextbone'
+import { Events } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import { findContext } from './routecontext'
 
@@ -47,7 +47,7 @@ const contextProxyHandler = {
   },
 }
 
-const createDomCallback = (route, listener) => {
+const createCallback = (route, listener) => {
   return function domCallback(event) {
     if (event.currentTarget === route.el) {
       listener.call(route, event)
@@ -55,53 +55,34 @@ const createDomCallback = (route, listener) => {
   }
 }
 
-const createNextboneCallback = (route, listener) => {
-  return function nextboneCallback(...args) {
-    if (this === route.el) {
-      listener.apply(route, args)
-    }
-  }
-}
-
 const bindElEvents = (route, el, events) => {
-  events.forEach(({ eventName, listener, dom }) => {
-    if (dom) {
-      el.addEventListener(eventName, createDomCallback(route, listener))
-    } else {
-      if (!isView(el)) {
-        throw new Error(`elEvent: component "${el.constructor.name}" is not a view`)
-      }
-      el.on(eventName, createNextboneCallback(route, listener))
-    }
+  events.forEach(({ eventName, listener }) => {
+    el.addEventListener(eventName, createCallback(route, listener))
   })
 }
 
-const registerElEvent = (ctor, eventName, listener, dom) => {
+const registerElEvent = (ctor, eventName, listener) => {
   const elEvents = ctor._elEvents || (ctor._elEvents = [])
-  elEvents.push({ eventName, listener, dom })
+  elEvents.push({ eventName, listener })
 }
 
-export const elEvent =
-  (eventName, options = {}) =>
-  (targetOrDescriptor, methodName, fieldDescriptor) => {
-    const { dom: defaultDom = true } = elEvent
-    const { dom = defaultDom } = options
-    if (typeof methodName !== 'string') {
-      // spec
-      const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
-      return {
-        kind,
-        placement,
-        descriptor,
-        initializer,
-        key,
-        finisher(ctor) {
-          registerElEvent(ctor, eventName, descriptor.value, dom)
-        },
-      }
+export const elEvent = (eventName) => (targetOrDescriptor, methodName, fieldDescriptor) => {
+  if (typeof methodName !== 'string') {
+    // spec
+    const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
+    return {
+      kind,
+      placement,
+      descriptor,
+      initializer,
+      key,
+      finisher(ctor) {
+        registerElEvent(ctor, eventName, descriptor.value)
+      },
     }
-    registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value, dom)
   }
+  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value)
+}
 
 const registerProperty = (ctor, name, key, options = {}) => {
   const properties = ctor.__properties || (ctor.__properties = [])

@@ -471,24 +471,12 @@ describe('Render', () => {
   describe('elEvent', function () {
     let mySpy, otherSpy, myNativeSpy, otherNativeSpy
     beforeEach(() => {
-      mySpy = sinon.spy()
-      otherSpy = sinon.spy()
       myNativeSpy = sinon.spy()
       otherNativeSpy = sinon.spy()
 
       class ElEventTestRoute extends Route {
         component() {
           return ParentView
-        }
-
-        @elEvent('my:event', { dom: false })
-        myEventHandler(...args) {
-          mySpy.apply(this, args)
-        }
-
-        @elEvent('other:event', { dom: false })
-        otherEventHandler(...args) {
-          otherSpy.apply(this, args)
         }
 
         @elEvent('my:native:event')
@@ -515,9 +503,6 @@ describe('Render', () => {
           const routeInstance = router.state.instances[0]
           routeInstance.el.trigger('my:event', 1, 'a')
           routeInstance.el.dispatchEvent(new CustomEvent('my:native:event'))
-          expect(mySpy).to.be.calledOn(routeInstance)
-          expect(mySpy).to.be.calledOnceWithExactly(1, 'a')
-          expect(otherSpy).to.not.be.called
 
           expect(myNativeSpy).to.be.calledOn(routeInstance)
           expect(myNativeSpy).to.be.calledOnceWith(sinon.match({ type: 'my:native:event' }))
@@ -539,31 +524,11 @@ describe('Render', () => {
         .then(function () {
           rootEl.trigger('my:event')
           rootEl.dispatchEvent(new CustomEvent('my:native:event'))
-          expect(mySpy).to.not.be.called
-          expect(otherSpy).to.not.be.called
           expect(myNativeSpy).to.not.be.called
           expect(otherNativeSpy).to.not.be.called
           done()
         })
         .catch(done)
-    })
-
-    it('will throw if element is not decorated with nextbone#view', function (done) {
-      RootRoute.prototype.component = function () {
-        class Vanilla extends HTMLElement {}
-        defineCE(Vanilla)
-        return Vanilla
-      }
-      router
-        .transitionTo('root')
-        .then(function () {
-          done('should throw')
-        })
-        .catch(function (err) {
-          expect(err).to.be.instanceOf(Error)
-          expect(err.message).to.be.equal('elEvent: component "Vanilla" is not a view')
-          done()
-        })
     })
 
     it('will throw if element is not registered', function (done) {
