@@ -30,7 +30,7 @@ const getPath = (object, path, value) => {
  */
 function parseNumber(value) {
   const n = parseFloat(value)
-  const isNumeric = value == n // eslint-disable-line eqeqeq
+  const isNumeric = value == n
   return isNumeric ? n : value
 }
 
@@ -168,10 +168,6 @@ function getPropertyHooks({ from }) {
         result.push(from)
       }
       break
-
-    default:
-      result.push(fromValue(from))
-      break
   }
 
   return result
@@ -251,11 +247,6 @@ export class Route extends Events {
           })
         }
         propertiesData[name] = { hooks, set }
-        hooks.forEach((hook) => {
-          if (typeof hook.init === 'function') {
-            hook.init(set)
-          }
-        })
       }
     }
 
@@ -268,17 +259,24 @@ export class Route extends Events {
 
   deactivate() {}
 
-  _deleteInstanceProperties() {
+  _initInstanceProperties() {
     // workaround to buggy legacy decorator babel implementation
-    const properties = this.constructor.__properties
-    if (properties) {
-      properties.forEach(({ name }) => {
+    const { _propertiesData } = this
+    if (_propertiesData) {
+      for (const [name, { hooks, set }] of Object.entries(_propertiesData)) {
         if (this.hasOwnProperty(name)) {
           const value = this[name]
           delete this[name]
           this[`__${name}`] = value
         }
-      })
+
+        // init hooks must be called after constructor to avoid being overwritten by decorator code
+        hooks.forEach((hook) => {
+          if (typeof hook.init === 'function') {
+            hook.init(set)
+          }
+        })
+      }
     }
   }
 
