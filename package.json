@@ -1,6 +1,6 @@
 {
   "name": "nextbone-routing",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A state based router for Nextbone applications",
   "homepage": "https://github.com/blikblum/nextbone-routing",
   "repository": "blikblum/nextbone-routing",
