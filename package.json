@@ -18,9 +18,11 @@
   ],
   "main": "src/index.js",
   "module": "src/index.js",
+  "types": "types/index.d.ts",
   "sideEffects": false,
   "files": [
-    "src"
+    "src",
+    "types"
   ],
   "dependencies": {
     "slick-router": "^3.0.0"
@@ -51,14 +53,16 @@
     "nextbone": "^0.28.3",
     "prettier": "^3.3.2",
     "sinon": "^8.0.2",
-    "sinon-chai-es": "^3.7.0"
+    "sinon-chai-es": "^3.7.0",
+    "typescript": "^5.5.4"
   },
   "scripts": {
     "lint": "eslint",
     "format": "prettier --write ./src ./test",
     "test": "web-test-runner \"test/**/*.js\" --node-resolve --puppeteer",
     "test:coverage": "web-test-runner \"test/**/*.js\" --node-resolve --coverage",
-    "test:ts-decorator": "web-test-runner \"test/render.js\" --config=web-test-runner.esbuild.config.mjs --node-resolve --puppeteer"
+    "test:ts-decorator": "web-test-runner \"test/render.js\" --config=web-test-runner.esbuild.config.mjs --node-resolve --puppeteer",
+    "types": "tsc --project tsconfig.types.json"
   },
   "packageManager": "yarn@4.3.0"
 }

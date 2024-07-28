@@ -2,6 +2,17 @@ import { Events } from 'nextbone'
 import { Region } from 'nextbone/dom-utils'
 import { findContext } from './routecontext'
 
+/**
+ * @import { Transition } from 'slick-router/core.js'
+ */
+
+/**
+ * @param {*} object
+ * @param {string} path
+ * @param {*} value
+ * @returns
+ */
+
 const getPath = (object, path, value) => {
   // Check if path is string or array. Regex : ensure that we do not have '.' and brackets
   const pathArray = Array.isArray(path) ? path : path.split(/[,[\].]/g).filter(Boolean)
@@ -125,24 +136,29 @@ const registerElEvent = (ctor, eventName, listener) => {
   elEvents.push({ eventName, listener })
 }
 
-export const elEvent = (eventName) => (targetOrDescriptor, methodName, fieldDescriptor) => {
-  if (typeof methodName !== 'string') {
-    // spec
-    const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
-    return {
-      kind,
-      placement,
-      descriptor,
-      initializer,
-      key,
-      finisher(ctor) {
-        registerElEvent(ctor, eventName, descriptor.value)
-      },
+/**
+ * @param {string} eventName
+ * @returns {(target: any, propertyKey: string, descriptor: PropertyDescriptor) => void}
+ */
+export function elEvent(eventName) {
+  return (targetOrDescriptor, methodName, fieldDescriptor) => {
+    if (typeof methodName !== 'string') {
+      // spec
+      const { kind, placement, descriptor, initializer, key } = targetOrDescriptor
+      return {
+        kind,
+        placement,
+        descriptor,
+        initializer,
+        key,
+        finisher(ctor) {
+          registerElEvent(ctor, eventName, descriptor.value)
+        },
+      }
     }
+    registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value)
   }
-  registerElEvent(targetOrDescriptor.constructor, eventName, fieldDescriptor.value)
 }
-
 export const eventHandler = elEvent
 
 function getPropertyHooks({ from }) {
@@ -183,7 +199,11 @@ const registerProperty = (ctor, name, key, options = {}) => {
   Object.defineProperty(ctor.prototype, name, desc)
 }
 
-export const property = (optionsOrProtoOrDescriptor, fieldName, options) => {
+/**
+ * @param {*} options
+ * @returns {(target: Object, propertyKey: string | symbol) => void}
+ */
+export function property(optionsOrProtoOrDescriptor, fieldName, options) {
   const isLegacy = typeof fieldName === 'string'
   if (!isLegacy && typeof optionsOrProtoOrDescriptor.kind !== 'string') {
     // passed options
@@ -243,9 +263,15 @@ export class Route extends Events {
 
   initialize() {}
 
-  activate() {}
+  /**
+   * @param {Transition} transition
+   */
+  activate(transition) {}
 
-  deactivate() {}
+  /**
+   * @param {Transition} transition
+   */
+  deactivate(transition) {}
 
   _initInstanceProperties() {
     // workaround to buggy legacy decorator babel implementation
@@ -283,6 +309,11 @@ export class Route extends Events {
     }
   }
 
+  /**
+   * @param {HTMLElement} el
+   * @param {Transition} transition
+   * @param {*} $route
+   */
   _prepareEl(el, transition, $route) {
     this._applyProperties(el, transition, $route)
     if (this.prepareEl) this.prepareEl(el, transition)
