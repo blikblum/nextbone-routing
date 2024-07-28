@@ -1,6 +1,6 @@
 {
   "name": "nextbone-routing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A state based router for Nextbone applications",
   "homepage": "https://github.com/blikblum/nextbone-routing",
   "repository": "blikblum/nextbone-routing",
@@ -25,7 +25,7 @@
     "types"
   ],
   "dependencies": {
-    "slick-router": "^3.0.0"
+    "slick-router": "^3.0.1"
   },
   "peerDependencies": {
     "lodash-es": "^4.17.21",
