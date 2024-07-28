@@ -11,10 +11,31 @@ export function fromTransition(path: string, format: string | Function): Propert
  */
 export function elEvent(eventName: string): (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void;
 /**
- * @param {*} options
+ * @overload
+ * @param {Object} target
+ * @param {string} propertyKey
+ * @returns {void}
+ *
+ * @overload
+ * @param {{from: string | PropertyHook, to: string | PropertyHook, format: 'number' | (any) => any}} optionsOrProtoOrDescriptor
  * @returns {(target: Object, propertyKey: string | symbol) => void}
  */
-export function property(optionsOrProtoOrDescriptor: any, fieldName: any, options: any): (target: any, propertyKey: string | symbol) => void;
+export function property(target: any, propertyKey: string): void;
+/**
+ * @overload
+ * @param {Object} target
+ * @param {string} propertyKey
+ * @returns {void}
+ *
+ * @overload
+ * @param {{from: string | PropertyHook, to: string | PropertyHook, format: 'number' | (any) => any}} optionsOrProtoOrDescriptor
+ * @returns {(target: Object, propertyKey: string | symbol) => void}
+ */
+export function property(optionsOrProtoOrDescriptor: {
+    from: string | PropertyHook;
+    to: string | PropertyHook;
+    format: "number" | ((any: any) => any);
+}): (target: any, propertyKey: string | symbol) => void;
 export function getComponent(route: any): any;
 /**
  * @param {string} eventName
@@ -53,17 +74,20 @@ export class Route extends Events {
     el: any;
     updateEl(): void;
     get context(): any;
-    createOutlet(el: any): Region;
+    /**
+     * @param {HTMLElement} el
+     */
+    createOutlet(el: HTMLElement): Region;
     getOutlet(): any;
     destroy(): void;
 }
 export type PropertySetter = (value: any) => void;
 export type PropertyHook = {
-    init?: (arg0: PropertySetter) => void;
-    enter?: (arg0: Transition, arg1: PropertySetter) => void;
-    transition?: (arg0: Transition, arg1: PropertySetter) => void;
-    leave?: (arg0: Transition, arg1: PropertySetter) => void;
-    update?: (arg0: any, arg1: HTMLElement) => void;
+    init?: (setter: PropertySetter) => void;
+    enter?: (transition: Transition, setter: PropertySetter) => void;
+    transition?: (transition: Transition, setter: PropertySetter) => void;
+    leave?: (transition: Transition, setter: PropertySetter) => void;
+    update?: (value: any, el: HTMLElement) => void;
 };
 import { Events } from 'nextbone';
 import type { Transition } from 'slick-router/core.js';

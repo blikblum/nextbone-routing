@@ -28,11 +28,11 @@ const getPath = (object, path, value) => {
 
 /**
  * @typedef PropertyHook
- * @property {function(PropertySetter): void} [init]
- * @property {function(Transition, PropertySetter): void} [enter]
- * @property {function(Transition, PropertySetter): void} [transition]
- * @property {function(Transition, PropertySetter): void} [leave]
- * @property {function(any, HTMLElement): void} [update]
+ * @property {(setter: PropertySetter) => void} [init]
+ * @property {(transition: Transition, setter: PropertySetter) => void} [enter]
+ * @property {(transition: Transition, setter: PropertySetter) => void} [transition]
+ * @property {(transition: Transition, setter: PropertySetter) => void} [leave]
+ * @property {(value: any, el: HTMLElement) => void} [update]
  */
 
 /**
@@ -200,7 +200,13 @@ const registerProperty = (ctor, name, key, options = {}) => {
 }
 
 /**
- * @param {*} options
+ * @overload
+ * @param {Object} target
+ * @param {string} propertyKey
+ * @returns {void}
+ *
+ * @overload
+ * @param {{from: string | PropertyHook, to: string | PropertyHook, format: 'number' | (any) => any}} optionsOrProtoOrDescriptor
  * @returns {(target: Object, propertyKey: string | symbol) => void}
  */
 export function property(optionsOrProtoOrDescriptor, fieldName, options) {
@@ -347,6 +353,9 @@ export class Route extends Events {
     return new Proxy(this, contextProxyHandler)
   }
 
+  /**
+   * @param {HTMLElement} el
+   */
   createOutlet(el) {
     return new Region(el)
   }
