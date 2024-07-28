@@ -206,7 +206,7 @@ const registerProperty = (ctor, name, key, options = {}) => {
  * @returns {void}
  *
  * @overload
- * @param {{from: string | PropertyHook, to: string | PropertyHook, format: 'number' | (any) => any}} optionsOrProtoOrDescriptor
+ * @param {{from?: string | PropertyHook, to?: string | PropertyHook, format?: 'number' | (any) => any}} optionsOrProtoOrDescriptor
  * @returns {(target: Object, propertyKey: string | symbol) => void}
  */
 export function property(optionsOrProtoOrDescriptor, fieldName, options) {

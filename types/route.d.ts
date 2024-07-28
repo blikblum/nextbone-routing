@@ -17,7 +17,7 @@ export function elEvent(eventName: string): (target: any, propertyKey: string, d
  * @returns {void}
  *
  * @overload
- * @param {{from: string | PropertyHook, to: string | PropertyHook, format: 'number' | (any) => any}} optionsOrProtoOrDescriptor
+ * @param {{from?: string | PropertyHook, to?: string | PropertyHook, format?: 'number' | (any) => any}} optionsOrProtoOrDescriptor
  * @returns {(target: Object, propertyKey: string | symbol) => void}
  */
 export function property(target: any, propertyKey: string): void;
@@ -28,13 +28,13 @@ export function property(target: any, propertyKey: string): void;
  * @returns {void}
  *
  * @overload
- * @param {{from: string | PropertyHook, to: string | PropertyHook, format: 'number' | (any) => any}} optionsOrProtoOrDescriptor
+ * @param {{from?: string | PropertyHook, to?: string | PropertyHook, format?: 'number' | (any) => any}} optionsOrProtoOrDescriptor
  * @returns {(target: Object, propertyKey: string | symbol) => void}
  */
 export function property(optionsOrProtoOrDescriptor: {
-    from: string | PropertyHook;
-    to: string | PropertyHook;
-    format: "number" | ((any: any) => any);
+    from?: string | PropertyHook;
+    to?: string | PropertyHook;
+    format?: "number" | ((any: any) => any);
 }): (target: any, propertyKey: string | symbol) => void;
 export function getComponent(route: any): any;
 /**
