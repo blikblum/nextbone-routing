@@ -313,7 +313,7 @@ export class Route extends Events {
     const classProperties = this.constructor.__properties
     if (classProperties) {
       classProperties.forEach(({ name, to }) => {
-        if (to && !this.el) {
+        if (to) {
           el[to] = this[name]
         }
       })
