@@ -1,1 +1,1 @@
-{"version":3,"file":"router.d.ts","sourceRoot":"","sources":["../src/router.js"],"names":[],"mappings":"AAqBA;IACE,0BAQC;CAQF;sCA5BqC,sBAAsB"}
+{"version":3,"file":"router.d.ts","sourceRoot":"","sources":["../src/router.js"],"names":[],"mappings":"AAwBA;;GAEG;AACH,mDAFgB,MAAM;IAGpB,0BAQC;CAQF;uBAhCsB,UAAU;sCAFK,sBAAsB"}

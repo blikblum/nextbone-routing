@@ -48,6 +48,10 @@ export class Route extends Events {
         path: any;
         options: any;
     });
+    /**
+     * @type {HTMLElement}
+     */
+    el: HTMLElement;
     $router: any;
     $name: any;
     $path: any;
@@ -70,9 +74,19 @@ export class Route extends Events {
      * @param {*} $route
      */
     _prepareEl(el: HTMLElement, transition: Transition, $route: any): void;
-    renderEl(region: any, transition: any, $route: any): void;
-    el: any;
-    updateEl(): void;
+    /**
+     * @param {Region} [parentRegion]
+     * @param {Transition} transition
+     * @param {*} $route
+     * @param {boolean} isLast
+     * @returns
+     */
+    renderEl(parentRegion?: Region, transition: Transition, $route: any, isLast: boolean): void;
+    /**
+     * @param {Transition} transition
+     * @returns {boolean}
+     */
+    updateEl(): boolean;
     get context(): any;
     /**
      * @param {HTMLElement} el

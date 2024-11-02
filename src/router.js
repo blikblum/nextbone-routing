@@ -22,7 +22,9 @@ import 'slick-router/components/router-links.js'
 let instanceMap = Object.create(null)
 
 let router
-
+/**
+ * @implements {Events}
+ */
 export class Router extends SlickRouter {
   constructor(options = {}) {
     if (router) {
