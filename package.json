@@ -60,6 +60,7 @@
     "lint": "eslint",
     "format": "prettier --write ./src ./test",
     "test": "web-test-runner \"test/**/*.js\" --node-resolve --puppeteer",
+    "test:only": "web-test-runner --node-resolve --puppeteer",
     "test:coverage": "web-test-runner \"test/**/*.js\" --node-resolve --coverage",
     "test:ts-decorator": "web-test-runner \"test/render.js\" --config=web-test-runner.esbuild.config.mjs --node-resolve --puppeteer",
     "types": "tsc --project tsconfig.types.json"
