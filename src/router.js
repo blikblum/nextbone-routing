@@ -15,6 +15,10 @@ import { Region } from 'nextbone/dom-utils'
 import { Route, getComponent } from './route'
 import 'slick-router/components/router-links.js'
 
+/**
+ * @import { Transition } from 'slick-router/core.js'
+ */
+
 let instanceMap = Object.create(null)
 
 let router
@@ -140,6 +144,11 @@ function getParentRegion(routes, route) {
   return router.rootOutlet || resolveRootOutlet()
 }
 
+/**
+ * @param {Route[]} instances
+ * @param {Route[]} activated
+ * @param {Transition} transition
+ */
 async function renderElements(instances, activated, transition) {
   // ensure at least the target (last) route is rendered
   const renderCandidates = activated.length ? activated : instances.slice(-1)
@@ -153,7 +162,10 @@ async function renderElements(instances, activated, transition) {
     }
   }
 
-  const renderQueue = renderCandidates.reduce(function (memo, instance) {
+  /**
+   * @type {Route[]}
+   */
+  const routesToRender = renderCandidates.reduce(function (memo, instance) {
     if (getComponent(instance)) {
       if (memo.length && memo[memo.length - 1].$options.outlet === false) {
         memo.pop()
@@ -163,9 +175,10 @@ async function renderElements(instances, activated, transition) {
     return memo
   }, [])
 
-  for (const instance of renderQueue) {
+  for (const [index, instance] of routesToRender.entries()) {
     const parentRegion = getParentRegion(instances, instance)
-    instance.renderEl(parentRegion, transition, routeState)
+    const isLast = index === routesToRender.length - 1
+    instance.renderEl(parentRegion, transition, routeState, isLast)
     await instance.el.updateComplete
   }
 }
@@ -197,6 +210,10 @@ function isTargetRoute(route) {
 }
 
 const middleware = {
+  /**
+   * @param {Transition} transition
+   * @returns
+   */
   resolve: async function routeResolver(transition) {
     transition.isActivating = isActivatingRoute
     transition.isTarget = isTargetRoute

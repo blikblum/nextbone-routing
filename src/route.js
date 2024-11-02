@@ -238,6 +238,11 @@ export function property(optionsOrProtoOrDescriptor, fieldName, options) {
 }
 
 export class Route extends Events {
+  /**
+   * @type {HTMLElement}
+   */
+  el
+
   constructor(classOptions, router, { name, path, options }) {
     super()
     this.$router = router
@@ -325,8 +330,22 @@ export class Route extends Events {
     if (this.prepareEl) this.prepareEl(el, transition)
   }
 
-  renderEl(region, transition, $route) {
-    if (this.el && this.updateEl(transition)) return
+  /**
+   * @param {Region} [parentRegion]
+   * @param {Transition} transition
+   * @param {*} $route
+   * @param {boolean} isLast
+   * @returns
+   */
+  renderEl(parentRegion, transition, $route, isLast) {
+    if (this.el && this.updateEl(transition)) {
+      const region = outletRegionMap.get(this.el)
+      if (isLast && region) {
+        region.empty()
+      }
+
+      return
+    }
 
     const el = createElement(this, getComponent(this))
     if (!el) {
@@ -337,8 +356,8 @@ export class Route extends Events {
     if (this.constructor._elEvents) bindElEvents(this, el, this.constructor._elEvents)
     this._prepareEl(el, transition, $route)
     el.$router = this.$router
-    if (region) {
-      region.show(el)
+    if (parentRegion) {
+      parentRegion.show(el)
     } else if (!el.isConnected) {
       // if region is undefined means no rootOutlet is defined
       throw new Error('No root outlet region defined')
@@ -347,6 +366,10 @@ export class Route extends Events {
     this.$router.trigger('render', this)
   }
 
+  /**
+   * @param {Transition} transition
+   * @returns {boolean}
+   */
   updateEl() {}
 
   get context() {

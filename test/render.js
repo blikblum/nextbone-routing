@@ -254,6 +254,7 @@ describe('Render', () => {
           router.rootOutlet,
           transition,
           sinon.match(normalizeState(transition)),
+          true,
         )
       })
     })

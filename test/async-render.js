@@ -2,7 +2,6 @@
 
 import { Route, Router } from '../src/index'
 import { withEvents } from 'nextbone'
-import { defineCE } from '@open-wc/testing-helpers'
 import { LitElement, html } from 'lit-element'
 import { expect, use } from 'chai'
 import { chaiDomDiff } from '@open-wc/semantic-dom-diff'
@@ -26,7 +25,8 @@ class ParentView extends withEvents(LitElement) {
   }
 }
 
-const parentTag = defineCE(ParentView)
+const parentTag = 'parent-view'
+customElements.define(parentTag, ParentView)
 
 class ChildView extends LitElement {
   createRenderRoot() {
@@ -39,7 +39,8 @@ class ChildView extends LitElement {
   }
 }
 
-const childTag = defineCE(ChildView)
+const childTag = 'child-view'
+customElements.define(childTag, ChildView)
 
 class GrandChildView extends LitElement {
   createRenderRoot() {
@@ -51,18 +52,29 @@ class GrandChildView extends LitElement {
   }
 }
 
-const grandChildTag = defineCE(GrandChildView)
+const grandChildTag = 'grandchild-view'
+customElements.define(grandChildTag, GrandChildView)
 
 describe('Async Render', () => {
+  /**
+   * @type {HTMLElement}
+   */
+  let outlet
+  let updateElResult = false
   beforeEach(() => {
     document.body.innerHTML = '<div id="main"></div>'
+    outlet = document.getElementById('main')
     router = new Router({
       location: 'memory',
-      outlet: document.getElementById('main'),
+      outlet,
     })
     ParentRoute = class extends Route {
       component() {
         return ParentView
+      }
+
+      updateEl() {
+        return updateElResult
       }
     }
     ChildRoute = class extends Route {}
@@ -116,8 +128,65 @@ describe('Async Render', () => {
       await routeEl.updateComplete
       const el = document.getElementById('main')
       expect(el).lightDom.to.equal(
-        `<${parentTag}><div class="child-el"><${childTag}><h2>Child</h2><router-outlet><${grandChildTag}>Grandchild</${grandChildTag}></router-outlet></${childTag}></div></${parentTag}>`,
+        `<parent-view>
+          <div class="child-el">
+            <child-view>
+              <h2>Child</h2>
+              <router-outlet>
+                <grandchild-view>Grandchild</grandchild-view>
+              </router-outlet>
+            </child-view>
+          </div>
+        </parent-view>`,
       )
     })
+  })
+
+  it('should remove the deactivated elements when transitioning from a child route', async () => {
+    await router.transitionTo('grandchild')
+    await router.transitionTo('parent')
+    expect(outlet).lightDom.to.equal(`<parent-view>
+      <div class="child-el"></div>
+    </parent-view>`)
+    const parentEl = outlet.children[0]
+    expect(parentEl).lightDom.to.equal('<div class="child-el"></div>')
+  })
+
+  it('should not remove the child elements of first deactivated element when transitioning from a child route', async () => {
+    await router.transitionTo('grandchild')
+    const parentEl = outlet.children[0]
+    const childEl = parentEl.querySelector('child-view')
+    await router.transitionTo('parent')
+    expect(childEl).lightDom.to.equal(`
+      <h2>Child</h2>
+      <router-outlet>
+        <grandchild-view>Grandchild</grandchild-view>
+      </router-outlet>
+    `)
+  })
+
+  it('should remove the deactivated elements when transitioning from a child route to a reusable el', async () => {
+    updateElResult = true
+    await router.transitionTo('grandchild')
+    await router.transitionTo('parent')
+    expect(outlet).lightDom.to.equal(`<parent-view>
+      <div class="child-el"></div>
+    </parent-view>`)
+    const parentEl = outlet.children[0]
+    expect(parentEl).lightDom.to.equal('<div class="child-el"></div>')
+  })
+
+  it('should not remove the child elements of first deactivated element when transitioning from a child route to a reusable el', async () => {
+    updateElResult = true
+    await router.transitionTo('grandchild')
+    const parentEl = outlet.children[0]
+    const childEl = parentEl.querySelector('child-view')
+    await router.transitionTo('parent')
+    expect(childEl).lightDom.to.equal(`
+      <h2>Child</h2>
+      <router-outlet>
+        <grandchild-view>Grandchild</grandchild-view>
+      </router-outlet>
+    `)
   })
 })
