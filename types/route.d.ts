@@ -95,7 +95,7 @@ export class Route extends Events {
     getOutlet(): any;
     destroy(): void;
 }
-export type PropertySetter = (value: any) => void;
+export type PropertySetter = (value: any, format?: string | ((any: any) => any)) => void;
 export type PropertyHook = {
     init?: (setter: PropertySetter) => void;
     enter?: (transition: Transition, setter: PropertySetter) => void;

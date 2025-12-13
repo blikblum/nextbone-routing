@@ -25,7 +25,7 @@
     "types"
   ],
   "dependencies": {
-    "slick-router": "^3.0.1"
+    "slick-router": "^3.0.2"
   },
   "peerDependencies": {
     "lodash-es": "^4.17.21",
@@ -63,7 +63,7 @@
     "test:only": "web-test-runner --node-resolve --puppeteer",
     "test:coverage": "web-test-runner \"test/**/*.js\" --node-resolve --coverage",
     "test:ts-decorator": "web-test-runner \"test/render.js\" --config=web-test-runner.esbuild.config.mjs --node-resolve --puppeteer",
-    "types": "tsc --project tsconfig.types.json"
+    "types": "tsc --project tsconfig.types.json && node tools/patchRouterTypes.js"
   },
   "packageManager": "yarn@4.3.0"
 }

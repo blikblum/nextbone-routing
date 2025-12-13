@@ -23,6 +23,7 @@ const getPath = (object, path, value) => {
 /**
  * @callback PropertySetter
  * @param {*} value
+ * @param {string | (any) => any} [format]
  * @returns {void}
  */
 

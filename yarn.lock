@@ -4304,7 +4304,7 @@ __metadata:
     prettier: "npm:^3.3.2"
     sinon: "npm:^8.0.2"
     sinon-chai-es: "npm:^3.7.0"
-    slick-router: "npm:^3.0.1"
+    slick-router: "npm:^3.0.2"
     typescript: "npm:^5.5.4"
   peerDependencies:
     lodash-es: ^4.17.21
@@ -5106,12 +5106,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"slick-router@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "slick-router@npm:3.0.1"
+"slick-router@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "slick-router@npm:3.0.2"
   dependencies:
     regexparam: "npm:^3.0.0"
-  checksum: 10c0/c812f687af6880b69e1b3dada0b397e5bdb9171c6b01e8b65faadbc6cd79a12e397b149e21b313bd599aea77ef0b93cd3797053db7b59afac0651d60d39a5beb
+  checksum: 10c0/ff528b48fd28baeb775c5953f5e5c5db3a74a61640d7eaf3f7bcef2e66e7f6696deb67895587d45037ec187105655a3b7a9b44dbfdb05570497db0325664f7a5
   languageName: node
   linkType: hard
 
